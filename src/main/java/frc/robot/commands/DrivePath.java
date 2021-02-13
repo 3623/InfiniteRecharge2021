@@ -12,7 +12,7 @@ import frc.controls.CubicSplineFollower.Waypoint;
 import frc.robot.subsystems.Drivetrain;
 import frc.util.Pose;
 
-public class DrivePath extends Command {
+public class DrivePath extends CommandBase {
 
     private final Drivetrain dt;
     private Pose startPose;
