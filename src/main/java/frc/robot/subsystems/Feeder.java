@@ -20,25 +20,29 @@ import frc.robot.Constants;
 public class Feeder extends SubsystemBase {
 
     private WPI_VictorSPX feederSPX;
-    private boolean status = false;
+    private boolean running = false;
+    private final int TOTAL_REDUCTION = 14;
 
     public Feeder() {
         feederSPX = new WPI_VictorSPX(Constants.Shooter.FEEDER_MOTOR_SPX);
-        
     }
 
     public void run(double feederSpeed) {
         feederSPX.set(ControlMode.PercentOutput, feederSpeed);
-        status = true;
+        running = true;
     }
 
     public void stop() {
         feederSPX.set(ControlMode.PercentOutput, 0.0);
-        status = false;
+        running = false;
     }
 
-    public boolean getStatus(){
-        return status;
+    public boolean getRunning(){
+        return running;
+    }
+
+    public double getTheoreticalSpeed(){
+        return feederSPX.get()*21020/TOTAL_REDUCTION;
     }
 
 }

@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.modeling.FieldPositions;
+import frc.robot.Robot;
 import frc.util.Geometry;
 import frc.util.Pose;
 import frc.util.Utils;
@@ -23,6 +24,7 @@ public class Shooter extends TerribleSubsystem {
     private Feeder feeder;
     private Hood hood;
     private Flywheel flywheel;
+    private Spindexer indexer;
 
     private static final double AIM_THRESHOLD = 2.0;
     // degrees, +/- that shooter will stil aim for inner port, outside it will shoot at target
@@ -72,6 +74,7 @@ public class Shooter extends TerribleSubsystem {
         hood = new Hood();
         feeder = new Feeder();
         flywheel = new Flywheel();
+        indexer = Robot.spindexer;
         limeCam= new HttpCamera("limelight",
                                    "http://limelight.local:5800/stream.mjpg");
         this.updateThreadStart();
@@ -139,7 +142,8 @@ public class Shooter extends TerribleSubsystem {
             setAngle(innerPortAngle);
             setDistance(targetDistance);
             readyToFire = Utils.withinThreshold(targetX, 0.0, AIM_THRESHOLD);
-            readyToFire &= flywheel.isAtSpeed(); // TODO check hood;
+            readyToFire &= flywheel.isAtSpeed();
+            readyToFire &= indexer.isReady(); // TODO check hood;
         }
         // Decide when to localize odometry if there is a vision target
         // Might be a time for filters!
