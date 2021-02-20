@@ -19,21 +19,21 @@ import frc.robot.Constants;
 // TODO make this velocity closed loop
 public class Feeder extends SubsystemBase {
 
-    private WPI_VictorSPX feederSPX;
+    private WPI_TalonSRX feederSRX;
     private boolean running = false;
     private final int TOTAL_REDUCTION = 14;
 
     public Feeder() {
-        feederSPX = new WPI_VictorSPX(Constants.Shooter.FEEDER_MOTOR_SPX);
+        feederSRX = new WPI_TalonSRX(Constants.Shooter.FEEDER_MOTOR_SRX);
     }
 
     public void run(double feederSpeed) {
-        feederSPX.set(ControlMode.PercentOutput, feederSpeed);
+        feederSRX.set(ControlMode.PercentOutput, feederSpeed);
         running = true;
     }
 
     public void stop() {
-        feederSPX.set(ControlMode.PercentOutput, 0.0);
+        feederSRX.set(ControlMode.PercentOutput, 0.0);
         running = false;
     }
 
@@ -42,7 +42,7 @@ public class Feeder extends SubsystemBase {
     }
 
     public double getTheoreticalSpeed(){
-        return feederSPX.get()*21020/TOTAL_REDUCTION;
+        return feederSRX.get()*21020/TOTAL_REDUCTION;
     }
 
 }

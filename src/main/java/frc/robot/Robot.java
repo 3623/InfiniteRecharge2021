@@ -34,6 +34,8 @@ public class Robot extends TimedRobot {
     private Button intakeButton;
     private Button shooterButton;
     private Button trenchDriveButton;
+    private Button indexEngageButton;
+    private Button feedEngageButton;
     // private Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -50,6 +52,8 @@ public class Robot extends TimedRobot {
         intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.1));
         trenchDriveButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.1));
         shooterButton = new Button(() -> operator.getXButton());
+        feedEngageButton = new Button(() -> operator.getAButton());
+        indexEngageButton = new Button(() -> operator.getYButton());
         drivetrain = new Drivetrain();
         // shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
@@ -64,12 +68,16 @@ public class Robot extends TimedRobot {
 
         drivetrain.setDefaultCommand(
                 new DriverControl(drivetrain, () -> driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
+        feed.setDefaultCommand(new RunCommand(() -> feed.stop(), feed));
+        spindexer.setDefaultCommand(new RunCommand(() -> spindexer.stopSpinning(), spindexer));
 
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
         // shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
         trenchDriveButton
                 .whileActiveOnce(new AssistedTrenchDrive(drivetrain, () -> driver.getTriggerAxis(Hand.kRight)));
         // TODO Remove below testing Commands 
+        indexEngageButton.toggleWhenPressed(new RunCommand(() -> spindexer.setShooting(true),spindexer));
+        feedEngageButton.toggleWhenPressed(new RunCommand(() -> feed.run(0.9),feed));   
     }
 
 

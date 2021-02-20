@@ -36,6 +36,7 @@ public class Spindexer extends SubsystemBase {
 
     public Spindexer() {
         spindexerSPX = new WPI_VictorSPX(Constants.Shooter.SPINDEXER_MOTOR_SPX);
+        spindexerSPX.setInverted(true);
         //spinCoder = new Encoder(0, 1);
     }
 
@@ -83,5 +84,12 @@ public class Spindexer extends SubsystemBase {
 
     public boolean getShooting(){
         return shooting;
+    }
+
+    public void stopSpinning(){
+        spindexerSPX.set(ControlMode.PercentOutput, 0.0);
+        shooting = false;
+        indexing = false;
+        readying = false;
     }
 }
