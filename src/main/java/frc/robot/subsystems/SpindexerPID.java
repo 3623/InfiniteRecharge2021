@@ -17,7 +17,6 @@ public class SpindexerPID extends PIDSubsystem {
     WPI_VictorSPX motor;
     public static final double SHOOT_TIME = 1.5;
     public static final double INDEX_TIME = 5.0;
-    private static final double READY_SPEED = 0.2;
     private static final double INDEX_SPEED = 0.4;
     private static final double SHOOT_SPEED = 0.9;
     private boolean indexing = false;
@@ -33,6 +32,8 @@ public class SpindexerPID extends PIDSubsystem {
     private static final double kI = kP / 500.0;
     private static final double kD = kP * 0.1;
     private static final double DEADBAND = .25;
+    private int roundedPosition;
+    private double tenthsOfRounded;
 
     public SpindexerPID() {
         super(new PIDController(kP, kI, kD));
@@ -47,7 +48,20 @@ public class SpindexerPID extends PIDSubsystem {
 
     public void monitor() {
         SmartDashboard.putNumber("Current Segment", encoder.getDistance() % 5 + 1);
+        updatePositionVars();
+    }
 
+    private void updatePositionVars(){
+        roundedPosition = getWholeSegments();
+        tenthsOfRounded = getTenthsOfSegments();
+    }
+
+    private int getWholeSegments(){
+        return (int) Math.round(encoder.getDistance());
+    }
+
+    private double getTenthsOfSegments(){
+        return encoder.getDistance() - roundedPosition;
     }
 
     /**
@@ -69,37 +83,40 @@ public class SpindexerPID extends PIDSubsystem {
     /**
      * @param readyUp True if trying to be in position to shoot
      */
-    public void setReadyingUp(boolean readyUp) {
-        this.readying = readyUp;
+    public void setReadying(boolean readying) {
+        this.readying = readying;
         chooseOutput();
     }
 
     public boolean isReady(){
         boolean readyState = false;
-        int integerPortion = (int)encoder.getDistance();
-        double decimalPortion = encoder.getDistance() - integerPortion;
-        if (decimalPortion > 0.9 || decimalPortion < 0.1) readyState = true;
+        if (tenthsOfRounded > 0.9 || tenthsOfRounded < 0.1)
+            readyState = true;
         return readyState;
     }
 
     private void chooseOutput() {
         if (shooting) setSpinning(SHOOT_SPEED);
         else if (indexing) setSpinning(INDEX_SPEED);
-        else if (isReady() && readying) setSpinning(0.0);
-        else if (!isReady() && readying) setSpinningPID();
-        else setSpinningPID();
+        else if (isReady() && readying) setSpinningPID(encoder.getDistance());
+        else if (!isReady() && readying) setSpinningPID(roundedPosition+1);
+        else setSpinningPID(encoder.getDistance());
     }
 
     private void setSpinning(double speed) {
         motor.set(ControlMode.PercentOutput, speed);
     }
 
-    private void setSpinningPID(){
-        motor.set(ControlMode.Position, (double)Math.round(encoder.getDistance()));
+    private void setSpinningPID(double position){
+        motor.set(ControlMode.Position, position);
     }
 
     public boolean getShooting(){
         return shooting;
+    }
+
+    public void moveOneSegment(boolean direction){
+        
     }
 
     @Override
