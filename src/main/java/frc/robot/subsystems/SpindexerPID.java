@@ -115,8 +115,11 @@ public class SpindexerPID extends PIDSubsystem {
         return shooting;
     }
 
-    public void moveOneSegment(boolean direction){
-        
+    public void stop(){
+        motor.set(ControlMode.PercentOutput, 0.0);
+        shooting = false;
+        indexing = false;
+        readying = false;
     }
 
     @Override
