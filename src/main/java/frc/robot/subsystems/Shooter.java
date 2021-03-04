@@ -127,6 +127,8 @@ public class Shooter extends TerribleSubsystem {
             }
         else if (shooting) {
             setDistance(targetDistance);
+            readyToFire = flywheel.isAtSpeed();
+            readyToFire &= indexer.isReady();
         }
     }
 

@@ -66,7 +66,7 @@ public class Spindexer extends SubsystemBase {
 
     public boolean isReady(){
         boolean readyState = false;
-        if (spindexerInPosition.get() == true) readyState = true;
+        if (/*spindexerInPosition.get() ==*/ true) readyState = true;
         return readyState;
     }
 

@@ -41,7 +41,7 @@ public class Robot extends TimedRobot {
     private Intake intake;
     public static Spindexer spindexer;
     private Feeder feed;
-    // private Shooter shooter;
+    private Shooter shooter;
 
     AnalogInput transducer = new AnalogInput(0);
 
@@ -55,7 +55,7 @@ public class Robot extends TimedRobot {
         feedEngageButton = new Button(() -> operator.getAButton());
         indexEngageButton = new Button(() -> operator.getYButton());
         drivetrain = new Drivetrain();
-        // shooter = new Shooter(drivetrain.model.center);
+        shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
         spindexer = new Spindexer();
         feed = new Feeder();
@@ -68,11 +68,12 @@ public class Robot extends TimedRobot {
 
         drivetrain.setDefaultCommand(
                 new DriverControl(drivetrain, () -> driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
-        feed.setDefaultCommand(new RunCommand(() -> feed.stop(), feed));
-        spindexer.setDefaultCommand(new RunCommand(() -> spindexer.stopSpinning(), spindexer));
+        // feed.setDefaultCommand(new RunCommand(() -> feed.stop(), feed));
+        // spindexer.setDefaultCommand(new RunCommand(() -> spindexer.stopSpinning(), spindexer));
+        shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
 
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
-        // shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
+        shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
         trenchDriveButton
                 .whileActiveOnce(new AssistedTrenchDrive(drivetrain, () -> driver.getTriggerAxis(Hand.kRight)));
         // TODO Remove below testing Commands 
@@ -91,7 +92,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         drivetrain.disable();
-        // shooter.disable();
+        shooter.disable();
     }
 
 
@@ -125,8 +126,8 @@ public class Robot extends TimedRobot {
         // stop running autonomous command
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
         drivetrain.setShiftMode(true);
-        // shooter.enable();
-        // shooter.setDistance(0.0);
+        shooter.enable();
+        shooter.setDistance(0.0);
 
     }
 
