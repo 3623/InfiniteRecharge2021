@@ -58,7 +58,6 @@ public class Robot extends TimedRobot {
         shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
         spindexer = new Spindexer();
-        feed = new Feeder();
         // climber = new Climber();
 
         // Set up Port Forwarding so we can access Limelight over USB tether to robot.
@@ -77,8 +76,8 @@ public class Robot extends TimedRobot {
         trenchDriveButton
                 .whileActiveOnce(new AssistedTrenchDrive(drivetrain, () -> driver.getTriggerAxis(Hand.kRight)));
         // TODO Remove below testing Commands 
-        indexEngageButton.toggleWhenPressed(new RunCommand(() -> spindexer.setShooting(true),spindexer));
-        feedEngageButton.toggleWhenPressed(new RunCommand(() -> feed.run(0.9),feed));   
+        // indexEngageButton.toggleWhenPressed(new RunCommand(() -> spindexer.setShooting(true),spindexer));
+        // feedEngageButton.toggleWhenPressed(new RunCommand(() -> feed.run(0.9),feed));   
     }
 
 
@@ -127,8 +126,6 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
         drivetrain.setShiftMode(true);
         shooter.enable();
-        shooter.setDistance(0.0);
-
     }
 
 

@@ -47,6 +47,10 @@ public class Shooter extends TerribleSubsystem {
     NetworkTableEntry targets = Lime.getEntry("tv"); // Valid Targets (0 or 1)
     private HttpCamera limeCam;
 
+    public boolean prepareStart = false, 
+                prepareDone = false, 
+                fireStart = false, 
+                fireEnd = false;
 
     private final double LIMELIGHT_ELEVATION_OFFSET = 20.5; // deg
     private final double TARGET_RELATIVE_HEIGHT = 2.0; // meters
@@ -127,8 +131,7 @@ public class Shooter extends TerribleSubsystem {
             }
         else if (shooting) {
             setDistance(targetDistance);
-            readyToFire = flywheel.isAtSpeed();
-            readyToFire &= indexer.isReady();
+            readyToFire = flywheel.isAtSpeed() && Robot.spindexer.isReady();
         }
     }
 
@@ -165,7 +168,7 @@ public class Shooter extends TerribleSubsystem {
      *
      * @param angle - in global coordinations
      */
-    public void setAngle(double angle) { // This is only public for testing
+    private void setAngle(double angle) { // This is only public for testing
         turret.setSetpoint(Geometry.limitAngleDegrees(angle - robotPose.heading));
     }
 
@@ -174,7 +177,7 @@ public class Shooter extends TerribleSubsystem {
      * TODO make this do something smart
      * @param angle
      */
-    public void setDistance(double distance) {
+    private void setDistance(double distance) {
         flywheel.setSpeed(4200.0);
         // hood.setSetpoint(0.0);
     }
@@ -206,6 +209,10 @@ public class Shooter extends TerribleSubsystem {
         hood.disable();
         flywheel.disable();
         feeder.stop();
+        prepareStart = false; 
+        prepareDone = false;
+        fireStart = false; 
+        fireEnd = false;
     }
 
     public void enable() {
@@ -228,6 +235,12 @@ public class Shooter extends TerribleSubsystem {
         display("Distance", targetDistance);
         display("Angle", targetAngle);
         display("Inner port", innerPortAngle);
+        display("Shooter Prepare Started", prepareStart);
+        display("Shooter Prepare Done", prepareDone);
+        display("Shooter Fire Start", fireStart);
+        display("Shooter Fire Done", fireEnd);
+        display("Ready to Fire Overall", readyToFire);
+        display("At Speed", flywheel.isAtSpeed());
         turret.monitor();
         hood.monitor();
     }

@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Spindexer;
@@ -25,15 +26,16 @@ public class ShootCommand extends SequentialCommandGroup{
         public Prepare(Shooter shooter, Spindexer spindexer) {
             this.spindexer = spindexer;
             this.shooter = shooter;
-            addRequirements(shooter);
+            addRequirements(this.shooter, this.spindexer);
         }
 
         @Override
         public void initialize() {
             super.initialize();
             shooter.seekTarget(Target.GOAL);
+            shooter.fire();
             //spindexer.setShooting(true);
-            
+            shooter.prepareStart = true;
         }
 
         @Override
@@ -46,8 +48,14 @@ public class ShootCommand extends SequentialCommandGroup{
         }
 
         public void end(boolean interrupted){
-            if (!interrupted)
+            if (!interrupted){
                 shooter.fire();
+                shooter.prepareDone = true;
+            }
+            else {
+                shooter.disable();
+                spindexer.stopSpinning();
+            }
         }
     }
 
@@ -58,12 +66,13 @@ public class ShootCommand extends SequentialCommandGroup{
         private Fire(Shooter shooter, Spindexer spindexer) {
             this.shooter = shooter;
             this.spindexer = spindexer;
-            addRequirements(shooter);
+            addRequirements(shooter, spindexer);
         }
 
         @Override
         public void initialize() {
             spindexer.setShooting(true);
+            shooter.fireStart = true;
         }
 
         @Override
