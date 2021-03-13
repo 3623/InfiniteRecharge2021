@@ -37,7 +37,7 @@ public class Spindexer extends TerribleSubsystem {
     public Spindexer() {
         spindexerSPX = new WPI_VictorSPX(Constants.Shooter.SPINDEXER_MOTOR_SPX);
         spindexerSPX.setInverted(true);
-        //spinCoder = new Encoder(0, 1);
+        //spinCoder = new Encoder(2, 3);
     }
 
     /**

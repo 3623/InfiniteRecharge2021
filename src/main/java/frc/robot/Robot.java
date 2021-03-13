@@ -34,16 +34,13 @@ public class Robot extends TimedRobot {
     private Button intakeButton;
     private Button shooterButton;
     private Button trenchDriveButton;
-    private Button indexEngageButton;
-    private Button feedEngageButton;
     // private Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
     public static Spindexer spindexer;
-    private Feeder feed;
     private Shooter shooter;
 
-    AnalogInput transducer = new AnalogInput(0);
+    AnalogInput transducer = new AnalogInput(1);
 
     @Override
     public void robotInit() {
@@ -52,8 +49,6 @@ public class Robot extends TimedRobot {
         intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.1));
         trenchDriveButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.1));
         shooterButton = new Button(() -> operator.getXButton());
-        feedEngageButton = new Button(() -> operator.getAButton());
-        indexEngageButton = new Button(() -> operator.getYButton());
         drivetrain = new Drivetrain();
         shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
@@ -140,6 +135,8 @@ public class Robot extends TimedRobot {
         if (driver.getStartButtonPressed()) {
             drivetrain.zeroSensors();
         }
+
+        shooter.moveHood(-operator.getY(Hand.kRight));
 
         // double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
         // double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));

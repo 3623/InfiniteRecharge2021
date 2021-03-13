@@ -130,7 +130,6 @@ public class SpindexerPID extends PIDSubsystem {
 
     @Override
     protected double getMeasurement() {
-        // TODO Auto-generated method stub
-        return 0;
+        return encoder.getDistance();
     }
 }

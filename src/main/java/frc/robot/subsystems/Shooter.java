@@ -226,7 +226,12 @@ public class Shooter extends TerribleSubsystem {
 
     public void zeroSensors() {
         turret.zero();
-        hood.zero();
+    }
+
+    public void moveHood(double setpoint){
+        hood.enable();
+        double prevSetpoint = hood.getSetpoint();
+        hood.setSetpoint(setpoint + prevSetpoint);
     }
 
     @Override
