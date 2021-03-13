@@ -14,13 +14,13 @@ import frc.util.Utils;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Flywheel extends TerribleSubsystem {
-    private static final double SPEED_THRESHOLD = 20.0;
+    private static final double SPEED_THRESHOLD = 50.0;
     private CANSparkMax shooterMaster, shooterFollower;
     private static final double kP = 1.0/450.0;
     private static final double kI = 0.0;
     private static final double kD = 60.0;
     private static final double kIz = 0.0;
-    private static final double kFF = 1.0/5676.0;
+    private static final double kFF = 1.25/5676.0;
     private static final double kMaxOutput = 1.0;
     private static final double kMinOutput = 0.0;
     // private static final double maxRPM = 5700;
@@ -62,7 +62,7 @@ public class Flywheel extends TerribleSubsystem {
     }
 
     Boolean isAtSpeed() {
-        return Utils.withinThreshold(getVelocity(), speedSetpoint, SPEED_THRESHOLD);
+        return Utils.withinThreshold(getMotorVelocity(), speedSetpoint, SPEED_THRESHOLD);
     }
 
     public boolean getRunning() {
@@ -74,14 +74,20 @@ public class Flywheel extends TerribleSubsystem {
     }
 
     public double getVelocity() {
-        return shooterMaster.getEncoder().getVelocity() * 35.0/18.0;
+        return getMotorVelocity() * 35.0/18.0;
+    }
+
+    public double getMotorVelocity(){
+        return shooterMaster.getEncoder().getVelocity();
     }
 
     @Override
     public void periodic() {
         display("Velocity", getVelocity());
-        display("Setpoint", speedSetpoint);
+        display("Setpoint Motor RPM", speedSetpoint);
         display("Output", shooterMaster.getAppliedOutput());
+        display("Setpoint Output RPM", speedSetpoint*(35.0/18.0));
+        display("Threshold Difference", getMotorVelocity()-speedSetpoint);
     }
 
     public void disable() {

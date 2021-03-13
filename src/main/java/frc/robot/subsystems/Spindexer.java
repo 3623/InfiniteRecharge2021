@@ -19,8 +19,8 @@ import frc.robot.Constants;
 /**
 * An example subsystem. You can replace me with your own Subsystem.
 */
-public class Spindexer extends SubsystemBase {
-    public static final double SHOOT_TIME = 1.5;
+public class Spindexer extends TerribleSubsystem {
+    public static final double SHOOT_TIME = 3.5;
     public static final double INDEX_TIME = 5.0;
     private static final double READY_SPEED = 0.2;
     private static final double INDEX_SPEED = 0.4;
@@ -65,7 +65,7 @@ public class Spindexer extends SubsystemBase {
     }
 
     public boolean isReady(){
-        boolean readyState = false;
+        boolean readyState = true;
         if (/*spindexerInPosition.get() ==*/ true) readyState = true;
         return readyState;
     }
@@ -91,5 +91,9 @@ public class Spindexer extends SubsystemBase {
         shooting = false;
         indexing = false;
         readying = false;
+    }
+
+    public void periodic(){
+        display("Ready Position", isReady());
     }
 }

@@ -50,4 +50,8 @@ public class TerribleSubsystem extends SubsystemBase{
     protected void display(String key, double value) {
         SmartDashboard.putNumber(getName() + "/" + key, value);
     }
+
+    protected void display(String key, boolean value) {
+        SmartDashboard.putBoolean(getName() + "/" + key, value);
+    }
 }
