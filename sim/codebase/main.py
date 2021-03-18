@@ -8,7 +8,6 @@ from tkinter import *
 from robot import RobotModel
 import Utils
 import math
-from controls import Controls
 import threading
 import time
 from logger import Logger
@@ -22,9 +21,7 @@ class SimulationApp(App):
         # https://www.chiefdelphi.com/t/top-down-orthographic-view-of-frcs-2019-playing-field/335397/9
         self._fieldImage = self.loadImage("2019-field-blue.png")
         self.fieldImageScaled = ImageTk.PhotoImage(self._fieldImage)
-        # Citation: from cleanpng.com, contributor: georgen
-        url = "https://icon2.cleanpng.com/20180417/bxw/kisspng-steve-harvey-still-trippin-act-like-a-lady-thin-steve-jobs-5ad626cde40c49.3709911715239840779341.jpg"
-        self._robotImage = self.scaleImage(self.loadImage(url), 0.6)
+        self._robotImage = self.scaleImage(self.loadImage("robot-blue2.png"), 0.57)
         self._WAYPOINT_RADIUS = 30
         self.setAppDims()
         self.resetUserInputs()
@@ -34,38 +31,26 @@ class SimulationApp(App):
 
         self.timerDelay = 30  # milliseconds
 
-        self.robot = RobotModel(1.0, 1.0, 0.0)
-        self.leftVoltage, self.rightVoltage = 0.0, 0.0
-        self.simTime = 0.0
-        self.ODOMETRY_UPDATE_RATE = 100
-        odometryThread = threading.Thread(
-            target=self.odometryPeriodic, daemon=True)
-        odometryThread.start()
-
         self.waypoints = []
+        self.robot = RobotModel(1.0, 1.0, 0.0)
+        self.time = 0.0
+        self.UPDATE_RATE = 100
+        # odometryThread = threading.Thread(
+        #     target=self.odometryPeriodic, daemon=True)
+        # odometryThread.start()
 
-        self.controls = Controls(self.waypoints, self.robot)
-        self.CONTROLS_UPDATE_RATE = 100
-        controlThread = threading.Thread(
-            target=self.controlsPeriodic, daemon=True)
-        controlThread.start()
 
         self.logger = Logger()
         self.logger.registerLoggerDict(self.robot.logDict, "robot")
-        self.logger.registerLoggerDict(self.controls.logDict, "controls")
+        # self.logger.registerLoggerDict(self.controls.logDict, "controls")
         yAxes = [self.logger.dict["robot.heading"],
-                 self.logger.dict["robot.vel"],
-                 self.logger.dict["controls.ffSpeed"]]
+                 self.logger.dict["robot.vel"]]
         self.graph = StackedTimeGraph(self.logger.time, yAxes,
                            (self.fieldImageWidth, self.width), (self.height, 0))
 
     def resetUserInputs(self):
         self._appTime = 0
         self.releaseDelay = 0.1
-        self.inputKeys = {"Up": KeyLatch(self.releaseDelay),
-                          "Down": KeyLatch(self.releaseDelay),
-                          "Right": KeyLatch(self.releaseDelay),
-                          "Left": KeyLatch(self.releaseDelay)}
         self.autoDriving = False
         self.autoDrivingStart = False
         self.selectedWaypoint = None
@@ -79,74 +64,19 @@ class SimulationApp(App):
         if self.autoDriving:
             self.logger.log(self.simTime)
 
-    def odometryPeriodic(self):
-        while self._running:
-            deltaTime = 1.0/self.ODOMETRY_UPDATE_RATE
-            self.simTime += deltaTime
-            self.robot.updateVoltage(
-                self.leftVoltage, self.rightVoltage, deltaTime)
-            self.robot.updatePositionWithVelocity(deltaTime)
-            time.sleep(deltaTime)
-
-    def controlsPeriodic(self):
-        while self._running:
-            if self.autoDriving and self.waypoints:
-                self.driveUsingPursuit()
-            else:
-                self.driveUsingKeys()
-            time.sleep(1.0/self.CONTROLS_UPDATE_RATE)
-
-    def driveUsingPursuit(self):
-        if self.autoDrivingStart:
-            self.autoDrivingStart = False
-            self.simTime = 0.0
-            self.logger.clear()
-            startPoint = self.waypoints[self.controls.index]
-            self.robot.center.setPosition(
-                startPoint.x, startPoint.y, heading=startPoint.heading)
-        self.leftVoltage, self.rightVoltage = self.controls.updatePursuit()
-
-    def driveUsingKeys(self):
-        avgVoltage = (self.leftVoltage + self.rightVoltage) / 2.0
-        turnVoltage = 2.0
-        if self.inputKeys["Up"].getIsActive(self._appTime):
-            avgVoltage += 0.9
-        elif self.inputKeys["Down"].getIsActive(self._appTime):
-            avgVoltage -= 0.9
-        else:
-            turnVoltage = 4.0
-            if avgVoltage > 0.0:
-                avgVoltage -= 2.0
-                if avgVoltage < 0.0:
-                    avgVoltage = 0.0
-            elif avgVoltage < 0.0:
-                avgVoltage += 2.0
-                if avgVoltage > 0.0:
-                    avgVotlage = 0.0
-
-        self.leftVoltage = Utils.limit(avgVoltage, 10.0, -10.0)
-        self.rightVoltage = Utils.limit(avgVoltage, 10.0, -10.0)
-
-        if self.inputKeys["Right"].getIsActive(self._appTime):
-            self.leftVoltage += turnVoltage
-            self.rightVoltage -= turnVoltage
-        elif self.inputKeys["Left"].getIsActive(self._appTime):
-            self.leftVoltage -= turnVoltage
-            self.rightVoltage += turnVoltage
-
     def redrawAll(self, canvas):
         canvas.create_image(self.fieldImageWidth/2, self.height/2,
                             image=self.fieldImageScaled)
         robotAppX, robotAppY = self.realWorldToAppCoords(
-            self.robot.center.x, self.robot.center.y)
-        rotatedRobot = self._robotImage.rotate(-self.robot.center.heading)
+            self.robot.x, self.robot.y)
+        rotatedRobot = self._robotImage.rotate(-self.robot.heading)
         canvas.create_image(robotAppX, robotAppY,
                             image=ImageTk.PhotoImage(rotatedRobot))
 
         for i, waypoint in enumerate(self.waypoints):
             self.drawNode(canvas, waypoint, i)
 
-        paths = self.controls.getPath()
+        paths = self.robot.getPath(self.waypoints, 0)
 
         for x, path in enumerate(paths):
             if x == 0:
@@ -167,19 +97,10 @@ class SimulationApp(App):
         key = event.key
         if key == "h":
             self.superhelp()
-        elif key in self.inputKeys:
-            self.inputKeys[key].lastEventRelease = False
         elif key == "Delete":
             if self.selectedWaypoint is not None:
                 self.waypoints.remove(self.selectedWaypoint)
                 self.selectedWaypoint = None
-        elif key == "r":
-            self.autoDriving = False
-        elif key == "a":
-            if not self.autoDriving:
-                self.autoDrivingStart = True
-            self.autoDriving = not self.autoDriving
-            self.controls.reset()
         elif key == "w":
             self.incrementWaypointSpeed(0.05)
         elif key == "s":
@@ -190,12 +111,7 @@ class SimulationApp(App):
             None
 
     def keyReleased(self, event):
-        key = event.key
-        if key in self.inputKeys:
-            self.inputKeys[key].lastEventRelease = True
-            self.inputKeys[key].timeLastRelease = self._appTime
-        else:
-            None
+        None
 
     def mousePressed(self, event):
         if event.x < self.fieldImageWidth:
@@ -351,23 +267,6 @@ class Waypoint(Utils.Twist):
 
     def __repr__(self):
         return self.toString()
-
-
-class KeyLatch():
-
-    def __init__(self, delay):
-        self.timeLastRelease = -delay
-        self.delay = delay
-        self.lastEventRelease = True
-
-    def getIsActive(self, time):
-        if self.lastEventRelease == False:
-            return True
-        else:
-            if time - self.timeLastRelease < self.delay:
-                return True
-            else:
-                return False
 
 
 if __name__ == "__main__":
