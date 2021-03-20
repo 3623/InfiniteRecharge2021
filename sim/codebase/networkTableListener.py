@@ -1,3 +1,4 @@
+import subprocess
 import threading
 from networktables import NetworkTables
 
@@ -22,3 +23,12 @@ with cond:
 
 # Insert your processing code here
 print("Connected!")
+
+
+### Java stdout
+
+p = subprocess.Popen(["java", "MyClass2"], stdout=subprocess.PIPE)
+line = p.stdout.readline()
+while(line != "x\n"):
+	print(line)
+	line = p.stdout.readline()
