@@ -4,13 +4,10 @@ import math
 # Models a differential drive robot movement and motors
 
 
-class RobotModel():
+class RobotModel(Utils.Twist):
 
-    def __init__(self, x, y, heading):
-        self.center = Utils.Twist(x, y, heading)
-        self.leftSide, self.rightSide = self.DrivetrainSide(), self.DrivetrainSide()
-        self.WHEEL_BASE = 0.67  # Meters
-
+    def __init__(self, *args):
+        super().__init__(*args)
         self.logDict = {"x": None,
                         "y": None,
                         "heading": None,
@@ -19,166 +16,73 @@ class RobotModel():
                         "leftVel": None,
                         "rightVel": None}
 
-    def setPosition(self, x, y, heading):
-        self.center.setPosition(x, y, heading)
-
     def zero(self):
         self.leftSide.velocity = 0.0
         self.leftSide.acceleration = 0.0
         self.rightSide.velocity = 0.0
         self.rightSide.acceleration = 0.0
 
-    def updateVoltage(self, leftVoltage, rightVoltage, deltaTime):
-        leftVoltage = self.limitVoltage(leftVoltage, 12.0)
-        rightVoltage = self.limitVoltage(rightVoltage, 12.0)
-        self.leftSide.updateVoltage(leftVoltage, deltaTime)
-        self.rightSide.updateVoltage(rightVoltage, deltaTime)
+    def getPathGeometry(self, robotPose, curWaypoint, returnPath=False):
+        kLINE_LENGTH = 0.1
+        distanceToWaypoint = Utils.distance(robotPose.x, robotPose.y,
+                                            curWaypoint.x, curWaypoint.y)
 
-    def limitVoltage(self, voltage, max):
-        return Utils.limit(voltage, max, -max)
-
-    def updatePositionWithVelocity(self, deltaTime):
-        if self.leftSide.velocity != self.rightSide.velocity:
-            radius = self.radiusICC(
-                self.WHEEL_BASE, self.leftSide.velocity, self.rightSide.velocity)
-            omega = self.velocityICC(
-                self.WHEEL_BASE, self.leftSide.velocity, self.rightSide.velocity)
-            theta = omega * (deltaTime)
-            sinTheta = math.sin(theta)
-            alpha = ((math.pi) - theta) / 2.0
-            sinAlpha = math.sin(alpha)
-
-            movement = Utils.sideFromLawOfSines(radius, sinAlpha, sinTheta)
+        straightPathAngle = math.atan2(
+            curWaypoint.x - robotPose.x, curWaypoint.y - robotPose.y)
+        relativeAngle = robotPose.r - straightPathAngle
+        relativeOpposDist = distanceToWaypoint * math.sin(relativeAngle)
+        relativeAdjacDist = distanceToWaypoint * math.cos(relativeAngle)
+        relativeGoalAngle = robotPose.r - curWaypoint.r
+        relativeGoalAngle = Utils.limit(relativeGoalAngle,
+                                        math.pi*0.3, -math.pi*0.3)
+        relativeGoalDeriv = math.tan(relativeGoalAngle)
+        a, b = self.generateSpline(
+            relativeAdjacDist, relativeOpposDist, relativeGoalDeriv)
+        if not returnPath:
+            return a, b
         else:
-            omega, theta = 0.0, 0.0
-            movement = -(self.leftSide.velocity +
-                         self.rightSide.velocity) / 2.0 * deltaTime
+            path = []
+            cos = math.cos(robotPose.r)
+            sin = math.sin(robotPose.r)
+            x = 0
+            while abs(x) <= abs(relativeAdjacDist) \
+                    and not Utils.withinThreshold(curWaypoint.kSpeed, 0.0, 0.01):
+                y = self.getYFromCoeffs(a, b, x)
+                globalX = (x * sin) - (y * cos) + robotPose.x
+                globalY = (y * sin) + (x * cos) + robotPose.y
+                path.append((globalX, globalY))
+                x += kLINE_LENGTH
+            return path
 
-        movementAngle = self.center.r + theta
-        sine = math.sin(movementAngle)
-        cosine = math.cos(movementAngle)
-        movementX = -movement * sine
-        movementY = -movement * cosine
-        self.center.updateDeltas(movementX, movementY, deltaR=-theta)
+    def generateSpline(self, x, y, dx):
+        a = ((x * dx) - (2 * y)) / (x * x * x)
+        b = ((3 * y) - (dx * x)) / (x * x)
+        return a, b
 
-        self.center.velocity = (
-            self.leftSide.velocity + self.rightSide.velocity) / 2.0
-        self.center.angularVelocity = -math.degrees(theta) / deltaTime
+    def getYFromCoeffs(self, a, b, x):
+        return (a * x**3) + (b * x**2)
 
-        self.logDict["x"] = self.center.x
-        self.logDict["y"] = self.center.y
-        self.logDict["heading"] = self.center.heading
-        self.logDict["vel"] = self.center.velocity
-        self.logDict["angVel"] = self.center.angularVelocity
-        self.logDict["leftVel"] = self.leftSide.velocity
-        self.logDict["rightVel"] = self.rightSide.velocity
+    def getPath(self, waypoints, index):
+        path = []
+        if len(waypoints) > 1 and index != 0:
+            path.append(self.getPathGeometry(
+                self.robot, waypoints[index], True))
+        else:
+            path.append([])
+        for i, waypoint in enumerate(waypoints[:-1]):
+            path.append(self.getPathGeometry(
+                waypoint, waypoints[i+1], True))
 
-        # print(self.leftSide.velocity, self.rightSide.velocity)
+        return path
 
-    def radiusICC(self, wheelBase, left, right):
-        return -(wheelBase / 2) * (left + right) / (right - left)
+    # def updatePositionWithVelocity(self, deltaTime):
+    #     self.logDict["x"] = self.center.x
+    #     self.logDict["y"] = self.center.y
+    #     self.logDict["heading"] = self.center.heading
+    #     self.logDict["vel"] = self.center.velocity
+    #     self.logDict["angVel"] = self.center.angularVelocity
+    #     self.logDict["leftVel"] = self.leftSide.velocity
+    #     self.logDict["rightVel"] = self.rightSide.velocity
 
-    def velocityICC(self, wheelBase, left, right):
-        return (right - left) / wheelBase
+    #     # print(self.leftSide.velocity, self.rightSide.velocity)
 
-    class DrivetrainSide():
-
-        def __init__(self):
-            self.acceleration, self.velocity = 0.0, 0.0
-            self.coast = False
-            self.DRIVETRAIN_FRICTION = 115  # Newtons
-            self.GEAR_RATIO = 10.75 / 1.0  # Motor to wheel output ratio
-            self.WHEEL_RADIUS = 0.0774  # Meters
-            self.PSUEDO_MASS = 30  # kg
-            self.motors = [CIMMotor(), CIMMotor()]
-
-        def updateSpeed(self, newVel, time):
-            deltaVelocity = self.velocity - newVel
-            self.acceleration = deltaVelocity / time
-            self.velocity = newVel
-
-        def updateVoltage(self, voltage, time):
-            motorSpeed = self.wheelSpeedToMotorSpeed(self.velocity)
-            totalTorque = 0.0
-            for motor in self.motors:
-                totalTorque += motor.outputTorque(voltage,
-                                                  motorSpeed) * self.GEAR_RATIO
-
-            if self.coast and Utils.withinThreshold(voltage, 0.0, 0.05):
-                totalTorque = 0.0
-
-            wheelGrossForce = totalTorque / self.WHEEL_RADIUS
-
-            wheelNetForce = self.frictionModel(wheelGrossForce, self.velocity)
-            # print(wheelNetForce)
-            wheelGroundForce = self.tractionModel(wheelNetForce)
-
-            # This should be rotational inertia, but this is decent for now
-            newAcceleration = wheelGroundForce / self.PSUEDO_MASS
-            # Trapezoidal integration
-            self.velocity += (newAcceleration + self.acceleration) / 2 * time
-            if Utils.withinThreshold(self.velocity, 0, 0.001):
-                self.velocity = 0.0
-            self.acceleration = newAcceleration
-
-        def frictionModel(self, force, speed):
-            if Utils.withinThreshold(speed, 0.0, 0.1):
-                netForce = force
-            elif speed < 0.0:
-                netForce = force + self.DRIVETRAIN_FRICTION
-            elif speed > 0.0:
-                netForce = force - self.DRIVETRAIN_FRICTION
-            else:
-                netForce = 0.0
-            return netForce
-
-        def tractionModel(self, force):
-            staticTraction = self.PSUEDO_MASS*1.3*9.8
-            kineticTraction = self.PSUEDO_MASS*0.5*9.8
-            if force > staticTraction:
-                force = kineticTraction
-            elif force < -staticTraction:
-                force = -kineticTraction
-            return force
-
-        def wheelSpeedToMotorSpeed(self, speed):
-            wheelCircum = self.WHEEL_RADIUS * 2 * math.pi
-            wheelRevs = speed / wheelCircum * 60.0
-            motorRevs = wheelRevs * self.GEAR_RATIO
-            return motorRevs
-
-
-class Motor():
-
-    def __init__(self, stallTorque, freeSpeed, stallCurrent, freeCurrent):
-        self.STALL_TORQUE = stallTorque  # N.m
-        self.FREE_SPEED = freeSpeed  # RPM
-        self.STALL_CURRENT = stallCurrent  # Amps
-        self.FREE_CURRENT = freeCurrent  # Amps
-        self.MAX_VOLTAGE = 12.0  # Volts
-        self.kSlopeTorque = -self.STALL_TORQUE/self.FREE_SPEED
-        self.kSlopeCurrent = -(self.STALL_CURRENT -
-                               self.FREE_CURRENT) / self.FREE_SPEED
-
-    def outputTorque(self, voltage, speed):
-        stallTorque = self.STALL_TORQUE * (voltage / self.MAX_VOLTAGE)
-        torque = (speed * self.kSlopeTorque) + stallTorque
-        return torque
-
-    def torqueToVoltage(self, torque, speed):
-        return (torque - (speed*self.kSlopeTorque))*self.MAX_VOLTAGE/self.STALL_TORQUE
-        # Just solved for voltage using outputTorque equation
-
-    def currentToVoltage(self, current, speed):
-        return (current - (speed*self.kSlopeCurrent))*self.MAX_VOLTAGE/self.STALL_CURRENT
-
-
-class CIMMotor(Motor):
-
-    def __init__(self):
-        super().__init__(2.41, 5330, 130.1, 3.8)
-
-
-if __name__ == "__main__":
-    cim = CIMMotor()
-    print(cim.kSlopeTorque)
