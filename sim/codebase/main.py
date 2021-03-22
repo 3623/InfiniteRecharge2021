@@ -20,7 +20,7 @@ class SimulationApp(App):
     def appStarted(self):
         # Citation: this is a modified version of image from user BENL at link
         # https://www.chiefdelphi.com/t/top-down-orthographic-view-of-frcs-2019-playing-field/335397/9
-        self._fieldImage = self.loadImage("2019-field-blue.png")
+        self._fieldImage = self.loadImage("2020-field.png")
         self.fieldImageScaled = ImageTk.PhotoImage(self._fieldImage)
         # Citation: from cleanpng.com, contributor: georgen
         url = "https://icon2.cleanpng.com/20180417/bxw/kisspng-steve-harvey-still-trippin-act-like-a-lady-thin-steve-jobs-5ad626cde40c49.3709911715239840779341.jpg"
