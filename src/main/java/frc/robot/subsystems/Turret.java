@@ -33,7 +33,7 @@ public class Turret extends PIDSubsystem {
         getController().setTolerance(DEADBAND);
 
         turretMotor = new WPI_TalonSRX(Constants.Shooter.SHOOTER_TURRET_MOTOR_SRX);
-        turretEncoder = new Encoder(0, 1);
+        turretEncoder = new Encoder(2, 3);
         turretMotor.setNeutralMode(NeutralMode.Brake);
         turretEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
     }

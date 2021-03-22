@@ -40,7 +40,7 @@ public class SpindexerPID extends PIDSubsystem {
         getController().setTolerance(DEADBAND);
 
         motor = new WPI_VictorSPX(Constants.Shooter.SPINDEXER_MOTOR_SPX);
-        encoder = new Encoder(4, 5);
+        encoder = new Encoder(0, 1);
         motor.setNeutralMode(NeutralMode.Brake);
         motor.setInverted(true);
         encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
