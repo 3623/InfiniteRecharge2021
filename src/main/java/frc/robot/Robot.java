@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -136,7 +137,15 @@ public class Robot extends TimedRobot {
             drivetrain.zeroSensors();
         }
 
-        shooter.moveHood(-operator.getY(Hand.kRight));
+        double HoodDeadband = -operator.getY(Hand.kRight)/2.0;
+
+        if (HoodDeadband < 0.1 && HoodDeadband > -0.1) HoodDeadband = 0;
+
+        shooter.moveHood(HoodDeadband);
+
+        shooter.moveTurret(-operator.getY(Hand.kLeft));
+
+        SmartDashboard.putNumber("Hood Input Val", HoodDeadband);
 
         // double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
         // double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));

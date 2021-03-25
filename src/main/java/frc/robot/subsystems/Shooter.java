@@ -228,10 +228,14 @@ public class Shooter extends TerribleSubsystem {
         turret.zero();
     }
 
-    public void moveHood(double setpoint){
+    public void moveTurret(double output){
+        turret.runwithOutput(output);
+    }
+
+    public void moveHood(double output){
         hood.enable();
         double prevSetpoint = hood.getSetpoint();
-        hood.setSetpoint(setpoint + prevSetpoint);
+        hood.setRelative(output+prevSetpoint);
     }
 
     @Override

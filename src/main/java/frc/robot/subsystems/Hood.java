@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants;
+import frc.util.Utils;
 
 public class Hood extends PIDSubsystem {
     // WPI_VictorSPX motor;
@@ -35,8 +36,9 @@ public class Hood extends PIDSubsystem {
 
         // motor = new WPI_VictorSPX(Constants.Shooter.SHOOTER_HOOD_MOTOR_SPX);
         motor = new PWM(0);
-        motor.setBounds(1.72, 1.52, 1.5, 1.48, 1.28);
-        encoder = new Encoder(4, 5);
+        double boundCenter = 1.4;
+        motor.setBounds(boundCenter+0.5, boundCenter+0.02, boundCenter, boundCenter-0.02, boundCenter-0.5);
+        encoder = new Encoder(5, 4);
         // motor.setNeutralMode(NeutralMode.Brake);
         // motor.setInverted(true);
         encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
@@ -47,14 +49,15 @@ public class Hood extends PIDSubsystem {
         // SmartDashboard.putNumber("Shooter/Hood/Output", (int) motor.getMotorOutputPercent() * 100);
         SmartDashboard.putNumber("Shooter/Hood/Error", getController().getPositionError());
         SmartDashboard.putNumber("Shooter/Hood/Setpoint", getController().getSetpoint());
+        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundMax", motor.getRawBounds().max);
+        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundDeadMax", motor.getRawBounds().deadbandMax);
+        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundCenter", motor.getRawBounds().center);
+        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundDeadMin", motor.getRawBounds().deadbandMin);
+        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundMin", motor.getRawBounds().min);
+        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMRaw", motor.getRaw());
     }
 
     public void setPosition(double position) {
-        if (position > MAX_GOAL) {
-            position = MAX_GOAL;
-        } else if (position < MIN_GOAL) {
-            position = MIN_GOAL;
-        }
         setSetpoint(position);
     }
 
@@ -71,10 +74,11 @@ public class Hood extends PIDSubsystem {
 
     @Override
     protected void useOutput(double output, double setpoint) {
-        motor.setSpeed(output);
-    }
-
-    public void runWithOutput(double output) {
+        if (setpoint > MAX_GOAL) setpoint = MAX_GOAL;
+        if (setpoint < MIN_GOAL) setpoint = MIN_GOAL;
+        if (output < 0 && this.getMeasurement() >= MAX_GOAL) output = 0;
+        if (output > 0 && this.getMeasurement() <= MIN_GOAL) output = 0;
+        if (Utils.withinThreshold(this.getMeasurement(), setpoint, 0.5)) output = 0;
         motor.setSpeed(output);
     }
 
