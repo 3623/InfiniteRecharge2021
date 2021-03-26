@@ -30,6 +30,8 @@ public class Hood extends PIDSubsystem {
     private static final double kD = kP * 0.1;
     private static final double DEADBAND = .25;
 
+    private double lastOutput;
+
     public Hood() {
         super(new PIDController(kP, kI, kD));
         getController().setTolerance(DEADBAND);
@@ -46,7 +48,7 @@ public class Hood extends PIDSubsystem {
 
     public void monitor() {
         SmartDashboard.putNumber("Shooter/Hood/Position", this.getMeasurement() + 45);
-        // SmartDashboard.putNumber("Shooter/Hood/Output", (int) motor.getMotorOutputPercent() * 100);
+        SmartDashboard.putNumber("Shooter/Hood/RawPosition", this.getMeasurement());
         SmartDashboard.putNumber("Shooter/Hood/Error", getController().getPositionError());
         SmartDashboard.putNumber("Shooter/Hood/Setpoint", getController().getSetpoint());
         SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundMax", motor.getRawBounds().max);
@@ -54,7 +56,8 @@ public class Hood extends PIDSubsystem {
         SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundCenter", motor.getRawBounds().center);
         SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundDeadMin", motor.getRawBounds().deadbandMin);
         SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMBoundMin", motor.getRawBounds().min);
-        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMRaw", motor.getRaw());
+        SmartDashboard.putNumber("Shooter/Hood/PWM/MotorPWMSet", motor.getSpeed());
+        SmartDashboard.putNumber("Shooter/Hood/PWM/OutputValue", lastOutput);
     }
 
     public void setPosition(double position) {
@@ -74,11 +77,10 @@ public class Hood extends PIDSubsystem {
 
     @Override
     protected void useOutput(double output, double setpoint) {
-        if (setpoint > MAX_GOAL) setpoint = MAX_GOAL;
-        if (setpoint < MIN_GOAL) setpoint = MIN_GOAL;
-        if (output < 0 && this.getMeasurement() >= MAX_GOAL) output = 0;
-        if (output > 0 && this.getMeasurement() <= MIN_GOAL) output = 0;
+        if (output < 0.05 && this.getMeasurement() >= MAX_GOAL) output = 0;
+        if (output > -0.05 && this.getMeasurement() <= MIN_GOAL) output = 0;
         if (Utils.withinThreshold(this.getMeasurement(), setpoint, 0.5)) output = 0;
+        lastOutput = output;
         motor.setSpeed(output);
     }
 
