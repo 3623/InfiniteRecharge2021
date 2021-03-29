@@ -26,7 +26,7 @@ public class Hood extends SubsystemBase {
     private PWM motor;
     private Encoder encode;
 
-    private double minToMove = 0.2;
+    private double minToMove = 0.05;
 
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DISTANCE_PER_PULSE = 1.0/(((345.0 / 36.0)*TICKS_PER_ENCODER_REV) / 360.0);
