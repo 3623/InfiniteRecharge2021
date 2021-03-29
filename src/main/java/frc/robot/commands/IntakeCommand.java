@@ -4,13 +4,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.subsystems.Spindexer;
+import frc.robot.subsystems.SpindexerPID;
 import frc.robot.subsystems.Intake;
 
 public class IntakeCommand extends CommandBase{
     private Intake intake;
-    private Spindexer spindexer;
+    private SpindexerPID spindexer;
 
-    public IntakeCommand(Intake intake, Spindexer spindexer) {
+    public IntakeCommand(Intake intake, SpindexerPID spindexer) {
         this.intake = intake;
         this.spindexer = spindexer;
         addRequirements(intake);

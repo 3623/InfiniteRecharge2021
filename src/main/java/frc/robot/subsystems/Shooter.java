@@ -24,7 +24,7 @@ public class Shooter extends TerribleSubsystem {
     private Feeder feeder;
     private Hood hood;
     private Flywheel flywheel;
-    private Spindexer indexer;
+    private SpindexerPID indexer;
 
     private static final double AIM_THRESHOLD = 2.0;
     // degrees, +/- that shooter will stil aim for inner port, outside it will shoot at target

@@ -25,6 +25,7 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
+import frc.robot.subsystems.SpindexerPID;
 import frc.util.Geometry;
 
 public class Robot extends TimedRobot {
@@ -38,7 +39,7 @@ public class Robot extends TimedRobot {
     // private Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
-    public static Spindexer spindexer;
+    public static SpindexerPID spindexer;
     private Shooter shooter;
 
     private boolean POVDebounce = false;
@@ -55,7 +56,7 @@ public class Robot extends TimedRobot {
         drivetrain = new Drivetrain();
         shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
-        spindexer = new Spindexer();
+        spindexer = new SpindexerPID();
         // climber = new Climber();
 
         // Set up Port Forwarding so we can access Limelight over USB tether to robot.
