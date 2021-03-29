@@ -206,7 +206,7 @@ public class Shooter extends TerribleSubsystem {
         shooting = false;
         readyToFire = false;
         turret.disable();
-        hood.disable();
+        //hood.disable();
         flywheel.disable();
         feeder.stop();
         prepareStart = false; 
@@ -217,7 +217,7 @@ public class Shooter extends TerribleSubsystem {
 
     public void enable() {
         turret.enable();
-        hood.enable();
+        //hood.enable();
     }
 
     public void fire() {
@@ -232,10 +232,13 @@ public class Shooter extends TerribleSubsystem {
         turret.runwithOutput(output);
     }
 
-    public void moveHood(double output){
-        hood.enable();
-        double prevSetpoint = hood.getSetpoint();
-        hood.setRelative(output+prevSetpoint);
+    public void modifyHoodSet(double change){
+        hood.setSetpoint(hood.getSetpoint()+change);
+    }
+
+    public void setHoodSet(double position){
+        //hood.enable();
+        hood.setSetpoint(position);
     }
 
     @Override

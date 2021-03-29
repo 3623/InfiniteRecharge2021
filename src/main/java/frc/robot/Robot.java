@@ -41,6 +41,8 @@ public class Robot extends TimedRobot {
     public static Spindexer spindexer;
     private Shooter shooter;
 
+    private boolean POVDebounce = false;
+
     AnalogInput transducer = new AnalogInput(1);
 
     @Override
@@ -137,15 +139,17 @@ public class Robot extends TimedRobot {
             drivetrain.zeroSensors();
         }
 
-        double HoodDeadband = -operator.getY(Hand.kRight)/2.0;
-
-        if (HoodDeadband < 0.1 && HoodDeadband > -0.1) HoodDeadband = 0;
-
-        shooter.moveHood(HoodDeadband);
+        if (operator.getPOV(0) == -1) POVDebounce = false;
+        else if (POVDebounce == false){
+            POVDebounce = true;
+            if (operator.getPOV(0) == 0) shooter.modifyHoodSet(5.0);
+            else if (operator.getPOV(0) == 90) shooter.modifyHoodSet(2.5);
+            else if (operator.getPOV(0) == 180) shooter.modifyHoodSet(-5.0);
+            else if (operator.getPOV(0) == 270) shooter.modifyHoodSet(-2.5);
+            else POVDebounce = false;
+        }
 
         shooter.moveTurret(-operator.getY(Hand.kLeft));
-
-        SmartDashboard.putNumber("Hood Input Val", HoodDeadband);
 
         // double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
         // double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));
@@ -161,7 +165,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().cancelAll();
         drivetrain.model.setPosition(FieldPositions.RIGHT.START);
         // drivetrain.runTests();
-        // shooter.enable();
+        shooter.enable();
     }
 
 
