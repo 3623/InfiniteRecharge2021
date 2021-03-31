@@ -36,6 +36,7 @@ public class ShootCommand extends SequentialCommandGroup{
             shooter.seekTarget(Target.GOAL);
             shooter.fire();
             shooter.prepareStart = true;
+            spindexer.startReadying();
         }
 
         @Override
@@ -49,7 +50,6 @@ public class ShootCommand extends SequentialCommandGroup{
 
         public void end(boolean interrupted){
             if (!interrupted){
-                shooter.fire();
                 shooter.prepareDone = true;
             }
             else {
