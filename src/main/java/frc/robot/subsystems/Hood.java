@@ -51,6 +51,11 @@ public class Hood extends SubsystemBase {
         return setpoint;
     }
 
+    public boolean isReady(){
+        if (!Utils.withinThreshold(this.getMeasurement(), this.setpoint, 0.2)) return true;
+        else return false;
+    }
+
     public void setSetpoint(double setpointIn){
         if (setpointIn <= MIN_GOAL) this.setpoint = MIN_GOAL;
         else if (setpointIn >= MAX_GOAL) this.setpoint = MAX_GOAL;

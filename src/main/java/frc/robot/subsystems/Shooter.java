@@ -24,7 +24,6 @@ public class Shooter extends TerribleSubsystem {
     private Feeder feeder;
     private Hood hood;
     private Flywheel flywheel;
-    private SpindexerPID indexer;
 
     private static final double AIM_THRESHOLD = 2.0;
     // degrees, +/- that shooter will stil aim for inner port, outside it will shoot at target
@@ -78,7 +77,6 @@ public class Shooter extends TerribleSubsystem {
         hood = new Hood();
         feeder = new Feeder();
         flywheel = new Flywheel();
-        indexer = Robot.spindexer;
         limeCam= new HttpCamera("limelight",
                                    "http://limelight.local:5800/stream.mjpg");
         this.updateThreadStart();
@@ -131,7 +129,7 @@ public class Shooter extends TerribleSubsystem {
             }
         else if (shooting) {
             setDistance(targetDistance);
-            readyToFire = flywheel.isAtSpeed() && Robot.spindexer.isReady();
+            readyToFire = flywheel.isAtSpeed() && Robot.spindexer.isReady() && hood.isReady();
         }
     }
 
@@ -148,7 +146,8 @@ public class Shooter extends TerribleSubsystem {
             setDistance(targetDistance);
             readyToFire = Utils.withinThreshold(targetX, 0.0, AIM_THRESHOLD);
             readyToFire &= flywheel.isAtSpeed();
-            readyToFire &= indexer.isReady(); // TODO check hood;
+            readyToFire &= Robot.spindexer.isReady();
+            readyToFire &= hood.isReady();
         }
         // Decide when to localize odometry if there is a vision target
         // Might be a time for filters!
@@ -255,6 +254,7 @@ public class Shooter extends TerribleSubsystem {
         display("At Speed", flywheel.isAtSpeed());
         turret.monitor();
         hood.monitor();
+        Robot.spindexer.monitor();
     }
 
 }

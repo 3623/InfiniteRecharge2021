@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
 import frc.modeling.FieldPositions;
@@ -39,12 +40,22 @@ public class Robot extends TimedRobot {
     // private Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
-    public static SpindexerPID spindexer;
+    public static Spindexer spindexer;
     private Shooter shooter;
 
     private boolean POVDebounce = false;
 
     AnalogInput transducer = new AnalogInput(1);
+
+    private Button indexButton;
+
+    private Button readyButton;
+
+    private Button shootButton;
+
+    private Button unjamButton;
+
+    private Button stopSpinningButton;
 
     @Override
     public void robotInit() {
@@ -52,12 +63,17 @@ public class Robot extends TimedRobot {
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
         intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.1));
         trenchDriveButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.1));
-        shooterButton = new Button(() -> operator.getXButton());
+        //shooterButton = new Button(() -> operator.getXButton());
         drivetrain = new Drivetrain();
         shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
-        spindexer = new SpindexerPID();
+        spindexer = new Spindexer();
         // climber = new Climber();
+        indexButton = new Button(() -> operator.getAButton());
+        readyButton = new Button(() -> operator.getBButton());
+        shootButton = new Button(() -> operator.getXButton());
+        unjamButton = new Button(() -> operator.getStartButton());
+        stopSpinningButton = new Button(() -> operator.getYButton());
 
         // Set up Port Forwarding so we can access Limelight over USB tether to robot.
         PortForwarder.add(5800, "limelight.local", 5800);
@@ -71,12 +87,20 @@ public class Robot extends TimedRobot {
         shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
 
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
-        shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
+        //shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
         trenchDriveButton
                 .whileActiveOnce(new AssistedTrenchDrive(drivetrain, () -> driver.getTriggerAxis(Hand.kRight)));
         // TODO Remove below testing Commands 
         // indexEngageButton.toggleWhenPressed(new RunCommand(() -> spindexer.setShooting(true),spindexer));
         // feedEngageButton.toggleWhenPressed(new RunCommand(() -> feed.run(0.9),feed));   
+        indexButton.whenPressed(new InstantCommand(() -> spindexer.startIndex()));
+        readyButton.whenPressed(new InstantCommand(() -> spindexer.startReadying()));
+        shootButton.whenPressed(new InstantCommand(() -> spindexer.startShooting()));
+        stopSpinningButton.whenPressed(new InstantCommand(() -> spindexer.stopSpinning()));
+        unjamButton.whenPressed(new ConditionalCommand(
+                                    new InstantCommand(() -> spindexer.clearedJam()), 
+                                    new InstantCommand(() -> spindexer.startJamClear()),
+                                    spindexer::clearingJam));
     }
 
 

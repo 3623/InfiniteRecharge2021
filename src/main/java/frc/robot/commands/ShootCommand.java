@@ -6,24 +6,25 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.SpindexerPID;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Shooter.Target;
 
 public class ShootCommand extends SequentialCommandGroup{
-    public ShootCommand(Shooter shooter, SpindexerPID spindexer) {
+    public ShootCommand(Shooter shooter, Spindexer spindexer) {
         addCommands(new Prepare(shooter, spindexer),
                     new WaitCommand(0.5),
                     newFireCommand(shooter, spindexer));
     }
 
-    public static CommandBase newFireCommand(Shooter shooter, SpindexerPID spindexer) {
+    public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer) {
         return (new Fire(shooter, spindexer)).withTimeout(spindexer.SHOOT_TIME);
     }
 
     public static class Prepare extends CommandBase {
         private Shooter shooter;
-        private SpindexerPID spindexer;
+        private Spindexer spindexer;
 
-        public Prepare(Shooter shooter, SpindexerPID spindexer) {
+        public Prepare(Shooter shooter, Spindexer spindexer) {
             this.spindexer = spindexer;
             this.shooter = shooter;
             addRequirements(this.shooter, this.spindexer);
@@ -34,7 +35,6 @@ public class ShootCommand extends SequentialCommandGroup{
             super.initialize();
             shooter.seekTarget(Target.GOAL);
             shooter.fire();
-            //spindexer.setShooting(true);
             shooter.prepareStart = true;
         }
 
@@ -54,16 +54,16 @@ public class ShootCommand extends SequentialCommandGroup{
             }
             else {
                 shooter.disable();
-                spindexer.stop();
+                spindexer.stopSpinning();
             }
         }
     }
 
     private static class Fire extends CommandBase {
         private Shooter shooter;
-        private SpindexerPID spindexer;
+        private Spindexer spindexer;
 
-        private Fire(Shooter shooter, SpindexerPID spindexer) {
+        private Fire(Shooter shooter, Spindexer spindexer) {
             this.shooter = shooter;
             this.spindexer = spindexer;
             addRequirements(shooter, spindexer);
@@ -71,14 +71,13 @@ public class ShootCommand extends SequentialCommandGroup{
 
         @Override
         public void initialize() {
-            spindexer.setShooting(true);
+            spindexer.startShooting();
             shooter.fireStart = true;
         }
 
         @Override
         public void end(boolean interrupted) {
-            spindexer.setShooting(false);
-            spindexer.setIndexing(false);
+            spindexer.stopSpinning();
             shooter.disable();
         }
     }

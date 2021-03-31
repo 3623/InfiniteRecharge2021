@@ -9,9 +9,9 @@ import frc.robot.subsystems.Intake;
 
 public class IntakeCommand extends CommandBase{
     private Intake intake;
-    private SpindexerPID spindexer;
+    private Spindexer spindexer;
 
-    public IntakeCommand(Intake intake, SpindexerPID spindexer) {
+    public IntakeCommand(Intake intake, Spindexer spindexer) {
         this.intake = intake;
         this.spindexer = spindexer;
         addRequirements(intake);
@@ -20,12 +20,7 @@ public class IntakeCommand extends CommandBase{
     @Override
     public void initialize() {
         intake.setIntaking(true);
-        spindexer.setIndexing(true);
-    }
-
-    @Override
-    public void execute() {
-        spindexer.setIndexing(true);
+        spindexer.startIndex();
     }
 
     @Override
@@ -33,8 +28,8 @@ public class IntakeCommand extends CommandBase{
         // TODO keep the spinner running until shots
         intake.setIntaking(false);
         CommandScheduler.getInstance().
-            schedule(new StartEndCommand(() -> spindexer.setIndexing(true),
-                                            () -> spindexer.setIndexing(false),
+            schedule(new StartEndCommand(() -> spindexer.startIndex(),
+                                            () -> spindexer.stopSpinning(),
                                             spindexer).withTimeout(Spindexer.INDEX_TIME));
     }
 }
