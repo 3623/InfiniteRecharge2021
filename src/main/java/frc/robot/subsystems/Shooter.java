@@ -25,7 +25,7 @@ public class Shooter extends TerribleSubsystem {
     private Hood hood;
     private Flywheel flywheel;
 
-    private static final double AIM_THRESHOLD = 2.0;
+    private static final double AIM_THRESHOLD = 5.0;
     // degrees, +/- that shooter will stil aim for inner port, outside it will shoot at target
     private static final double INNER_PORT_DEPTH = 0.7; // meters
     private static final double INNER_VISIBLE_TRESHOLD = 20.0;
@@ -37,7 +37,8 @@ public class Shooter extends TerribleSubsystem {
     private double targetAngle = 0.0; // global coordinates
     private double innerPortAngle = 0.0;
     private boolean shooting = false;
-    public boolean readyToFire = false;
+    private boolean readyToFire = false;
+    public int readyToFireCountdown = 0;
 
     NetworkTable Lime = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry targetX = Lime.getEntry("tx"); // Horizontal Offset From Crosshair to Target (-27 to 27 degrees)
@@ -117,7 +118,7 @@ public class Shooter extends TerribleSubsystem {
     }
 
     private void updateBlind() {
-        targetAngle = Geometry.angleBetweenDegrees(robotPose, targetPose);
+        targetAngle = 0.0;
         targetDistance = Geometry.distance(robotPose, targetPose);
         readyToFire = false;
         setAngle(targetAngle);
@@ -130,6 +131,8 @@ public class Shooter extends TerribleSubsystem {
         else if (shooting) {
             setDistance(targetDistance);
             readyToFire = flywheel.isAtSpeed() && Robot.spindexer.isReady() && hood.isReady();
+            if (readyToFire == true) readyToFireCountdown += 1;
+            else readyToFireCountdown = 0;
         }
     }
 
@@ -148,6 +151,8 @@ public class Shooter extends TerribleSubsystem {
             readyToFire &= flywheel.isAtSpeed();
             readyToFire &= Robot.spindexer.isReady();
             readyToFire &= hood.isReady();
+            if (readyToFire == true) readyToFireCountdown += 1;
+            else readyToFireCountdown = 0;
         }
         // Decide when to localize odometry if there is a vision target
         // Might be a time for filters!
@@ -168,7 +173,7 @@ public class Shooter extends TerribleSubsystem {
      * @param angle - in global coordinations
      */
     private void setAngle(double angle) { // This is only public for testing
-        turret.setSetpoint(Geometry.limitAngleDegrees(angle - robotPose.heading));
+        turret.setSetpoint(/*Geometry.limitAngleDegrees(angle - robotPose.heading)*/angle);
     }
 
     /**
@@ -177,7 +182,7 @@ public class Shooter extends TerribleSubsystem {
      * @param angle
      */
     private void setDistance(double distance) {
-        flywheel.setSpeed(4200.0);
+        flywheel.setSpeed(7750.0);
         // hood.setSetpoint(0.0);
     }
 

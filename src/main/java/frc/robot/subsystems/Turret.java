@@ -51,7 +51,7 @@ public class Turret extends PIDSubsystem {
 
     @Override
     protected void useOutput(double output, double setpoint) {
-        turretMotor.set(ControlMode.Position, output);
+        turretMotor.set(ControlMode.PercentOutput, -output);
     }
 
     public void runwithOutput(double output) {

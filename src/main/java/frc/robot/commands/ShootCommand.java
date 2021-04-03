@@ -41,7 +41,7 @@ public class ShootCommand extends SequentialCommandGroup{
 
         @Override
         public boolean isFinished() {
-            return shooter.readyToFire;
+            return shooter.readyToFireCountdown > 30;
         }
 
         @Override
