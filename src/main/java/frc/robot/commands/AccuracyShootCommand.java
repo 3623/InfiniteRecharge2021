@@ -9,9 +9,9 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Shooter.Target;
 
-public class ShootCommand extends SequentialCommandGroup{
-    public ShootCommand(Shooter shooter, Spindexer spindexer) {
-        addCommands(new Prepare(shooter, spindexer),
+public class AccuracyShootCommand extends SequentialCommandGroup{
+    public AccuracyShootCommand(Shooter shooter, Spindexer spindexer, char zone) {
+        addCommands(new Prepare(shooter, spindexer, zone),
                     new WaitCommand(0.5),
                     newFireCommand(shooter, spindexer));
     }
@@ -23,10 +23,12 @@ public class ShootCommand extends SequentialCommandGroup{
     public static class Prepare extends CommandBase {
         private Shooter shooter;
         private Spindexer spindexer;
+        private char zone;
 
-        public Prepare(Shooter shooter, Spindexer spindexer) {
+        public Prepare(Shooter shooter, Spindexer spindexer, char zone) {
             this.spindexer = spindexer;
             this.shooter = shooter;
+            this.zone = zone;
             addRequirements(this.shooter, this.spindexer);
         }
 
@@ -34,6 +36,7 @@ public class ShootCommand extends SequentialCommandGroup{
         public void initialize() {
             super.initialize();
             shooter.seekTarget(Target.GOAL);
+            shooter.accuracyShootZoneSet(zone);
             shooter.fire();
             shooter.prepareStart = true;
             spindexer.startReadying();

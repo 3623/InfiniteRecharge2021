@@ -25,7 +25,7 @@ public class Spindexer extends TerribleSubsystem {
     public static final double INDEX_TIME = 5.0;
     private static final double READY_SPEED = 0.2;
     private static final double INDEX_SPEED = 0.4;
-    private static final double SHOOT_SPEED = 0.9;
+    private static final double SHOOT_SPEED = 0.45;
     private WPI_VictorSPX spindexerSPX;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DISTANCE_PER_PULSE = 1.0 / TICKS_PER_ENCODER_REV // Converts to Output Revolution Count
@@ -98,10 +98,10 @@ public class Spindexer extends TerribleSubsystem {
                 setSpinning(0.0);
                 break;
             case INDEX:
-                setSpinning(0.2);
+                setSpinning(INDEX_SPEED);
                 break;
             case READYING:
-                if (!isReady()) setSpinning(0.2);
+                if (!isReady()) setSpinning(READY_SPEED);
                 else {
                     spinMode = MODE.STOPPED;
                     setSpinning(0.0);
@@ -111,7 +111,7 @@ public class Spindexer extends TerribleSubsystem {
                 clearJam();
                 break;
             case SHOOTING:
-                setSpinning(0.9);
+                setSpinning(SHOOT_SPEED);
                 break;
         }
     }

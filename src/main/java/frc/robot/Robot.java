@@ -1,7 +1,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.awt.Color;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -14,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
 import frc.modeling.FieldPositions;
+import frc.robot.commands.AccuracyShootCommand;
 import frc.robot.commands.AssistedTrenchDrive;
 import frc.robot.commands.BarrelAuto;
 import frc.robot.commands.BounceAuto;
@@ -47,15 +54,14 @@ public class Robot extends TimedRobot {
 
     AnalogInput transducer = new AnalogInput(1);
 
-    private Button indexButton;
-
-    private Button readyButton;
-
-    private Button shootButton;
-
+    // private Button indexButton;
+    // private Button readyButton;
+    // private Button shootButton;
     private Button unjamButton;
+    // private Button stopSpinningButton;
 
-    private Button stopSpinningButton;
+    private Button greenZone, blueZone, redZone, yellowZone;
+    public static char zoneConfirm;
 
     @Override
     public void robotInit() {
@@ -63,17 +69,17 @@ public class Robot extends TimedRobot {
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
         intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.1));
         trenchDriveButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.1));
-        shooterButton = new Button(() -> operator.getXButton());
+        // shooterButton = new Button(() -> operator.getXButton());
         drivetrain = new Drivetrain();
         shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
         spindexer = new Spindexer();
         // climber = new Climber();
-        // indexButton = new Button(() -> operator.getAButton());
-        // readyButton = new Button(() -> operator.getBButton());
-        // shootButton = new Button(() -> operator.getXButton());
+        greenZone = new Button(() -> operator.getAButton());
+        redZone = new Button(() -> operator.getBButton());
+        blueZone = new Button(() -> operator.getXButton());
         unjamButton = new Button(() -> operator.getStartButton());
-        // stopSpinningButton = new Button(() -> operator.getYButton());
+        yellowZone = new Button(() -> operator.getYButton());
 
         // Set up Port Forwarding so we can access Limelight over USB tether to robot.
         PortForwarder.add(5800, "limelight.local", 5800);
@@ -83,24 +89,69 @@ public class Robot extends TimedRobot {
         drivetrain.setDefaultCommand(
                 new DriverControl(drivetrain, () -> driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
         // feed.setDefaultCommand(new RunCommand(() -> feed.stop(), feed));
-        // spindexer.setDefaultCommand(new RunCommand(() -> spindexer.stopSpinning(), spindexer));
+        // spindexer.setDefaultCommand(new RunCommand(() -> spindexer.stopSpinning(),
+        // spindexer));
         shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
 
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
-        shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
+        //shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
         trenchDriveButton
                 .whileActiveOnce(new AssistedTrenchDrive(drivetrain, () -> driver.getTriggerAxis(Hand.kRight)));
-        // TODO Remove below testing Commands 
-        // indexEngageButton.toggleWhenPressed(new RunCommand(() -> spindexer.setShooting(true),spindexer));
-        // feedEngageButton.toggleWhenPressed(new RunCommand(() -> feed.run(0.9),feed));   
+        // TODO Remove below testing Commands
+        // indexEngageButton.toggleWhenPressed(new RunCommand(() ->
+        // spindexer.setShooting(true),spindexer));
+        // feedEngageButton.toggleWhenPressed(new RunCommand(() -> feed.run(0.9),feed));
         // indexButton.whenPressed(new InstantCommand(() -> spindexer.startIndex()));
         // readyButton.whenPressed(new InstantCommand(() -> spindexer.startReadying()));
         // shootButton.whenPressed(new InstantCommand(() -> spindexer.startShooting()));
-        // stopSpinningButton.whenPressed(new InstantCommand(() -> spindexer.stopSpinning()));
-        unjamButton.whenPressed(new ConditionalCommand(
-                                    new InstantCommand(() -> spindexer.clearedJam()), 
-                                    new InstantCommand(() -> spindexer.startJamClear()),
-                                    spindexer::clearingJam));
+        // stopSpinningButton.whenPressed(new InstantCommand(() ->
+        // spindexer.stopSpinning()));
+        unjamButton.whenPressed(new ConditionalCommand(new InstantCommand(() -> spindexer.clearedJam()),
+                new InstantCommand(() -> spindexer.startJamClear()), spindexer::clearingJam));
+
+        greenZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new InstantCommand(() -> Robot.setZone('g')), 
+                                Robot::isGreenZone));
+
+        yellowZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new InstantCommand(() -> Robot.setZone('y')), 
+                                Robot::isYellowZone));
+
+        blueZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new InstantCommand(() -> Robot.setZone('b')), 
+                                Robot::isBlueZone));
+
+        redZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new InstantCommand(() -> Robot.setZone('r')), 
+                                Robot::isRedZone));
+    }
+
+    public static void setZone(char zone) {
+        zoneConfirm = zone;
+    }
+
+    public static char getZone(){
+        return zoneConfirm;
+    }
+
+    public static boolean isGreenZone(){
+        return zoneConfirm=='g';
+    }
+
+    public static boolean isBlueZone(){
+        return zoneConfirm=='b';
+    }
+
+    public static boolean isYellowZone(){
+        return zoneConfirm=='y';
+    }
+
+    public static boolean isRedZone(){
+        return zoneConfirm=='r';
     }
 
 
@@ -175,6 +226,13 @@ public class Robot extends TimedRobot {
         }
 
         shooter.moveTurret(-operator.getY(Hand.kLeft));
+
+        // Shuffleboard.getTab("Accuracy")
+            // .add("Zone To Shoot", false)
+            // .withWidget(BuiltInWidgets.kBooleanBox)
+            // .withProperties(Map.of("colorWhenFalse", Color.BLACK));
+
+        
 
         // double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
         // double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));

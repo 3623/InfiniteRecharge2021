@@ -129,7 +129,7 @@ public class Shooter extends TerribleSubsystem {
                 updateVision();
             }
         else if (shooting) {
-            setDistance(targetDistance);
+            setDistance(targetDistance, hood.getSetpoint());
             readyToFire = flywheel.isAtSpeed() && Robot.spindexer.isReady() && hood.isReady();
             if (readyToFire == true) readyToFireCountdown += 1;
             else readyToFireCountdown = 0;
@@ -146,7 +146,7 @@ public class Shooter extends TerribleSubsystem {
         else innerPortAngle = targetAngle;
         if (shooting) {
             setAngle(innerPortAngle);
-            setDistance(targetDistance);
+            setDistance(targetDistance, hood.getSetpoint());
             readyToFire = Utils.withinThreshold(targetX, 0.0, AIM_THRESHOLD);
             readyToFire &= flywheel.isAtSpeed();
             readyToFire &= Robot.spindexer.isReady();
@@ -167,6 +167,13 @@ public class Shooter extends TerribleSubsystem {
         return targetX + robotPose.heading + turret.getMeasurement();
     }
 
+    public void accuracyShootZoneSet(char zone){
+        if (zone == 'g') setDistance(8250.0, 0.0);
+        else if (zone == 'y') setDistance(7750.0, 22.5);
+        else if (zone == 'b') setDistance(7500.0, 25.0);
+        else if (zone == 'r') setDistance(7750.0, 17.5);
+    }
+
     /**
      * Set the turret pid setpoint, adjusted for robot rotation
      *
@@ -181,9 +188,9 @@ public class Shooter extends TerribleSubsystem {
      * TODO make this do something smart
      * @param angle
      */
-    private void setDistance(double distance) {
-        flywheel.setSpeed(7750.0);
-        // hood.setSetpoint(0.0);
+    private void setDistance(double rpm, double angle) {
+        flywheel.setSpeed(rpm);
+        hood.setSetpoint(angle);
     }
 
     /**

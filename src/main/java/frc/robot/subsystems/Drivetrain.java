@@ -23,6 +23,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import frc.controls.CubicSplineFollower;
 import frc.robot.Constants;
@@ -37,6 +38,7 @@ public class Drivetrain extends TerribleSubsystem {
 	public DrivetrainModel model;
 	private static final double ENCODER_TICKS_PER_REV = 8192.0;
 	private Shifter shifter;
+	private Solenoid motorCooler;
 
 	public CubicSplineFollower waypointNav;
 
@@ -77,6 +79,7 @@ public class Drivetrain extends TerribleSubsystem {
 	public Drivetrain() {
 		setName("Drivetrain");
 		shifter = new Shifter();
+		motorCooler = new Solenoid(Constants.Drivetrain.FALCON_COOLER_SOLENOID);
 
 		rightMaster = new WPI_TalonFX(Constants.Drivetrain.RIGHT_MOTOR_MASTER);
 		rightFollower = new WPI_TalonFX(Constants.Drivetrain.RIGHT_MOTOR_FOLLOWER);
@@ -361,6 +364,10 @@ public class Drivetrain extends TerribleSubsystem {
 		display("Radians", model.center.r);
 		display("Left Output", leftMaster.getStatorCurrent());
 		display("Right Output", rightMaster.getStatorCurrent());
+	}
+
+	public void coolFalcons(){
+		motorCooler.set(!motorCooler.get());
 	}
 
 	public static void main(String[] args) throws IOException {

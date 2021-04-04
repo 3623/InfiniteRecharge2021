@@ -32,7 +32,7 @@ public class DriverControl extends CommandBase {
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        double joystickY = -m_forward.getAsDouble();
+        double joystickY = m_forward.getAsDouble();
         double joystickR = m_rotation.getAsDouble();
         Boolean quickTurn;
         if (Math.abs(joystickY) < 0.5) quickTurn = true;

@@ -33,8 +33,11 @@ public class Intake extends SubsystemBase {
             piston.set(true);
             rollers.set(ControlMode.PercentOutput, INTAKE_SPEED);
         } else {
-            piston.set(false);
             rollers.disable();
         }
+    }
+
+    public void foldIntake(){
+        piston.set(false);
     }
 }
