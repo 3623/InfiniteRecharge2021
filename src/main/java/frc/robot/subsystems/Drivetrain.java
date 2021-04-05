@@ -370,6 +370,10 @@ public class Drivetrain extends TerribleSubsystem {
 		motorCooler.set(!motorCooler.get());
 	}
 
+	public boolean isCoolingMotors(){
+		return motorCooler.get();
+	}
+
 	public static void main(String[] args) throws IOException {
 
 	}
