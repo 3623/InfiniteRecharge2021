@@ -12,6 +12,7 @@ import threading
 import time
 from logger import Logger
 from graph import StackedTimeGraph
+from Listener import Listener
 
 
 class SimulationApp(App):
@@ -19,26 +20,26 @@ class SimulationApp(App):
     def appStarted(self):
         # Citation: this is a modified version of image from user BENL at link
         # https://www.chiefdelphi.com/t/top-down-orthographic-view-of-frcs-2019-playing-field/335397/9
-        self._fieldImage = self.loadImage("2020-field.png")
+        self._fieldImage = self.loadImage("Skills-field.png")
         self.fieldImageScaled = ImageTk.PhotoImage(self._fieldImage)
         self._robotImage = self.scaleImage(self.loadImage("robot-blue2.png"), 0.57)
         self._WAYPOINT_RADIUS = 30
         self.setAppDims()
         self.resetUserInputs()
 
-        self.FIELD_REAL_WIDTH = 8.23  # meters
-        self.FIELD_REAL_HEIGHT = 9  # 16.46
+        self.FIELD_REAL_WIDTH = 9.2  # meters
+        self.FIELD_REAL_HEIGHT = 4.6  # 16.46
 
         self.timerDelay = 30  # milliseconds
 
         self.waypoints = []
         self.robot = RobotModel(1.0, 1.0, 0.0)
         self.time = 0.0
+        self.listener = Listener()
         self.UPDATE_RATE = 100
         # odometryThread = threading.Thread(
         #     target=self.odometryPeriodic, daemon=True)
         # odometryThread.start()
-
 
         self.logger = Logger()
         self.logger.registerLoggerDict(self.robot.logDict, "robot")
@@ -80,9 +81,9 @@ class SimulationApp(App):
 
         for x, path in enumerate(paths):
             if x == 0:
-                color = "yellow"
+                color = "blue"
             else:
-                color = "white"
+                color = "blue"
             for i in range(len(path)-1):  # len(path)-1):
                 point = path[i]
                 pX1, pY1 = self.realWorldToAppCoords(point[0], point[1])
@@ -107,6 +108,9 @@ class SimulationApp(App):
             self.incrementWaypointSpeed(-0.05)
         elif key == "p":
             print(self.logger.dict["robot.vel"])
+        elif key == "d":
+            for waypoint in self.waypoints:
+                print(waypoint.toString())
         else:
             None
 
@@ -248,9 +252,7 @@ class SimulationApp(App):
         +     "  dragged to change the direction. The speed is\n"
         +     "  indicated by the color and controlled by 'w' and 's'.\n"
         +     "  The waypoint can be deleted by 'del'.\n"
-        +     "To start the robot autodriving, there must be 2 waypoints\n"
-        +     "  and a path should be shown in white. Then 'a' will start\n"
-        +     "  and stop autodriving. 'r' will reset the robot.")
+        +     "  Press d to print waypoint locations'.\n")
 
 
 class Waypoint(Utils.Twist):
