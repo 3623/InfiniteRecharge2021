@@ -279,11 +279,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-        if (driver.getBumperPressed(Hand.kRight)) {
-            drivetrain.setShiftMode(false);
-        } else if (driver.getBumperPressed(Hand.kLeft)) {
+        if (driver.getBumper(Hand.kLeft)) {
             drivetrain.setShiftMode(true);
         }
+        else drivetrain.setShiftMode(false);
 
         if (driver.getStartButtonPressed()) {
             drivetrain.zeroSensors();

@@ -211,7 +211,6 @@ public class Shooter extends TerribleSubsystem {
      * Called whenever robot is disabled and after all balls are shot
      */
     public void disable() {
-        System.out.println("Shooter disabled");
         controlState = ShooterControlState.DISABLED;
         setVision(false);
         shooting = false;

@@ -145,9 +145,9 @@ public class FieldPositions {
 		(0, 6.858)*/
 		public static final Waypoint[] A_BLUE = { 
 													//new Waypoint(-1.0, -2.5, 0.0, -1.0 * speedResponse, false),
-													new Waypoint(-1.5, -4.6, -30.0, -1.0 * speedResponse, false), //first ball
+													new Waypoint(-1.5, -4.6, -30.0, -1.0 * speedResponse, false, true), //first ball
 													//new Waypoint(0.0, -4.8, -60.0, -1.0 * speedResponse, false), 
-													new Waypoint(1.0, -5.6, 0.0, -1.0 * speedResponse, false), //second ball
+													new Waypoint(1.0, -5.6, 0.0, -1.0 * speedResponse, false, false), //second ball
 													new Waypoint(-0.3, -6.9, 30.0, -1.0 * speedResponse, false), //third ball
 													new Waypoint(-1.0, -8.8, 0.0, -1.0 * speedResponse, false), //end zone
 													new Waypoint(0.0, 0.0, 0.0, 1.0 * speedResponse, false),
