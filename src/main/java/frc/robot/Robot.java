@@ -28,6 +28,10 @@ import frc.robot.commands.AssistedTrenchDrive;
 import frc.robot.commands.BarrelAuto;
 import frc.robot.commands.BounceAuto;
 import frc.robot.commands.DriverControl;
+import frc.robot.commands.GalacticSearchABLUE;
+import frc.robot.commands.GalacticSearchARED;
+import frc.robot.commands.GalacticSearchBBLUE;
+import frc.robot.commands.GalacticSearchBRED;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.OurTrench;
 import frc.robot.commands.ShootCommand;
@@ -40,6 +44,7 @@ import frc.robot.subsystems.Spindexer;
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
     private Command barrel, slalom, bounce;
+    private Command A_RED, A_BLUE, B_RED, B_BLUE;
 
     private XboxController driver;
     private XboxController operator;
@@ -154,10 +159,22 @@ public class Robot extends TimedRobot {
         slalom = new SlalomAuto(drivetrain);
         bounce = new BounceAuto(drivetrain);
 
+        A_RED = new GalacticSearchARED(drivetrain);
+        A_BLUE = new GalacticSearchABLUE(drivetrain);
+        B_RED = new GalacticSearchBRED(drivetrain);
+        B_BLUE = new GalacticSearchBBLUE(drivetrain);
+
         // Add commands to the autonomous command chooser // Autonomous Challenge autos
         m_chooser.setDefaultOption("Barrel Course", barrel);
         m_chooser.addOption("Slalom Course", slalom);
         m_chooser.addOption("Bounce Course", bounce);
+
+        // Ball Pickup Autos FOR TESTING ONLY
+        m_chooser.addOption("A RED", A_RED);
+        m_chooser.addOption("B RED", B_RED);
+        m_chooser.addOption("A BLUE", A_BLUE);
+        m_chooser.addOption("B BLUE", B_BLUE);
+
 
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
