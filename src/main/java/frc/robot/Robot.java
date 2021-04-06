@@ -164,12 +164,13 @@ public class Robot extends TimedRobot {
         B_RED = new GalacticSearchBRED(drivetrain);
         B_BLUE = new GalacticSearchBBLUE(drivetrain);
 
-        // Add commands to the autonomous command chooser // Autonomous Challenge autos
+        // Add commands to the autonomous command chooser 
+        // AutoNav Challenge autos
         m_chooser.setDefaultOption("Barrel Course", barrel);
         m_chooser.addOption("Slalom Course", slalom);
         m_chooser.addOption("Bounce Course", bounce);
 
-        // Ball Pickup Autos FOR TESTING ONLY
+        // Galactic Search (Ball Pickup) Autos FOR TESTING ONLY
         m_chooser.addOption("A RED", A_RED);
         m_chooser.addOption("B RED", B_RED);
         m_chooser.addOption("A BLUE", A_BLUE);

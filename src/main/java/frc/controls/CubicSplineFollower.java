@@ -260,7 +260,7 @@ public class CubicSplineFollower {
         // public final Pose point;
         private DoubleSupplier kSpeed;
         protected Boolean isCritical;
-        protected Boolean shift;
+        protected Boolean shift=false;
 
         public Waypoint(double x, double y, double heading, DoubleSupplier speed, Boolean critical) {
             super(x, y, heading);
