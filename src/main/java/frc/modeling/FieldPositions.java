@@ -119,6 +119,65 @@ public class FieldPositions {
 													new Waypoint(0.3, -8.25, -165.0, 1.0*vinceHasANeed, true),
 												};
 	}
+	public static class PICKUP implements PATH_SET {
+		private static double speedResponse = 1;
+		public static final Pose START = new Pose(0.0, -0.5, 0.0); //center of start zone, bumpers approximately on edge
+		/* A_RED:
+		(0, 2.286)
+		(-0.762, 3.81)
+		(1.524, 4.572)*/
+		public static final Waypoint[] A_RED = { 
+													new Waypoint(0.0, -2.5, 40.0, -1.0 * speedResponse, false), //first ball
+													new Waypoint(-1.0, -3.8, -45.0, -1.0 * speedResponse, false), //second ball
+													new Waypoint(1.4, -4.6, -10.0, -1.0 * speedResponse, false), // third ball
+													new Waypoint(1.4, -8.8, 0.0, -1.0 * speedResponse, false), //end zone
+													//alternate
+													// new Waypoint(0.0, -2.5, 40.0, -1.0 * speedResponse, false), //first ball
+													// new Waypoint(-1.0, -3.8, 40.0, -1.0 * speedResponse, true), //second ball
+													// new Waypoint(0.0, -2.5, 0.0, 1.0 * speedResponse, false), //back up instead of turning
+													// new Waypoint(1.4, -4.6, -10.0, -1.0 * speedResponse, false), // third ball
+													// new Waypoint(1.4, -8.8, 0.0, -1.0 * speedResponse, false), //end zone
+		};
+		/*A_BLUE:
+		(-1.524, 4.572)
+		(0.762, 5.534)
+		(0, 3.858)*/
+		public static final Waypoint[] A_BLUE = { 
+													new Waypoint(-1.0, -2.5, 0.0, -1.0 * speedResponse, false),
+													new Waypoint(-1.5, -4.6, -30.0, -1.0 * speedResponse, false), //first ball
+													new Waypoint(0.0, -5.0, -90.0, -1.0 * speedResponse, false), 
+													new Waypoint(1.0, -5.6, 40.0, -1.0 * speedResponse, false), //second ball
+													new Waypoint(0.0, -3.9, 0.0, -1.0 * speedResponse, false), //third ball
+													new Waypoint(0.0, -8.8, 0.0, -1.0 * speedResponse, false), //end zone
+													//alternate
+													// new Waypoint(-1.0, -2.5, 0.0, -1.0 * speedResponse, false),
+													// new Waypoint(-1.5, -4.6, 45.0, -1.0 * speedResponse, false), //first ball
+													// new Waypoint(0.0, -2.25, 0.0, 1.0 * speedResponse, false), //back up
+													// new Waypoint(1.0, -5.6, 40.0, -1.0 * speedResponse, false), //second ball
+													// new Waypoint(0.0, -3.9, 0.0, -1.0 * speedResponse, false), //third ball
+													// new Waypoint(0.0, 8.8, 0.0, -1.0 * speedResponse, false), //end zone
+		};
+		/*B_RED:
+		(0.762, 2.286)
+		(-0.762, 3.81)
+		(0.762, 5.534)*/
+		public static final Waypoint[] B_RED = {
+													new Waypoint(0.8, -2.25, 30.0, -1.0 * speedResponse, false), //first ball
+													new Waypoint(-0.8, -3.8, 0.0, -1.0 * speedResponse, false), //second ball
+													new Waypoint(0.8, -5.5, 0.0, -1.0 * speedResponse, false), //third ball
+													new Waypoint(1.5, -8.8, -20.0, -1.0 * speedResponse, false), //end zone
+		};
+		/*B_BLUE:
+		(-0.762, 4.572)
+		(0.762, 6.069)
+		(-0.762, 7.62)*/
+		public static final Waypoint[] B_BLUE = {
+													new Waypoint(-0.8, -4.6, -30.0, -1.0 * speedResponse, false), //first ball
+													new Waypoint(0.8, 6.0, 0.0, -1.0 * speedResponse, false), //second ball
+													new Waypoint(-0.8, 7.6, 45.0, -1.0 * speedResponse, false), //third ball
+													new Waypoint(-1.4, -8.8, 30, -1.0 * speedResponse, false),
+		};
+	}
 
 	public static final Pose OUR_GOAL = new Pose(1.71, 0.5);
 	public static final Pose THEIR_GOAL = new Pose(-1.71, 16.9);
