@@ -70,6 +70,8 @@ public class CubicSplineFollower {
         if (isFinished) return new Tuple(0.0, 0.0);
         if (curWaypoint == null) curWaypoint = waypoints.pollFirst();
         double distanceFromWaypoint = Geometry.distance(robotPose, curWaypoint);
+        if (curWaypoint.getGear() == true) drivetrainState.shiftMode(true);
+        else drivetrainState.shiftMode(false);
         maxSpeed = drivetrainState.topSpeed;
         ffSpeed = curWaypoint.speed();
         boolean nextWaypoint = false;
@@ -247,6 +249,10 @@ public class CubicSplineFollower {
         waypoints.add(new Waypoint(pose, speed, isCritical));
     }
 
+    public void addWaypoint(double x, double y, double heading, double speed, Boolean isCritical, Boolean shift) {
+        waypoints.add(new Waypoint(x, y, heading, speed, isCritical, shift));
+    }
+
     /**
      * Contains information to define a point along a desired path
      */
@@ -254,6 +260,7 @@ public class CubicSplineFollower {
         // public final Pose point;
         private DoubleSupplier kSpeed;
         protected Boolean isCritical;
+        protected Boolean shift;
 
         public Waypoint(double x, double y, double heading, DoubleSupplier speed, Boolean critical) {
             super(x, y, heading);
@@ -277,6 +284,25 @@ public class CubicSplineFollower {
             this.isCritical = critical;
         }
 
+        public Waypoint(double x, double y, double heading, double speed, Boolean critical, Boolean shift) {
+            super(x, y, heading);
+            this.kSpeed = () -> speed;
+            this.isCritical = critical;
+            this.shift = shift;
+        }
+
+        /**
+         * Constructor for waypoint
+         *
+         * @param x        in meters
+         * @param y        in meters
+         * @param heading  in degrees. Call .r for radians
+         * @param speed    in desired speed on a scale of -1 to 1
+         * @param critical whether or not the waypoint is critical. Will stop at a
+         *                 critical waypoint
+         * @param shift    what gear to shift into for this waypoint
+         */
+
         public Waypoint(Pose pose, DoubleSupplier speed, Boolean critical) {
             this(pose.x, pose.y, pose.heading, speed, critical);
         }
@@ -295,6 +321,10 @@ public class CubicSplineFollower {
 
         public Waypoint(double x, double y, double heading, double speed) {
             this(x, y, heading, speed, false);
+        }
+
+        public boolean getGear(){
+            return shift;
         }
 
         @Override

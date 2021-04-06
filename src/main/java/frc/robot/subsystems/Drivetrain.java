@@ -235,6 +235,8 @@ public class Drivetrain extends TerribleSubsystem {
 		Tuple output = waypointNav.updatePursuit(model.center);
 		double leftSpeed = output.left;
 		double rightSpeed = output.right;
+		if (model.getGear() == true) shifter.setGear(true);
+		else shifter.setGear(false);
 
 		display("Left Out 1", leftSpeed);
 		display("Right Out 1", rightSpeed);
