@@ -5,11 +5,10 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
-import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 
-import java.awt.Color;
 import java.util.Map;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -21,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
 import frc.modeling.FieldPositions;
@@ -35,12 +33,9 @@ import frc.robot.commands.OurTrench;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.SlalomAuto;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
-import frc.robot.subsystems.SpindexerPID;
-import frc.util.Geometry;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
@@ -69,12 +64,12 @@ public class Robot extends TimedRobot {
     private Button coolMotorsButton, liftIntakeButton;
 
     private Button greenZone, blueZone, redZone, yellowZone;
-    public static char zoneConfirm = 'b';
+    public static char zoneConfirm = 'z';
 
     private ShuffleboardTab AccuracyTab = Shuffleboard.getTab("Accuracy");
     private SimpleWidget ZoneWidget = AccuracyTab.add("Zone", false)
                                                 .withWidget(BuiltInWidgets.kBooleanBox)
-                                                .withProperties(Map.of("colorWhenFalse", Color.BLACK));
+                                                .withProperties(Map.of("colorWhenFalse", "black"));
     private NetworkTableEntry AccuracyZone = ZoneWidget.getEntry();
 
     // Activate Autonomous Chooser
@@ -171,19 +166,19 @@ public class Robot extends TimedRobot {
     private void zoneColorIndicator(){
         switch (zoneConfirm){
             case 'g':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", Color.GREEN));
+                ZoneWidget.withProperties(Map.of("colorWhenTrue", "green"));
                 break;
             case 'y':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", Color.YELLOW));
+                ZoneWidget.withProperties(Map.of("colorWhenTrue", "yellow"));
                 break;
             case 'b':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", Color.BLUE));
+                ZoneWidget.withProperties(Map.of("colorWhenTrue", "blue"));
                 break;
             case 'r':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", Color.RED));
+                ZoneWidget.withProperties(Map.of("colorWhenTrue", "red"));
                 break;
         }
-        if (!(zoneConfirm == 'b')) AccuracyZone.setBoolean(true);
+        if (!(zoneConfirm == 'z')) AccuracyZone.setBoolean(true);
         else AccuracyZone.setBoolean(false);
 
     }

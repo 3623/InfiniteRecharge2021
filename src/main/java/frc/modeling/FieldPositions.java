@@ -55,40 +55,67 @@ public class FieldPositions {
 	}
 
 	public static class BARREL implements PATH_SET {
+		private static double speedResponse = 1;
 		public static final Pose START = new Pose(0.0, -1.0, -10.0);
-		public static final Waypoint[] WAYPOINTS = { new Waypoint(-1.0, -4.0, 90.0, -1.0*0.3, false), // 1st
-													new Waypoint(-1.5, -3.5, -180.0, -1.0*0.3, false),
-													new Waypoint(-1.0, -3.0, -90.0, -1.0*0.3, false),
-													new Waypoint(1.0, -6.5, -90.0, -1.0*0.3, false), // 2nd
-													new Waypoint(1.5, -6.0, 180.0, -1.0*0.3, false),
-													new Waypoint(1.0, -5.5, 90.0, -1.0*0.3, false),
-													new Waypoint(-1.5, -7.6, 0.0, -1.0*0.3, false), // 3rd
-													new Waypoint(-1.0, -8.1, -90.0, -1.0*0.3, false),
-													// new Waypoint(-0.5, -7.6, 180.0, -1.0, false),
-													new Waypoint(0.0, -1.0, -170.0, -1.0*0.3, false) };
+		public static final Waypoint[] WAYPOINTS = { new Waypoint(-0.9, -4.6, 90.0, -1.0 * speedResponse, false), // 1st
+													//new Waypoint(-1.6, -3.5, -180.0, -1.0 * speedResponse, false),
+													new Waypoint(-1.0, -2.8, -100.0, -0.7 * speedResponse, false),
+													//new Waypoint (0.3, -3.5, 10.0, -1 * speedResponse, false),
+													new Waypoint (0.0, -4.5, 0.0, -1.0 * speedResponse, false),
+													new Waypoint(1.1, -6.85, -90.0, -0.7 * speedResponse, false), // 2nd
+													//new Waypoint(1.7, -6.0, 180.0, -1.0 * speedResponse, false),
+													new Waypoint(1.3, -5.2, 90.0, -1.0 * speedResponse, false),
+													new Waypoint(-1.5, -8.1, 0.0, -1.0 * speedResponse, false), // 3rd
+													//new Waypoint(-1.0, -8.3, -90.0, -1.0 * speedResponse, false),
+													new Waypoint(0.0, -8.0, 180.0, -1.0 * speedResponse, false),
+													new Waypoint(0.3, 0.5, -170.0, -1.0 * speedResponse, false) };
+
+													/*working rough turns  new Waypoint(-0.85, -4.35, 90.0, -1.0 * speedResponse, false), // 1st
+													new Waypoint(-1.6, -3.5, -180.0, -1.0 * speedResponse, false),
+													new Waypoint(-1.0, -2.8, -100.0, -1.0 * speedResponse, false),
+													new Waypoint (0.3, -3.5, 10.0, -1 * speedResponse, false),
+													new Waypoint (0.0, -5.5, 0.0, -1 * speedResponse, false),
+													new Waypoint(0.8, -6.7, -90.0, -1.0 * speedResponse, false), // 2nd
+													new Waypoint(1.7, -6.0, 180.0, -1.0 * speedResponse, false),
+													new Waypoint(1.0, -5.2, 90.0, -1.0 * speedResponse, false),
+													new Waypoint(-1.5, -7.6, 0.0, -1.0 * speedResponse, false), // 3rd
+													new Waypoint(-1.0, -8.3, -90.0, -1.0 * speedResponse, false),
+													new Waypoint(-0.0, -7.6, 180.0, -1.0 * speedResponse, false),
+													new Waypoint(0.0, 0.0, -170.0, -1.0 * speedResponse, false) };*/
 	}
 
 	public static class SLALOM implements PATH_SET {
+		private static double speedResponse = 0.925;
 		public static final Pose START = new Pose(-1.0, -1.0, -25.0);
-		public static final Waypoint[] WAYPOINTS = { new Waypoint(1.0, -3.0, -30.0, -1.0, false), // 1st
-													new Waypoint(0.0, -6.5, 45.0, -1.0, false),
+		public static final Waypoint[] WAYPOINTS = { new Waypoint(0.75, -3.0, -30.0, -1.0 * speedResponse, false), // 1st
+													new Waypoint(0.0, -6.8, 45.0, -1.0 * speedResponse, false),
+													new Waypoint(-0.65, -8.0, -40.0, -0.6 * speedResponse, false),
+													//new Waypoint(0.0, -8.5, -90.0, -1.0 * speedResponse, false),
+													new Waypoint(0.65, -8.0, 165.0, -0.6 * speedResponse, false),
+													new Waypoint(-0.6, -6.4, 145.0, -1.0 * speedResponse, false),
+													new Waypoint(0.0, -1.9, -115.0, -1.0 * speedResponse, false),
+													new Waypoint(0.9, 0.0, 180.0, -1.0 * speedResponse, false),};
+		
+		
+		/* working but rough around the curve{ new Waypoint(0.75, -3.0, -30.0, -1.0, false), // 1st
+													new Waypoint(0.0, -6.8, 45.0, -1.0, false),
 													new Waypoint(-1.0, -7.5, 0.0, -1.0, false),
 													new Waypoint(0.0, -8.5, -90.0, -1.0, false),
 													new Waypoint(1.0, -7.5, 180.0, -1.0, false),
-													new Waypoint(0.0, -6.5, 135.0, -1.0, false),
-													new Waypoint(0.0, -2.25, -135.0, -1.0, false),
-													new Waypoint(1.0, -1.0, -165.0, -1.0, false),};
+													new Waypoint(-0.5, -6.4, 150.0, -1.0, false),
+													new Waypoint(0.0, -1.85, -115.0, -1.0, false),
+													new Waypoint(0.75, 0.0, 180.0, -1.0, false),};*/
 	}
 
 	public static class BOUNCE implements PATH_SET {
 		private static double vinceHasANeed = 1;
 		public static final Pose START = new Pose(0.0, -1.0, -15.0);
-		public static final Waypoint[] WAYPOINTS = { new Waypoint(1.3, -2.25, -90.0, -1.0*vinceHasANeed, true), // 1st
-													new Waypoint(-1.3, -4.1, -180.0, 1.0*vinceHasANeed, false),
-													new Waypoint(1.25, -4.1, 90.0, 1.0*vinceHasANeed, true),
+		public static final Waypoint[] WAYPOINTS = { new Waypoint(1.2, -2.35, -90.0, -1.0*vinceHasANeed, true), // 1st
+													new Waypoint(-1.4, -4.1, -180.0, 1.0*vinceHasANeed, false),
+													new Waypoint(1.15, -4.25, 90.0, 1.0*vinceHasANeed, true),
 													new Waypoint(-1.25, -5.35, 20.0, -1.0*vinceHasANeed, false),
 													new Waypoint(-1.25, -6.45, -20.0, -1.0*vinceHasANeed, false),
-													new Waypoint(1.32, -6.4, -90.0, -1.0*vinceHasANeed, true),
+													new Waypoint(1.22, -6.5, -90.0, -1.0*vinceHasANeed, true),
 													new Waypoint(0.3, -8.25, -165.0, 1.0*vinceHasANeed, true),
 												};
 	}
