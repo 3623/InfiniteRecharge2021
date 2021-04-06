@@ -32,6 +32,7 @@ public class DrivetrainModel {
 	private static final double BASE_GEAR_RATIO = 10.75 / 1.0; // Reduction
 	private static final double HIGH_GEAR_RATIO_MODIFIER = 2.0;
 	private static final double DRIVETRAIN_FRICTION = 115;
+	private static boolean gear;
 
 	public DrivetrainModel() {
 		center = new Pose(0.0, 0.0, 0.0); // Initial robot position
@@ -52,9 +53,11 @@ public class DrivetrainModel {
 		if (high) {
 			topSpeed = MAX_SPEED_HIGH;
 			gearRatio = BASE_GEAR_RATIO / HIGH_GEAR_RATIO_MODIFIER;
+			gear = true;
 		} else {
 			topSpeed = MAX_SPEED_LOW;
 			gearRatio = BASE_GEAR_RATIO;
+			gear = false;
 		}
 	}
 
@@ -156,6 +159,10 @@ public class DrivetrainModel {
 		// System.out.println("MA: " + movementAngle + ", Rad ICC: " + radius);
 		// System.out.println("Movement X: " + movementX + ", Movement Y: " +
 		// movementY);
+	}
+
+	public boolean getGear(){
+		return gear;
 	}
 
 
