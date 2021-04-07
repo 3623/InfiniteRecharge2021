@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -22,6 +23,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
+import frc.controls.pixy.Pixy2;
+import frc.controls.pixy.Pixy2CCC;
+import frc.controls.pixy.Pixy2.LinkType;
+import frc.controls.pixy.Pixy2CCC.Block;
+import frc.controls.pixy.links.SPILink;
+import frc.controls.pixy.links.UARTLink;
 import frc.modeling.FieldPositions;
 import frc.robot.commands.AccuracyShootCommand;
 import frc.robot.commands.AssistedTrenchDrive;
@@ -72,13 +79,14 @@ public class Robot extends TimedRobot {
     public static char zoneConfirm = 'z';
 
     private ShuffleboardTab AccuracyTab = Shuffleboard.getTab("Accuracy");
-    private SimpleWidget ZoneWidget = AccuracyTab.add("Zone", false)
-                                                .withWidget(BuiltInWidgets.kBooleanBox)
-                                                .withProperties(Map.of("colorWhenFalse", "black"));
+    private SimpleWidget ZoneWidget = AccuracyTab.add("Zone", false).withWidget(BuiltInWidgets.kBooleanBox)
+            .withProperties(Map.of("colorWhenFalse", "black"));
     private NetworkTableEntry AccuracyZone = ZoneWidget.getEntry();
 
     // Activate Autonomous Chooser
     SendableChooser<Command> m_chooser = new SendableChooser<>();
+
+    private static Pixy2 ballDetectorPixy;
 
     @Override
     public void robotInit() {
@@ -88,6 +96,9 @@ public class Robot extends TimedRobot {
         intake = new Intake();
         spindexer = new Spindexer();
         // climber = new Climber();
+
+        ballDetectorPixy = Pixy2.createInstance(new SPILink());
+        ballDetectorPixy.init();
 
         // Declare Critical Function Buttons
         driver = new XboxController(Constants.IO.DRIVER_CONTROLLER);
@@ -181,6 +192,27 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData(m_chooser);
     }
 
+    public static Block getBiggestBlock() {
+		// Gets the number of "blocks", identified targets, that match signature 1 on the Pixy2,
+		// does not wait for new data if none is available,
+		// and limits the number of returned blocks to 25, for a slight increase in efficiency
+		int blockCount = ballDetectorPixy.getCCC().getBlocks(false, Pixy2CCC.CCC_SIG1, 25);
+		System.out.println("Found " + blockCount + " blocks!"); // Reports number of blocks found
+		if (blockCount <= 0) {
+			return null; // If blocks were not found, stop processing
+		}
+		ArrayList<Block> blocks = ballDetectorPixy.getCCC().getBlockCache(); // Gets a list of all blocks found by the Pixy2
+		Block largestBlock = null;
+		for (Block block : blocks) { // Loops through all blocks and finds the widest one
+			if (largestBlock == null) {
+				largestBlock = block;
+			} else if (block.getWidth() > largestBlock.getWidth()) {
+				largestBlock = block;
+			}
+		}
+		return largestBlock;
+	}
+
     private void zoneColorIndicator(){
         switch (zoneConfirm){
             case 'g':
@@ -230,6 +262,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         zoneColorIndicator();
+        SmartDashboard.putNumber("Pixy Biggest Block X", getBiggestBlock().getX());
+        SmartDashboard.putNumber("Pixy Biggest Block Y", getBiggestBlock().getY());
         // mainPressure.setDouble(250 * (transducer.getVoltage() / 5) - 25);
     }
 

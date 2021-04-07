@@ -258,6 +258,8 @@ public class Drivetrain extends TerribleSubsystem {
 		double angularPower;
 		boolean overPower;
 
+		if (shifter.getGear()) isQuickTurn = false;
+
 		if (isQuickTurn) {
 			if (Math.abs(xSpeed) < m_quickStopThreshold) {
 				m_quickStopAccumulator = (1 - m_quickStopAlpha) * m_quickStopAccumulator

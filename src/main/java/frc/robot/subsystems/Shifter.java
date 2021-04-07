@@ -22,4 +22,8 @@ public class Shifter extends SubsystemBase {
     public void setGear(boolean high) {
         piston.set(high);
     }
+
+    public boolean getGear(){
+        return piston.get();
+    }
 }
