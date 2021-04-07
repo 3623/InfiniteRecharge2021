@@ -20,4 +20,7 @@ public class SearchIntake extends CommandBase{
         intake.setIntaking(true);
     }
 
+    public boolean isFinished(){
+        return true;
+    }
 }
