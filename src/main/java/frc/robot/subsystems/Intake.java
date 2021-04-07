@@ -18,7 +18,7 @@ import frc.robot.Constants;
 * An example subsystem. You can replace me with your own Subsystem.
 */
 public class Intake extends SubsystemBase {
-    private static final double INTAKE_SPEED = -0.7;
+    private static final double INTAKE_SPEED = -0.5;
     private WPI_VictorSPX rollers;
 
     private Solenoid piston;

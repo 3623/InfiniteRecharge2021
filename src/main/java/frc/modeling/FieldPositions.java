@@ -121,7 +121,7 @@ public class FieldPositions {
 	}
 	public static class PICKUP implements PATH_SET {
 		private static double speedResponse = 1;
-		public static final Pose START = new Pose(0.0, 0.0, 0.0); //center of start zone, bumpers approximately on edge
+		public static final Pose START = new Pose(0.0, -0.5, 0.0); //center of start zone, bumpers approximately on edge
 		/* A_RED:
 		(0, 2.286)
 		(-0.762, 3.81)
@@ -129,7 +129,7 @@ public class FieldPositions {
 		public static final Waypoint[] A_RED = { 
 													new Waypoint(-0.15, -2.2, 20.0, -1.0 * speedResponse, false), //first ball
 													new Waypoint(-0.6, -3.15, -20.0, -1.0 * speedResponse, false), //second ball
-													new Waypoint(1.6, -4.4, -10.0, -1.0 * speedResponse, false), // third ball
+													new Waypoint(1.6, -4.2, -10.0, -1.0 * speedResponse, false), // third ball
 													new Waypoint(1.4, -8.8, 0.0, -1.0 * speedResponse, false, true), //end zone
 													new Waypoint(0.0, 0.0, 0.0, 1.0 * speedResponse, false), //return home for testing
 													//alternate

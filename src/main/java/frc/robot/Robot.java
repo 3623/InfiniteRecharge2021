@@ -172,10 +172,10 @@ public class Robot extends TimedRobot {
         slalom = new SlalomAuto(drivetrain);
         bounce = new BounceAuto(drivetrain);
 
-        A_RED = new GalacticSearchARED(drivetrain, intake);
-        A_BLUE = new GalacticSearchABLUE(drivetrain, intake);
-        B_RED = new GalacticSearchBRED(drivetrain, intake);
-        B_BLUE = new GalacticSearchBBLUE(drivetrain, intake);
+        A_RED = new GalacticSearchARED(drivetrain, intake, spindexer);
+        A_BLUE = new GalacticSearchABLUE(drivetrain, intake, spindexer);
+        B_RED = new GalacticSearchBRED(drivetrain, intake, spindexer);
+        B_BLUE = new GalacticSearchBBLUE(drivetrain, intake, spindexer);
 
         // Add commands to the autonomous command chooser 
         // AutoNav Challenge autos

@@ -24,7 +24,7 @@ public class Spindexer extends TerribleSubsystem {
     public static final double SHOOT_TIME = 3.5;
     public static final double INDEX_TIME = 5.0;
     private static final double READY_SPEED = 0.2;
-    private static final double INDEX_SPEED = 0.4;
+    private static final double INDEX_SPEED = 0.3;
     private static final double SHOOT_SPEED = 0.45;
     private WPI_VictorSPX spindexerSPX;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;

@@ -9,15 +9,18 @@ import frc.robot.subsystems.Intake;
 
 public class SearchIntake extends CommandBase{
     private Intake intake;
+    private Spindexer spin;
 
-    public SearchIntake(Intake intake) {
+    public SearchIntake(Intake intake, Spindexer spin) {
         this.intake = intake;
+        this.spin = spin;
         addRequirements(intake);
     }
 
     @Override
     public void initialize() {
         intake.setIntaking(true);
+        spin.startIndex();
     }
 
     public boolean isFinished(){
