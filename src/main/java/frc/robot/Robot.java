@@ -98,7 +98,9 @@ public class Robot extends TimedRobot {
         // climber = new Climber();
 
         ballDetectorPixy = Pixy2.createInstance(new SPILink());
-        ballDetectorPixy.init();
+        ballDetectorPixy.init(0);
+        ballDetectorPixy.setLamp((byte) 1, (byte) 1); // Turns the LEDs on
+		ballDetectorPixy.setLED(255, 255, 255); // Sets the RGB LED to full white
 
         // Declare Critical Function Buttons
         driver = new XboxController(Constants.IO.DRIVER_CONTROLLER);
@@ -195,7 +197,8 @@ public class Robot extends TimedRobot {
     public static Block getBiggestBlock() {
 		// Gets the number of "blocks", identified targets, that match signature 1 on the Pixy2,
 		// does not wait for new data if none is available,
-		// and limits the number of returned blocks to 25, for a slight increase in efficiency
+        // and limits the number of returned blocks to 25, for a slight increase in efficiency
+        final int blockSignature = 1;
 		int blockCount = ballDetectorPixy.getCCC().getBlocks(false, Pixy2CCC.CCC_SIG1, 25);
 		System.out.println("Found " + blockCount + " blocks!"); // Reports number of blocks found
 		if (blockCount <= 0) {
@@ -203,11 +206,13 @@ public class Robot extends TimedRobot {
 		}
 		ArrayList<Block> blocks = ballDetectorPixy.getCCC().getBlockCache(); // Gets a list of all blocks found by the Pixy2
 		Block largestBlock = null;
-		for (Block block : blocks) { // Loops through all blocks and finds the widest one
-			if (largestBlock == null) {
-				largestBlock = block;
-			} else if (block.getWidth() > largestBlock.getWidth()) {
-				largestBlock = block;
+		for (Block block : blocks) {
+			if (block.getSignature() == blockSignature) {
+				if (largestBlock == null) {
+					largestBlock = block;
+				} else if (block.getWidth() > largestBlock.getWidth()) {
+					largestBlock = block;
+				}
 			}
 		}
 		return largestBlock;
@@ -262,8 +267,11 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         zoneColorIndicator();
-        SmartDashboard.putNumber("Pixy Biggest Block X", getBiggestBlock().getX());
-        SmartDashboard.putNumber("Pixy Biggest Block Y", getBiggestBlock().getY());
+        Block biggest = getBiggestBlock();
+        if (!(biggest == null)){
+            SmartDashboard.putNumber("Pixy Biggest Block X", biggest.getX());
+            SmartDashboard.putNumber("Pixy Biggest Block Y", biggest.getY());
+        }
         // mainPressure.setDouble(250 * (transducer.getVoltage() / 5) - 25);
     }
 
