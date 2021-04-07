@@ -57,18 +57,19 @@ public class FieldPositions {
 	public static class BARREL implements PATH_SET {
 		private static double speedResponse = 1;
 		public static final Pose START = new Pose(0.0, -1.0, -10.0);
-		public static final Waypoint[] WAYPOINTS = { new Waypoint(-0.9, -4.6, 90.0, -1.0 * speedResponse, false), // 1st
+		public static final Waypoint[] WAYPOINTS = { new Waypoint(-0.9, -4.6, 90.0, -1.0 * speedResponse, false, true), // 1st
 													//new Waypoint(-1.6, -3.5, -180.0, -1.0 * speedResponse, false),
-													new Waypoint(-1.0, -2.8, -100.0, -0.7 * speedResponse, false),
+													new Waypoint(-1.0, -2.7, -90.0, -0.7 * speedResponse, false),
 													//new Waypoint (0.3, -3.5, 10.0, -1 * speedResponse, false),
 													new Waypoint (0.0, -4.5, 0.0, -1.0 * speedResponse, false),
-													new Waypoint(1.1, -6.85, -90.0, -0.7 * speedResponse, false), // 2nd
+													new Waypoint(1.2, -7.0, -90.0, -0.7 * speedResponse, false), // 2nd
 													//new Waypoint(1.7, -6.0, 180.0, -1.0 * speedResponse, false),
-													new Waypoint(1.3, -5.2, 90.0, -1.0 * speedResponse, false),
-													new Waypoint(-1.5, -8.1, 0.0, -1.0 * speedResponse, false), // 3rd
+													new Waypoint(1.3, -4.9, 90.0, -1.0 * speedResponse, false, true),
+													new Waypoint(-1.7, -8.1, 0.0, -1.0 * speedResponse, false), // 3rd
 													//new Waypoint(-1.0, -8.3, -90.0, -1.0 * speedResponse, false),
 													new Waypoint(0.0, -8.0, 180.0, -1.0 * speedResponse, false),
-													new Waypoint(0.3, 0.5, -170.0, -1.0 * speedResponse, false) };
+													new Waypoint (0.4, -6.5, 180.0, -1.0 * speedResponse, false),
+													new Waypoint(0.0, 0.5, -170.0, -1.0 * speedResponse, false, true) };
 
 													/*working rough turns  new Waypoint(-0.85, -4.35, 90.0, -1.0 * speedResponse, false), // 1st
 													new Waypoint(-1.6, -3.5, -180.0, -1.0 * speedResponse, false),
@@ -88,12 +89,12 @@ public class FieldPositions {
 		private static double speedResponse = 0.925;
 		public static final Pose START = new Pose(-1.0, -1.0, -25.0);
 		public static final Waypoint[] WAYPOINTS = { new Waypoint(0.75, -3.0, -30.0, -1.0 * speedResponse, false), // 1st
-													new Waypoint(0.0, -6.8, 45.0, -1.0 * speedResponse, false),
+													new Waypoint(0.0, -6.8, 45.0, -1.0 * speedResponse, false, true),
 													new Waypoint(-0.65, -8.0, -40.0, -0.6 * speedResponse, false),
 													//new Waypoint(0.0, -8.5, -90.0, -1.0 * speedResponse, false),
-													new Waypoint(0.65, -8.0, 165.0, -0.6 * speedResponse, false),
-													new Waypoint(-0.6, -6.4, 145.0, -1.0 * speedResponse, false),
-													new Waypoint(0.0, -1.9, -115.0, -1.0 * speedResponse, false),
+													new Waypoint(0.65, -8.0, 165.0, -0.6 * speedResponse, false, true),
+													new Waypoint(-0.6, -6.4, 145.0, -1.0 * speedResponse, false, true),
+													new Waypoint(0.0, -1.9, -115.0, -1.0 * speedResponse, false, true),
 													new Waypoint(0.9, 0.0, 180.0, -1.0 * speedResponse, false),};
 		
 		
@@ -129,7 +130,7 @@ public class FieldPositions {
 		public static final Waypoint[] A_RED = { 
 													new Waypoint(-0.15, -2.2, 20.0, -1.0 * speedResponse, false), //first ball
 													new Waypoint(-0.6, -3.15, -20.0, -1.0 * speedResponse, false), //second ball
-													new Waypoint(1.6, -4.2, -10.0, -1.0 * speedResponse, false), // third ball
+													new Waypoint(1.6, -4.2, -30.0, -1.0 * speedResponse, false), // third ball
 													new Waypoint(1.4, -8.8, 0.0, -1.0 * speedResponse, false, true), //end zone
 													new Waypoint(0.0, 0.0, 0.0, 1.0 * speedResponse, false), //return home for testing
 													//alternate
@@ -175,11 +176,11 @@ public class FieldPositions {
 		(0.762, 6.069)
 		(-0.762, 7.62)*/
 		public static final Waypoint[] B_BLUE = {
-													new Waypoint(-0.6, -4.0, -20.0, -1.0 * speedResponse, false, true), //first ball
+													new Waypoint(-0.55, -4.0, -20.0, -1.0 * speedResponse, false, true), //first ball
 													new Waypoint(0.8, -5.8, 0.0, -1.0 * speedResponse, false, false), //second ball
-													new Waypoint(-0.8, -7.6, 45.0, -1.0 * speedResponse, false), //third ball
-													new Waypoint(-1.4, -8.8, 30, -1.0 * speedResponse, false),
-													new Waypoint(0.0, 1.0, 0.0, 1.0 * speedResponse, false),
+													new Waypoint(-0.9, -7.6, 45.0, -1.0 * speedResponse, false, true), //third ball
+													new Waypoint(-1.4, -8.8, 30, -1.0 * speedResponse, false, false),
+													new Waypoint(0.0, 1.0, 0.0, 1.0 * speedResponse, false, false),
 		};
 	}
 
