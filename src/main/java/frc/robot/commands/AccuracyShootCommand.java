@@ -36,7 +36,11 @@ public class AccuracyShootCommand extends SequentialCommandGroup{
         public void initialize() {
             super.initialize();
             shooter.seekTarget(Target.GOAL);
-            shooter.accuracyShootZoneSet(zone);
+            if (zone == 'g') shooter.setTargets(8250.0, 0.0);
+            else if (zone == 'y') shooter.setTargets(7500.0, 22.5);
+            else if (zone == 'b') shooter.setTargets(7500.0, 25.0);
+            else if (zone == 'r') shooter.setTargets(7750.0, 17.5);
+            else shooter.setTargets(1000.0, 10.0);
             shooter.fire();
             shooter.prepareStart = true;
             spindexer.startReadying();

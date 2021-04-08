@@ -140,22 +140,22 @@ public class Robot extends TimedRobot {
         
         // Accuracy Challenge Button Definitions
         greenZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new AccuracyShootCommand(shooter, spindexer, 'g'),
                                 new InstantCommand(() -> Robot.setZone('g')), 
                                 Robot::isGreenZone));
 
         yellowZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new AccuracyShootCommand(shooter, spindexer, 'y'),
                                 new InstantCommand(() -> Robot.setZone('y')), 
                                 Robot::isYellowZone));
 
         blueZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new AccuracyShootCommand(shooter, spindexer, 'b'),
                                 new InstantCommand(() -> Robot.setZone('b')), 
                                 Robot::isBlueZone));
 
         redZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, zoneConfirm),
+                                new AccuracyShootCommand(shooter, spindexer, 'r'),
                                 new InstantCommand(() -> Robot.setZone('r')), 
                                 Robot::isRedZone));
 
@@ -219,27 +219,20 @@ public class Robot extends TimedRobot {
 	}
 
     private void zoneColorIndicator(){
-        switch (zoneConfirm){
-            case 'g':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", "green"));
-                break;
-            case 'y':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", "yellow"));
-                break;
-            case 'b':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", "blue"));
-                break;
-            case 'r':
-                ZoneWidget.withProperties(Map.of("colorWhenTrue", "red"));
-                break;
-        }
-        if (!(zoneConfirm == 'z')) AccuracyZone.setBoolean(true);
+        if (isGreenZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "green"));
+        if (isYellowZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "yellow"));
+        if (isBlueZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "blue"));
+        if (isRedZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "red"));
+
+        if (isGreenZone() || isYellowZone() || isBlueZone() || isRedZone()) AccuracyZone.setBoolean(true);
         else AccuracyZone.setBoolean(false);
 
     }
 
     public static void setZone(char zone) {
         zoneConfirm = zone;
+        System.out.println("Zone Changed to " + zone);
+        System.out.println("ZoneConfirm var is now " + zoneConfirm);
     }
 
     public static char getZone(){

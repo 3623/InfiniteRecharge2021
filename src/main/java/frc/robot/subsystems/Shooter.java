@@ -40,12 +40,18 @@ public class Shooter extends TerribleSubsystem {
     private boolean readyToFire = false;
     public int readyToFireCountdown = 0;
 
+    // For Accuracy Challenge Only
+    private double targetSpeed;
+    private double targetHood;
+
     NetworkTable Lime = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry targetX = Lime.getEntry("tx"); // Horizontal Offset From Crosshair to Target (-27 to 27 degrees)
     NetworkTableEntry targetY = Lime.getEntry("ty"); // Vertical Offset From Crosshair to Target (-20.5 to 20.5 degrees)
     NetworkTableEntry ta = Lime.getEntry("ta"); // Target Area (0% of Image to 100% of Image)
     NetworkTableEntry targets = Lime.getEntry("tv"); // Valid Targets (0 or 1)
     private HttpCamera limeCam;
+
+    private char zone = 'z';
 
     public boolean prepareStart = false, 
                 prepareDone = false, 
@@ -118,8 +124,8 @@ public class Shooter extends TerribleSubsystem {
     }
 
     private void updateBlind() {
-        targetAngle = 0.0;
-        targetDistance = Geometry.distance(robotPose, targetPose);
+        //targetAngle = 0.0;
+        //targetDistance = Geometry.distance(robotPose, targetPose);
         readyToFire = false;
         setAngle(targetAngle);
         if (Utils.withinThreshold(turret.getMeasurement(), targetAngle, LIMELIGHT_FOV/2.0)
@@ -129,7 +135,7 @@ public class Shooter extends TerribleSubsystem {
                 updateVision();
             }
         else if (shooting) {
-            setDistance(targetDistance, hood.getSetpoint());
+            setDistance(targetSpeed, targetHood);
             readyToFire = flywheel.isAtSpeed() && Robot.spindexer.isReady() && hood.isReady();
             if (readyToFire == true) readyToFireCountdown += 1;
             else readyToFireCountdown = 0;
@@ -139,14 +145,14 @@ public class Shooter extends TerribleSubsystem {
     private void updateVision() {
         double targetX = this.targetX.getDouble(0.0);
         targetAngle = visionEstimateAngle(targetX);
-        targetDistance = visionEstimateDistance(targetY.getDouble(0.0));
-        if (Utils.withinThreshold(targetAngle, 0.0, INNER_VISIBLE_TRESHOLD))
-            innerPortAngle = Math.atan(targetDistance * Math.sin(Math.toRadians(targetAngle)) /
-                                    (targetDistance * Math.cos(Math.toRadians(targetAngle)) + INNER_PORT_DEPTH));
-        else innerPortAngle = targetAngle;
+        //targetDistance = visionEstimateDistance(targetY.getDouble(0.0));
+        //if (Utils.withinThreshold(targetAngle, 0.0, INNER_VISIBLE_TRESHOLD))
+        //    innerPortAngle = Math.atan(targetDistance * Math.sin(Math.toRadians(targetAngle)) /
+        //                            (targetDistance * Math.cos(Math.toRadians(targetAngle)) + INNER_PORT_DEPTH));
+        //else innerPortAngle = targetAngle;
         if (shooting) {
             setAngle(innerPortAngle);
-            setDistance(targetDistance, hood.getSetpoint());
+            setDistance(targetSpeed, targetHood);
             readyToFire = Utils.withinThreshold(targetX, 0.0, AIM_THRESHOLD);
             readyToFire &= flywheel.isAtSpeed();
             readyToFire &= Robot.spindexer.isReady();
@@ -167,11 +173,33 @@ public class Shooter extends TerribleSubsystem {
         return targetX + robotPose.heading + turret.getMeasurement();
     }
 
-    public void accuracyShootZoneSet(char zone){
-        if (zone == 'g') setDistance(8250.0, 0.0);
-        else if (zone == 'y') setDistance(7750.0, 22.5);
-        else if (zone == 'b') setDistance(7500.0, 25.0);
-        else if (zone == 'r') setDistance(7750.0, 17.5);
+    // public void accuracyShootZoneSet(char zone){
+    //     this.zone = zone;
+    //     if (zone == 'g') {
+    //         targetSpeed = 8250.0;
+    //         targetHood = 0.0;
+    //     }
+    //     else if (zone == 'y') {
+    //         targetSpeed = 7750.0;
+    //         targetHood = 22.5;
+    //     }
+    //     else if (zone == 'b') {
+    //         targetSpeed = 7500.0;
+    //         targetHood =  25.0;
+    //     }
+    //     else if (zone == 'r') {
+    //         targetSpeed = 7750.0;
+    //         targetHood = 17.5;
+    //     }
+    //     else {
+    //         targetSpeed = 4000;
+    //         targetHood = 0.0;
+    //     }
+    // }
+
+    public void setTargets(double rpm, double hoodAngle){
+        targetSpeed = rpm;
+        targetHood = hoodAngle;
     }
 
     /**
@@ -188,7 +216,7 @@ public class Shooter extends TerribleSubsystem {
      * TODO make this do something smart
      * @param angle
      */
-    private void setDistance(double rpm, double angle) {
+    public void setDistance(double rpm, double angle) {
         flywheel.setSpeed(rpm);
         hood.setSetpoint(angle);
     }
@@ -263,6 +291,7 @@ public class Shooter extends TerribleSubsystem {
         display("Shooter Fire Done", fireEnd);
         display("Ready to Fire Overall", readyToFire);
         display("At Speed", flywheel.isAtSpeed());
+        display("Zone Char", zone);
         turret.monitor();
         hood.monitor();
         Robot.spindexer.monitor();

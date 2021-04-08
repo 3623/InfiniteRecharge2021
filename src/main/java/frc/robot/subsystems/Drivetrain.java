@@ -89,12 +89,12 @@ public class Drivetrain extends TerribleSubsystem {
 		rightFollower.configFactoryDefault(CONFIG_TIMEOUT);
 		leftMaster.configFactoryDefault(CONFIG_TIMEOUT);
 		leftFollower.configFactoryDefault(CONFIG_TIMEOUT);
-		rightFollower.set(ControlMode.Follower, Constants.Drivetrain.RIGHT_MOTOR_MASTER);
-		leftFollower.set(ControlMode.Follower, Constants.Drivetrain.LEFT_MOTOR_MASTER);
+		// rightFollower.follow(rightMaster);
+		// leftFollower.follow(leftMaster);
 		rightMaster.setInverted(true);
 		leftMaster.setInverted(false);
-		rightFollower.setInverted(InvertType.FollowMaster);
-		leftFollower.setInverted(InvertType.FollowMaster);
+		rightFollower.setInverted(true/*InvertType.FollowMaster*/);
+		leftFollower.setInverted(false/*InvertType.FollowMaster*/);
 		setBrakeMode(false);
 
 		canifierLeft = new CANifier(2);
@@ -124,6 +124,22 @@ public class Drivetrain extends TerribleSubsystem {
 		rightMaster.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
 		rightMaster.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
 		rightMaster.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
 		model = new DrivetrainModel();
 		model.setPosition(0.0, 0.0, 0.0);
 
@@ -314,7 +330,9 @@ public class Drivetrain extends TerribleSubsystem {
 		double leftTalonSpeed = linearSpeedToTalonSpeed(left);
 		double rightTalonSpeed = linearSpeedToTalonSpeed(right);
 		leftMaster.set(ControlMode.Velocity, leftTalonSpeed);
+		leftFollower.set(ControlMode.Velocity, leftTalonSpeed);
 		rightMaster.set(ControlMode.Velocity, rightTalonSpeed);
+		rightFollower.set(ControlMode.Velocity, rightTalonSpeed);
 	}
 
 	private static double linearSpeedToTalonSpeed(double linearSpeed) {
@@ -336,8 +354,10 @@ public class Drivetrain extends TerribleSubsystem {
 			System.out.println("Switching to open loop control, time: " + time);
 			controlState = DriveControlState.OPEN_LOOP;
 		}
-		leftMaster.set(ControlMode.PercentOutput, left);
+		leftMaster.set(ControlMode.PercentOutput, left/2);
+		leftFollower.set(ControlMode.PercentOutput, left/2);
 		rightMaster.set(ControlMode.PercentOutput, right);
+		rightFollower.set(ControlMode.PercentOutput, right);
 	}
 
 	/**
