@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
 
     private ShuffleboardTab AccuracyTab = Shuffleboard.getTab("Accuracy");
     private SimpleWidget ZoneWidget = AccuracyTab.add("Zone", false).withWidget(BuiltInWidgets.kBooleanBox)
-            .withProperties(Map.of("colorWhenFalse", "black"));
+            .withProperties(Map.of("colorWhenFalse", "#000000"));
     private NetworkTableEntry AccuracyZone = ZoneWidget.getEntry();
 
     // Activate Autonomous Chooser
@@ -219,14 +219,15 @@ public class Robot extends TimedRobot {
 	}
 
     private void zoneColorIndicator(){
-        if (isGreenZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "green"));
-        if (isYellowZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "yellow"));
-        if (isBlueZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "blue"));
-        if (isRedZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "red"));
+        if (isGreenZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "#62C334"));
+        if (isYellowZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "#F0FF00"));
+        if (isBlueZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "#0078FF"));
+        if (isRedZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "#FF0000"));
 
         if (isGreenZone() || isYellowZone() || isBlueZone() || isRedZone()) AccuracyZone.setBoolean(true);
         else AccuracyZone.setBoolean(false);
 
+        SmartDashboard.putString("Zone", Character.toString(zoneConfirm));
     }
 
     public static void setZone(char zone) {
@@ -319,7 +320,7 @@ public class Robot extends TimedRobot {
         }
         else drivetrain.setShiftMode(false);
 
-        if (driver.getStartButtonPressed()) {
+        if (driver.getStickButton(Hand.kLeft) && driver.getStickButton(Hand.kRight)) {
             drivetrain.zeroSensors();
         }
 

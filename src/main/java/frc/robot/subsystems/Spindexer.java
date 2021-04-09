@@ -37,7 +37,8 @@ public class Spindexer extends TerribleSubsystem {
         INDEX,
         JAM_CLEAR,
         READYING,
-        SHOOTING
+        SHOOTING,
+        MOVE_ONE
     }
 
     private MODE spinMode = MODE.STOPPED;
@@ -48,6 +49,7 @@ public class Spindexer extends TerribleSubsystem {
     private Encoder spinCoder;
 
     private double jamPosition = 0.0;
+    private double moveOneTracker = 0.0;
     private boolean jamFlipper = false;
     private int flipDebounceCounter = 0;
 
@@ -74,6 +76,8 @@ public class Spindexer extends TerribleSubsystem {
             return 4;
             case SHOOTING:
             return 3;
+            case MOVE_ONE:
+            return 5;
         }
         return -1;
     }
@@ -113,6 +117,12 @@ public class Spindexer extends TerribleSubsystem {
             case SHOOTING:
                 setSpinning(SHOOT_SPEED);
                 break;
+            case MOVE_ONE:
+                if (getPosition() < moveOneTracker+0.9) setSpinning(INDEX_SPEED);
+                else {
+                    spinMode = MODE.STOPPED;
+                    setSpinning(0.0);
+                }
         }
     }
 
@@ -132,6 +142,11 @@ public class Spindexer extends TerribleSubsystem {
         lastMode = spinMode;
         spinMode = MODE.JAM_CLEAR;
         jamPosition = getPosition();
+    }
+
+    public void startMoveOne(){
+        spinMode = MODE.MOVE_ONE;
+        moveOneTracker = getPosition();
     }
 
     public void clearedJam(){
