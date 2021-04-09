@@ -49,24 +49,26 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
 
 public class Robot extends TimedRobot {
+    // Declare named commands for use later.
     private Command m_autonomousCommand;
     private Command barrel, slalom, bounce;
     private Command A_RED, A_BLUE, B_RED, B_BLUE;
 
+    // Declare Controllers for Robot
     private XboxController driver;
     private XboxController operator;
-    // private Button shooterButton; // Disabled for Accuracy Challenge
-    // private Button trenchDriveButton; // Disabled for Challenges
+
+    // Declare Subsystems
     // private Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
     public static Spindexer spindexer;
     private Shooter shooter;
+    private static Pixy2 ballDetectorPixy;
 
-    private boolean POVDebounce = false;
-
-    AnalogInput transducer = new AnalogInput(1);
-
+    // Declare Pre-Allocated Buttons on Controllers
+    // private Button shooterButton; // Disabled for Accuracy Challenge
+    // private Button trenchDriveButton; // Disabled for Challenges
     // private Button indexButton;
     // private Button readyButton;
     // private Button shootButton;
@@ -74,20 +76,35 @@ public class Robot extends TimedRobot {
     private Button unjamButton;
     private Button intakeButton;
     private Button coolMotorsButton, liftIntakeButton;
-
     private Button greenZone, blueZone, redZone, yellowZone;
+
+    // Declare some multi-use variables for Robot.java functions
+    private boolean POVDebounce = false;
     public static char zoneConfirm = 'z';
 
-    private ShuffleboardTab AccuracyTab = Shuffleboard.getTab("Accuracy");
-    private SimpleWidget ZoneWidget = AccuracyTab.add("Zone", false).withWidget(BuiltInWidgets.kBooleanBox)
-            .withProperties(Map.of("colorWhenFalse", "#000000"));
-    private NetworkTableEntry AccuracyZone = ZoneWidget.getEntry();
+    
 
     // Activate Autonomous Chooser
     SendableChooser<Command> m_chooser = new SendableChooser<>();
 
-    private static Pixy2 ballDetectorPixy;
+    // Declare Code Generated Shuffleboard Tabs
+    private ShuffleboardTab AccuracyTab = Shuffleboard.getTab("Accuracy");
 
+    // Declare Code Generated/Set Widgets
+    private SimpleWidget ZoneWidget = AccuracyTab.add("Zone", false).withWidget(BuiltInWidgets.kBooleanBox)
+            .withProperties(Map.of("colorWhenFalse", "#000000"));
+
+    /* 
+        Declare NetworkTableEntry variables 
+        (to change the values assosciated with Widgets)
+    */
+    private NetworkTableEntry AccuracyZone = ZoneWidget.getEntry();
+
+    /*
+        Robot Constructor. Use this function to initialize subsystems,
+        attatch buttons to commands, set default commands, and any other
+        function that needs to happen once, on Robot Startup.
+    */
     @Override
     public void robotInit() {
         // Declare Subsystems
@@ -102,9 +119,11 @@ public class Robot extends TimedRobot {
         ballDetectorPixy.setLamp((byte) 1, (byte) 1); // Turns the LEDs on
 		ballDetectorPixy.setLED(255, 255, 255); // Sets the RGB LED to full white
 
-        // Declare Critical Function Buttons
+        
         driver = new XboxController(Constants.IO.DRIVER_CONTROLLER);
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
+        
+        // Critical Function Buttons
         intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.1));
         //trenchDriveButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.1));
         // shooterButton = new Button(() -> operator.getXButton());
@@ -130,7 +149,7 @@ public class Robot extends TimedRobot {
                 new DriverControl(drivetrain, () -> driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
         shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
 
-        // Critical Function Button Defitions
+        // Critical Function Button Definitions
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
         //shooterButton.whenPressed(new ShootCommand(shooter, spindexer)); // Disabled for Accuracy Challenge
         
@@ -168,6 +187,7 @@ public class Robot extends TimedRobot {
         liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
         coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
 
+        // Attach Auto Command files to their allocated memory space
         barrel = new BarrelAuto(drivetrain);
         slalom = new SlalomAuto(drivetrain);
         bounce = new BounceAuto(drivetrain);
@@ -188,7 +208,6 @@ public class Robot extends TimedRobot {
         m_chooser.addOption("B RED", B_RED);
         m_chooser.addOption("A BLUE", A_BLUE);
         m_chooser.addOption("B BLUE", B_BLUE);
-
 
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
@@ -219,6 +238,10 @@ public class Robot extends TimedRobot {
 	}
 
     private void zoneColorIndicator(){
+        /*
+            This function serves to change the color of the AccuracyZone BooleanBox widget to match
+            the color of the Accuracy Challenge Zone we are shooting from.
+        */
         if (isGreenZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "#62C334"));
         if (isYellowZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "#F0FF00"));
         if (isBlueZone()) ZoneWidget.withProperties(Map.of("colorWhenTrue", "#0078FF"));
@@ -231,6 +254,8 @@ public class Robot extends TimedRobot {
     }
 
     public static void setZone(char zone) {
+        /* Set the Zone Character variable to lock in a zone choice for firing.
+            Accuracy Challenge exclusive function */
         zoneConfirm = zone;
         System.out.println("Zone Changed to " + zone);
         System.out.println("ZoneConfirm var is now " + zoneConfirm);
@@ -287,12 +312,12 @@ public class Robot extends TimedRobot {
         drivetrain.zeroSensors();
         // shooter.zeroSensors();
 
-
-
         // m_autonomousCommand = new OurTrench(drivetrain, intake, shooter, spindexer);
+
+        // ** Pull the autonomous command choice from the Sendable Chooser **
         m_autonomousCommand = m_chooser.getSelected();
 
-        // schedule the autonomous command (example)
+        // schedule the autonomous command selected
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
@@ -308,13 +333,14 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         // stop running autonomous command
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
-        drivetrain.setShiftMode(true);
+        drivetrain.setShiftMode(false);
         shooter.enable();
     }
 
 
     @Override
     public void teleopPeriodic() {
+        // If driver is holding the left bumper, shift into high gear. Else, stay in low.
         if (driver.getBumper(Hand.kLeft)) {
             drivetrain.setShiftMode(true);
         }
@@ -324,16 +350,18 @@ public class Robot extends TimedRobot {
             drivetrain.zeroSensors();
         }
 
-        if (operator.getPOV(0) == -1) POVDebounce = false;
-        else if (POVDebounce == false){
-            POVDebounce = true;
-            if (operator.getPOV(0) == 0) shooter.modifyHoodSet(5.0);
-            else if (operator.getPOV(0) == 90) shooter.modifyHoodSet(2.5);
-            else if (operator.getPOV(0) == 180) shooter.modifyHoodSet(-5.0);
-            else if (operator.getPOV(0) == 270) shooter.modifyHoodSet(-2.5);
-            else POVDebounce = false;
+        // Manual Hood Control Logic
+        if (operator.getPOV(0) == -1) POVDebounce = false; // If the D-Pad isn't touched, reset.
+        else if (POVDebounce == false){ // If the D-Pad is engaged and it wasn't engaged last cycle...
+            POVDebounce = true; // set the flag to prevent multi-press.
+            if (operator.getPOV(0) == 0) shooter.modifyHoodSet(5.0); // If Up...+5 degrees
+            else if (operator.getPOV(0) == 90) shooter.modifyHoodSet(2.5); // if Right, +2.5 Degrees
+            else if (operator.getPOV(0) == 180) shooter.modifyHoodSet(-5.0); // if Down, -5 Degrees
+            else if (operator.getPOV(0) == 270) shooter.modifyHoodSet(-2.5); // if Left, -2.5 Degrees
+            else POVDebounce = false; // If we're hitting a combo of D-Pad buttons, reset.
         }
 
+        // Manual Turret Control
         shooter.moveTurret(-operator.getY(Hand.kLeft));        
 
         // double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
