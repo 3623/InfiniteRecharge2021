@@ -23,7 +23,7 @@ public final class Constants {
         public static final int RIGHT_MOTOR_FOLLOWER = 4;
         public static final int LEFT_MOTOR_MASTER = 1;
         public static final int LEFT_MOTOR_FOLLOWER = 2;
-        public static final int FALCON_COOLER_SOLENOID = 3;
+        public static final int FALCON_COOLER_SOLENOID = 5;
     }
 
     public static final class Shooter {
@@ -49,7 +49,7 @@ public final class Constants {
 
     public static final class Intake {
         public static final int INTAKE_COLLECTOR_MOTOR_SPX = 1;
-        public static final int INTAKE_DROP_SOLENOID = 2;
+        public static final int INTAKE_DROP_SOLENOID = 1;
     }
 
     public static final class Spinner {
@@ -57,13 +57,12 @@ public final class Constants {
     }
 
     public static final class Shifter {
-        public static final int SHIFTER_SOLENOID = 1;
+        public static final int SHIFTER_SOLENOID = 4;
     }
 
     public static final class Climber {
-        public static final int CLIMBER_PTO_SOLENOID_LEFT = 4;
-        public static final int CLIMBER_PTO_SOLENOID_RIGHT = 5;
-        public static final int CLIMBER_LAUNCH_MOTOR_SPX = 4;
+        public static final int ENGAGE_PTO = 2;
+        public static final int EXTEND_CLIMBER = 3;
     }
 
     public static final class IO {
