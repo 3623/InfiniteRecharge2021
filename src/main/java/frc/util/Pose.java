@@ -60,7 +60,7 @@ public class Pose {
 	}
 
 	private void limitAngle() {
-		this.heading = Geometry.limitAngleDegrees(this.heading);
+		this.heading = Geometry.limitAngleDeg(this.heading);
 		this.r = Math.toRadians(this.heading);
 	}
 

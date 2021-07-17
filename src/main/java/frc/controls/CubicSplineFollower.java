@@ -81,7 +81,7 @@ public class CubicSplineFollower {
                 // speed reduces as distance gets smaller
                 if (debug) System.out.println("Slowing down");
                 ffSpeed = Math.copySign(distanceFromWaypoint / kSlowdownRadius, ffSpeed);
-                maxTurn *= (distanceFromWaypoint / kSlowdownRadius); // TODO so too 
+                maxTurn *= (distanceFromWaypoint / kSlowdownRadius); // TODO so too
                 if (Math.abs(ffSpeed) < kMinApproachSpeedCritical) // TODO this might not be necessary
                     ffSpeed = Math.copySign(kMinApproachSpeedCritical, ffSpeed);
             }
@@ -115,7 +115,7 @@ public class CubicSplineFollower {
         Tuple pathCoefficients = getPathGeometry(robotPose, curWaypoint);
         double a = pathCoefficients.left;
         double b = pathCoefficients.right;
-        double nextSpeed = ((maxSpeed * ffSpeed) * kNextSpeedFactor) + 
+        double nextSpeed = ((maxSpeed * ffSpeed) * kNextSpeedFactor) +
                             (robotPose.velocity * (1.0-kNextSpeedFactor));
         double deltaX = nextSpeed / UPDATE_RATE;
         if (Math.signum(deltaX) != Math.signum(ffSpeed))
@@ -185,7 +185,7 @@ public class CubicSplineFollower {
         double relativeOpposDist = distanceFromWaypoint * Math.sin(relativeAngle);
         double relativeAdjacDist = distanceFromWaypoint * Math.cos(relativeAngle);
         double relativeGoalAngle = startPoint.r - goalPoint.r;
-        relativeGoalAngle = Geometry.limitAngleRadians(relativeGoalAngle);
+        relativeGoalAngle = Geometry.limitAngleRad(relativeGoalAngle);
         relativeGoalAngle = Utils.limit(relativeGoalAngle, kMaxSplineAngle, -kMaxSplineAngle);
         double relativeGoalDeriv = Math.tan(relativeGoalAngle);
         if (debug) {

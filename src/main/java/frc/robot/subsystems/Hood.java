@@ -7,21 +7,11 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PWM;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.util.Utils;
 
-// TODO make this velocity closed loop
-public class Hood extends SubsystemBase {
+public class Hood extends TerribleSubsystem {
 
     private PWM motor;
     private Encoder encode;
@@ -32,12 +22,14 @@ public class Hood extends SubsystemBase {
     private static final double DISTANCE_PER_PULSE = 1.0/(((345.0 / 36.0)*TICKS_PER_ENCODER_REV) / 360.0);
     //1.0 / TICKS_PER_ENCODER_REV * 36.0 / 40.5 * 45.0;
 
+    // TODO these values are gonna change?? (see Vince)
     private double MAX_GOAL = 30.0;
     private double MIN_GOAL = 0.0;
 
     private double setpoint = 0.0;
 
     public Hood() {
+        setName("Hood");
         motor = new PWM(0);
         encode = new Encoder(5,4);
         encode.setDistancePerPulse(DISTANCE_PER_PULSE);
@@ -57,8 +49,8 @@ public class Hood extends SubsystemBase {
     }
 
     public void setSetpoint(double setpointIn){
-        if (setpointIn <= MIN_GOAL) this.setpoint = MIN_GOAL;
-        else if (setpointIn >= MAX_GOAL) this.setpoint = MAX_GOAL;
+        if (setpointIn < MIN_GOAL) this.setpoint = MIN_GOAL;
+        else if (setpointIn > MAX_GOAL) this.setpoint = MAX_GOAL;
         else this.setpoint = setpointIn;
     }
 
@@ -73,22 +65,22 @@ public class Hood extends SubsystemBase {
             }
             if (Math.abs(output) < minToMove){
                 if (output < 0) output -= minToMove;
-                else output += minToMove; 
+                else output += minToMove;
             }
         }
         return output;
     }
-    
+
     public void monitor(){
-        SmartDashboard.putNumber("Hood/Real Angle", this.getMeasurement()+45);
-        SmartDashboard.putNumber("Hood/Raw Angle", this.getMeasurement());
-        SmartDashboard.putNumber("Hood/Current Setpoint", this.setpoint);
-        SmartDashboard.putNumber("Hood/Current Error", this.setpoint-this.getMeasurement());
-        SmartDashboard.putNumber("Hood/Calculated Output", calculateOutput());
+        display("Real Angle", this.getMeasurement()+45);
+        display("Raw Angle", this.getMeasurement());
+        display("Current Setpoint", this.setpoint);
+        display("Current Error", this.setpoint-this.getMeasurement());
+        display("Calculated Output", calculateOutput());
     }
 
     public void periodic(){
         motor.setSpeed(calculateOutput());
     }
-    
+
 }

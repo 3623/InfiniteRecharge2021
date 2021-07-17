@@ -11,9 +11,7 @@ import edu.wpi.cscore.HttpCamera;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.modeling.FieldPositions;
 import frc.robot.Robot;
-import frc.util.Geometry;
 import frc.util.Pose;
 import frc.util.Utils;
 
@@ -60,9 +58,7 @@ public class Shooter extends TerribleSubsystem {
         BLIND_AIM,
         /** when target has been found */
         VISION_TRACKING,
-        /** after shooting */
-        STOPPED,
-        /** robot disabled */
+        /** robot disabled or after shooting*/
         DISABLED,
     }
     private ShooterControlState controlState = ShooterControlState.DISABLED;

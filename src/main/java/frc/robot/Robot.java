@@ -1,19 +1,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,10 +14,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
 import frc.modeling.FieldPositions;
-import frc.robot.commands.AssistedTrenchDrive;
 import frc.robot.commands.DriverControl;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.OurTrench;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -68,13 +56,6 @@ public class Robot extends TimedRobot {
 
     // Activate Autonomous Chooser
     SendableChooser<Command> m_chooser = new SendableChooser<>();
-
-    // Declare Code Generated Shuffleboard Tabs
-    private ShuffleboardTab AccuracyTab = Shuffleboard.getTab("Accuracy");
-
-    // Declare Code Generated/Set Widgets
-    private SimpleWidget ZoneWidget = AccuracyTab.add("Zone", false).withWidget(BuiltInWidgets.kBooleanBox)
-            .withProperties(Map.of("colorWhenFalse", "#000000"));
 
     /*
         Declare NetworkTableEntry variables
