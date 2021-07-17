@@ -1,13 +1,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.SpindexerPID;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
-import frc.robot.subsystems.Shooter.Target;
 
 public class ShootSequenceCommand extends SequentialCommandGroup{
     public ShootSequenceCommand(Shooter shooter, Spindexer spindexer) {
@@ -23,7 +19,7 @@ public class ShootSequenceCommand extends SequentialCommandGroup{
                                             new fireOne(shooter, spindexer));
     }
 
-    
+
 
     public static class Prepare extends CommandBase {
         private Shooter shooter;
@@ -38,15 +34,13 @@ public class ShootSequenceCommand extends SequentialCommandGroup{
         @Override
         public void initialize() {
             super.initialize();
-            shooter.seekTarget(Target.GOAL);
-            shooter.fire();
-            shooter.prepareStart = true;
+            shooter.prepare();
             spindexer.startReadying();
         }
 
         @Override
         public boolean isFinished() {
-            return shooter.readyToFireCountdown > 10;
+            return shooter.isReadyToFire();
         }
 
         @Override
@@ -54,10 +48,7 @@ public class ShootSequenceCommand extends SequentialCommandGroup{
         }
 
         public void end(boolean interrupted){
-            if (!interrupted){
-                shooter.prepareDone = true;
-            }
-            else {
+            if (interrupted) {
                 shooter.disable();
                 spindexer.stopSpinning();
             }
@@ -80,7 +71,7 @@ public class ShootSequenceCommand extends SequentialCommandGroup{
         }
 
         public boolean isFinished(){
-            return (spindexer.isReady() && (spindexer.getMode() == 0) && shooter.readyToFireCountdown > 10);
+            return spindexer.isReady() && spindexer.isStopped() && shooter.isReadyToFire();
         }
     }
 }

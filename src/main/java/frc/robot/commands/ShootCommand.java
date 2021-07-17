@@ -1,13 +1,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.SpindexerPID;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
-import frc.robot.subsystems.Shooter.Target;
 
 public class ShootCommand extends SequentialCommandGroup{
     public ShootCommand(Shooter shooter, Spindexer spindexer) {
@@ -17,7 +14,7 @@ public class ShootCommand extends SequentialCommandGroup{
     }
 
     public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer) {
-        return (new Fire(shooter, spindexer)).withTimeout(spindexer.SHOOT_TIME);
+        return (new Fire(shooter, spindexer)).withTimeout(Spindexer.SHOOT_TIME);
     }
 
     public static class Prepare extends CommandBase {
@@ -33,26 +30,21 @@ public class ShootCommand extends SequentialCommandGroup{
         @Override
         public void initialize() {
             super.initialize();
-            shooter.seekTarget(Target.GOAL);
-            shooter.fire();
-            shooter.prepareStart = true;
+            shooter.prepare();
             spindexer.startReadying();
         }
 
         @Override
         public boolean isFinished() {
-            return shooter.readyToFireCountdown > 10;
+            return shooter.isReadyToFire();
         }
 
         @Override
         public void execute() {
         }
 
-        public void end(boolean interrupted){
-            if (!interrupted){
-                shooter.prepareDone = true;
-            }
-            else {
+        public void end(boolean interrupted) {
+            if (interrupted) {
                 shooter.disable();
                 spindexer.stopSpinning();
             }
@@ -72,7 +64,6 @@ public class ShootCommand extends SequentialCommandGroup{
         @Override
         public void initialize() {
             spindexer.startShooting();
-            shooter.fireStart = true;
         }
 
         @Override
