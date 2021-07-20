@@ -17,6 +17,8 @@ import frc.modeling.FieldPositions;
 import frc.robot.commands.DriverControl;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.SlalomAuto;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -31,15 +33,16 @@ public class Robot extends TimedRobot {
     private XboxController operator;
 
     // Declare Subsystems
-    // private Climber climber;
+    public static Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
     public static Spindexer spindexer;
     private Shooter shooter;
 
     // Declare Pre-Allocated Buttons on Controllers
-    private Button shooterButton;
-    // private Button trenchDriveButton; // Disabled for Challenges
+    private Button shooterButton; 
+    // private Button trenchDriveButton; // Disabled 
+
     // private Button indexButton;
     // private Button readyButton;
     // private Button shootButton;
@@ -47,6 +50,8 @@ public class Robot extends TimedRobot {
     private Button unjamButton;
     private Button intakeButton;
     private Button coolMotorsButton, liftIntakeButton;
+    private Button extendRetractClimberButton;
+    //private Button greenZone, blueZone, redZone, yellowZone; // Disabled for Competition
 
     // Declare some multi-use variables for Robot.java functions
     private boolean POVDebounce = false;
@@ -88,7 +93,8 @@ public class Robot extends TimedRobot {
         unjamButton = new Button(() -> operator.getStartButton());
         liftIntakeButton = new Button(() -> driver.getBackButton());
         coolMotorsButton = new Button(() -> driver.getStartButton());
-
+        extendRetractClimberButton = new Button(() -> driver.getYButton());
+        
         // Set up Port Forwarding so we can access Limelight over USB tether to robot.
         PortForwarder.add(5800, "limelight.local", 5800);
         PortForwarder.add(5801, "limelight.local", 5801);
@@ -102,9 +108,36 @@ public class Robot extends TimedRobot {
         // Critical Function Button Definitions
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
         shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
-
-        //trenchDriveButton // Disabled for Challenges
+        extendRetractClimberButton.whenPressed(new ConditionalCommand(
+                                                new InstantCommand(() -> climber.RetractClimber(), climber),
+                                                new InstantCommand(() -> climber.ExtendClimber(), climber), 
+                                                climber::isClimberExtended));
+        
+        //trenchDriveButton // Disabled
         //        .whileActiveOnce(new AssistedTrenchDrive(drivetrain, () -> driver.getTriggerAxis(Hand.kRight)));
+        
+        
+        // Accuracy Challenge Button Definitions
+        // Disabled for Competitions
+        /*greenZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, 'g'),
+                                new InstantCommand(() -> Robot.setZone('g')), 
+                                Robot::isGreenZone));
+
+        yellowZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, 'y'),
+                                new InstantCommand(() -> Robot.setZone('y')), 
+                                Robot::isYellowZone));
+
+        blueZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, 'b'),
+                                new InstantCommand(() -> Robot.setZone('b')), 
+                                Robot::isBlueZone));
+
+        redZone.whenPressed(new ConditionalCommand(
+                                new AccuracyShootCommand(shooter, spindexer, 'r'),
+                                new InstantCommand(() -> Robot.setZone('r')), 
+                                Robot::isRedZone));*/
 
         // Non-Critical Function Button Defintions
         unjamButton.whenPressed(new ConditionalCommand(
@@ -116,10 +149,26 @@ public class Robot extends TimedRobot {
         coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
 
         // Attach Auto Command files to their allocated memory space
-        // barrel = new BarrelAuto(drivetrain);
+        barrel = new BarrelAuto(drivetrain);
+        slalom = new SlalomAuto(drivetrain);
+        bounce = new BounceAuto(drivetrain);
 
-        // Add commands to the autonomous command chooser
-        // m_chooser.setDefaultOption("Barrel Course", barrel);
+        A_RED = new GalacticSearchARED(drivetrain, intake, spindexer);
+        A_BLUE = new GalacticSearchABLUE(drivetrain, intake, spindexer);
+        B_RED = new GalacticSearchBRED(drivetrain, intake, spindexer);
+        B_BLUE = new GalacticSearchBBLUE(drivetrain, intake, spindexer);
+
+        // Add commands to the autonomous command chooser 
+        // AutoNav Challenge autos
+        /*m_chooser.setDefaultOption("Barrel Course", barrel);
+        m_chooser.addOption("Slalom Course", slalom);
+        m_chooser.addOption("Bounce Course", bounce);*/
+
+        // Galactic Search (Ball Pickup) Autos FOR TESTING ONLY
+        /*m_chooser.addOption("A RED", A_RED);
+        m_chooser.addOption("B RED", B_RED);
+        m_chooser.addOption("A BLUE", A_BLUE);
+        m_chooser.addOption("B BLUE", B_BLUE);*/
 
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
@@ -187,6 +236,11 @@ public class Robot extends TimedRobot {
         if (driver.getStickButton(Hand.kLeft) && driver.getStickButton(Hand.kRight)) {
             drivetrain.zeroSensors();
         }
+
+        if (driver.getAButton() && driver.getBButton()){
+            climber.EngagePTO();
+        }
+        else climber.DisengagePTO();
 
         // Manual Hood Control Logic
         if (operator.getPOV(0) == -1) POVDebounce = false; // If the D-Pad isn't touched, reset.
