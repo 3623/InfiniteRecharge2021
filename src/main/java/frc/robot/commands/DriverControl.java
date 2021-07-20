@@ -35,9 +35,9 @@ public class DriverControl extends CommandBase {
         double joystickY = m_forward.getAsDouble();
         double joystickR = m_rotation.getAsDouble();
         Boolean quickTurn;
-        if (Math.abs(joystickY) < 0.5) quickTurn = true;
+        if (Math.abs(joystickY) < 0.4) quickTurn = true;
         else quickTurn = false;
-
+        // TODO non linear scaling??
         if (quickTurn) {
             Drive.terribleDrive(joystickY * 0.5, joystickR, quickTurn);
         } else {

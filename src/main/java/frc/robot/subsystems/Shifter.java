@@ -23,6 +23,7 @@ public class Shifter extends SubsystemBase {
         piston.set(high);
     }
 
+    // TODO does this stay accuracte even after disables??
     public boolean getGear(){
         return piston.get();
     }

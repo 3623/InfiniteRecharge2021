@@ -38,6 +38,7 @@ public class Shooter extends TerribleSubsystem {
 
     private double hoodTrim = 0.0;
     private double turretTrim = 0.0;
+    /** kRPMS */
     private double rpmTrim = 0.0;
 
     NetworkTable Lime = NetworkTableInstance.getDefault().getTable("limelight");
@@ -182,23 +183,26 @@ public class Shooter extends TerribleSubsystem {
 
     /**
      * Set the turret pid setpoint, adjusted for robot rotation
+     * Should never be public. Use manualTurret because that checks for override
      *
      * @param angle - in global reference
      */
-    private void setAngle(double angle) { // This is only public for testing
-        // TODO this needs to be limited
+    private void setAngle(double angle) {
+        // TODO this is limited in Turret (check?)
         turret.setSetpoint(angle - robotPose.heading);
     }
 
     /**
      * Controls the flywheel and hood
-     * TODO make this do something smart
      * @param angle
      */
-    public void setDistance(double distance) {
-        distance = Utils.limit(distance, 7, 0);
-        flywheel.setSpeed(8250.0 - (distance*100.0));
-        hood.setSetpoint(22.0 + hoodTrim);
+    public void setDistance(double dist) {
+        dist = Utils.limit(dist, 7, 0);
+        // TODO tune this
+        double angle = -18.6 + (dist*21.2) - (dist*dist*2.54);
+        double rpm = 8.73 - (dist*0.528) + (dist*dist*0.0599);
+        flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
+        hood.setSetpoint(angle + hoodTrim);
     }
 
     /**
@@ -225,7 +229,7 @@ public class Shooter extends TerribleSubsystem {
         readyToFire = false;
         turret.disable();
         // hood.disable();
-        // TODO hood needs to stow
+        // TODO hood needs to stow (check)
         hood.setSetpoint(0.0);
         flywheel.disable();
         feeder.stop();
@@ -254,8 +258,8 @@ public class Shooter extends TerribleSubsystem {
         turret.zero();
     }
 
-    public void moveTurret(double output){
-        turret.runwithOutput(output);
+    public void manualTurret(double angle){
+        if (manualOverride) setAngle(angle);
     }
 
     public void trimHood(double delta){
@@ -266,6 +270,10 @@ public class Shooter extends TerribleSubsystem {
         turretTrim += delta;
     }
 
+    /**
+     *
+     * @param delta - how much to change the RPM, in kRPMS
+     */
     public void trimRPM(double delta) {
         rpmTrim += delta;
     }

@@ -251,8 +251,8 @@ public class Drivetrain extends TerribleSubsystem {
 		Tuple output = waypointNav.updatePursuit(model.center);
 		double leftSpeed = output.left;
 		double rightSpeed = output.right;
-		if (model.getGear() == true) shifter.setGear(true);
-		else shifter.setGear(false);
+		// TODO fix gears
+		setShiftMode(model.getGear());
 
 		display("Left Out 1", leftSpeed);
 		display("Right Out 1", rightSpeed);
@@ -365,14 +365,14 @@ public class Drivetrain extends TerribleSubsystem {
 	 */
 	public void setShiftMode(boolean high) {
 		model.shiftMode(high);
-		shifter.setGear(high);
+		if (shifter.getGear() != high) shifter.setGear(high);
 		int pidSlot = PID_SLOT_LOW;
 		StatorCurrentLimitConfiguration curLim = LOW_GEAR_CURRENT_LIM;
 		if (high) {
 			pidSlot = PID_SLOT_HIGH;
 			curLim = HIGH_GEAR_CURRENT_LIM;
 		}
-		leftMaster.selectProfileSlot(pidSlot, PID_ID); // TODO Check if this works
+		leftMaster.selectProfileSlot(pidSlot, PID_ID); // TODO Check if this works (give a pid config 0?)
 		leftMaster.configStatorCurrentLimit(curLim, CONFIG_TIMEOUT);
 		rightMaster.configStatorCurrentLimit(curLim, CONFIG_TIMEOUT);
 	}

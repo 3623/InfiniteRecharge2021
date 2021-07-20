@@ -21,6 +21,7 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
+import frc.util.Geometry;
 
 public class Robot extends TimedRobot {
     // Declare named commands for use later.
@@ -200,14 +201,12 @@ public class Robot extends TimedRobot {
         }
 
         // Manual Turret Control
-        shooter.moveTurret(-operator.getY(Hand.kLeft));
         // TODO This is probably better once the limiting is set up properly
-        // double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
-        // double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));
-        // if (mag > 0.8) {
-        //     shooter.setAngle(angle);
-        //     System.out.println(angle + " " + mag);
-        // }
+        double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
+        double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));
+        if (mag > 0.8) {
+            shooter.manualTurret(angle);
+        }
     }
 
 

@@ -13,7 +13,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-// TODO make this velocity closed loop
 public class Feeder extends SubsystemBase {
 
     private WPI_TalonSRX feederSRX;
