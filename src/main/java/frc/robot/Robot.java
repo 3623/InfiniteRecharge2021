@@ -17,7 +17,6 @@ import frc.modeling.FieldPositions;
 import frc.robot.commands.DriverControl;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ShootCommand;
-import frc.robot.commands.SlalomAuto;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -149,14 +148,14 @@ public class Robot extends TimedRobot {
         coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
 
         // Attach Auto Command files to their allocated memory space
-        barrel = new BarrelAuto(drivetrain);
-        slalom = new SlalomAuto(drivetrain);
-        bounce = new BounceAuto(drivetrain);
+        // barrel = new BarrelAuto(drivetrain);
+        // slalom = new SlalomAuto(drivetrain);
+        // bounce = new BounceAuto(drivetrain);
 
-        A_RED = new GalacticSearchARED(drivetrain, intake, spindexer);
-        A_BLUE = new GalacticSearchABLUE(drivetrain, intake, spindexer);
-        B_RED = new GalacticSearchBRED(drivetrain, intake, spindexer);
-        B_BLUE = new GalacticSearchBBLUE(drivetrain, intake, spindexer);
+        // A_RED = new GalacticSearchARED(drivetrain, intake, spindexer);
+        // A_BLUE = new GalacticSearchABLUE(drivetrain, intake, spindexer);
+        // B_RED = new GalacticSearchBRED(drivetrain, intake, spindexer);
+        // B_BLUE = new GalacticSearchBBLUE(drivetrain, intake, spindexer);
 
         // Add commands to the autonomous command chooser 
         // AutoNav Challenge autos
