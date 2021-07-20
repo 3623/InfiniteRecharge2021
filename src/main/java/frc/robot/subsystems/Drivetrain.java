@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import frc.controls.CubicSplineFollower;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.util.Tuple;
 import frc.util.Utils;
 
@@ -353,6 +354,10 @@ public class Drivetrain extends TerribleSubsystem {
 		if (controlState != DriveControlState.OPEN_LOOP) {
 			System.out.println("Switching to open loop control, time: " + time);
 			controlState = DriveControlState.OPEN_LOOP;
+		}
+		if (Robot.climber.isPTOEngaged()){
+			left *= 0.1;
+			right *= 0.1;
 		}
 		leftMaster.set(ControlMode.PercentOutput, left/2);
 		leftFollower.set(ControlMode.PercentOutput, left/2);
