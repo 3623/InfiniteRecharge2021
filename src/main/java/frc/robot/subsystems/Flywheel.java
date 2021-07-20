@@ -11,7 +11,6 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import frc.util.Utils;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Flywheel extends TerribleSubsystem {
     private static final double SPEED_THRESHOLD = 50.0;

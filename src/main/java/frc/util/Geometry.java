@@ -36,8 +36,8 @@ public class Geometry {
 	 * @param angle angle in degrees
 	 * @return limited angle in degrees
 	 */
-	public static double limitAngleDegrees(double angle) {
-		return limitAngle(angle, 180.0);
+	public static double limitAngleDeg(double angle) {
+		return limitAngle(angle, -180.0, 180.0, 360.0);
 	}
 
 	/**
@@ -46,20 +46,27 @@ public class Geometry {
 	 * @param angle angle in degrees
 	 * @return limited angle in degrees
 	 */
-	public static double limitAngleRadians(double angle) {
-		return limitAngle(angle, Math.PI);
+	public static double limitAngleRad(double angle) {
+		return limitAngle(angle, -Math.PI, Math.PI, 2.0*Math.PI);
 	}
 
 	public static double angleBetweenDegrees(Pose looker, Pose reference) {
 		return Math.toDegrees(Math.atan2(reference.x - looker.x, reference.y - looker.y));
 	}
 
-	private static double limitAngle(double angle, double maxAngle) {
+	private static double limitAngleOld(double angle, double maxAngle) {
 		return (((angle + maxAngle) % (2 * maxAngle)) + (2 * maxAngle)) % (2 * maxAngle) - maxAngle;
+	}
+
+	public static double limitAngle(double angle, double min, double max, double revUnit) {
+		angle = angle % revUnit;
+		if (angle < min) angle += revUnit;
+		else if (angle > max) angle -= revUnit;
+		return angle;
 	}
 
 	// Testing calculations
 	public static void main(String[] args) {
-		System.out.println();
+		System.out.println(limitAngle(271, -90, 270, 360));
 	}
 }

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import frc.robot.Constants;
+import frc.util.Geometry;
 
 
 // This is pretty good right now
@@ -61,5 +62,12 @@ public class Turret extends PIDSubsystem {
     @Override
     protected double getMeasurement() {
         return turretEncoder.getDistance();
+    }
+
+    @Override
+    public void setSetpoint(double setpoint) {
+        setpoint = Geometry.limitAngle(setpoint, MIN_GOAL, MAX_GOAL, 360.0);
+        // TODO this is cheap (if within range, set, else do nothing)
+        if (!(setpoint < MIN_GOAL || setpoint > MAX_GOAL)) super.setSetpoint(setpoint);
     }
 }

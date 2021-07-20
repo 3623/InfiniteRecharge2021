@@ -8,13 +8,10 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 /**
@@ -54,6 +51,7 @@ public class Spindexer extends TerribleSubsystem {
     private int flipDebounceCounter = 0;
 
     public Spindexer() {
+        setName("Spindexer");
         spindexerSPX = new WPI_VictorSPX(Constants.Shooter.SPINDEXER_MOTOR_SPX);
         spindexerSPX.setInverted(true);
         spinCoder = new Encoder(0, 1);
@@ -64,26 +62,8 @@ public class Spindexer extends TerribleSubsystem {
         return spinCoder.getDistance();
     }
 
-    public int getMode(){
-        switch (spinMode){
-            case STOPPED:
-            return 0;
-            case INDEX:
-            return 1;
-            case READYING:
-            return 2;
-            case JAM_CLEAR:
-            return 4;
-            case SHOOTING:
-            return 3;
-            case MOVE_ONE:
-            return 5;
-        }
-        return -1;
-    }
-
     public boolean clearingJam(){
-        if (getMode() == 4) return true;
+        if (spinMode == MODE.JAM_CLEAR) return true;
         else return false;
     }
 
@@ -172,14 +152,18 @@ public class Spindexer extends TerribleSubsystem {
         spinMode = MODE.STOPPED;
     }
 
+    public boolean isStopped() {
+        return spinMode == MODE.STOPPED;
+    }
+
     public void monitor(){
         SmartDashboard.putString("Spindexer/Spindexer Mode", spinMode.toString());
-        SmartDashboard.putNumber("Spindexer/Spindexer Position", getPosition());
-        SmartDashboard.putNumber("Spindexer/Spindexer Slot", Math.round((getPosition() % 5)+1));
-        SmartDashboard.putNumber("Spindexer/Output", spindexerSPX.getMotorOutputPercent());
-        SmartDashboard.putNumber("Spindexer/Int Cast", (int)getPosition());
+        display("Position", getPosition());
+        display("Slot", Math.round((getPosition() % 5)+1));
+        display("Output", spindexerSPX.getMotorOutputPercent());
+        display("Int Cast", (int)getPosition());
     }
-    
+
 
     public void periodic(){
         setOutput();
