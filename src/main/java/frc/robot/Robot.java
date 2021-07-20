@@ -40,21 +40,13 @@ public class Robot extends TimedRobot {
 
     // Declare Pre-Allocated Buttons on Controllers
     private Button shooterButton; 
-    // private Button trenchDriveButton; // Disabled 
-
-    // private Button indexButton;
-    // private Button readyButton;
-    // private Button shootButton;
-    // private Button stopSpinningButton;
     private Button unjamButton;
     private Button intakeButton;
     private Button coolMotorsButton, liftIntakeButton;
     private Button extendRetractClimberButton;
-    //private Button greenZone, blueZone, redZone, yellowZone; // Disabled for Competition
 
     // Declare some multi-use variables for Robot.java functions
     private boolean POVDebounce = false;
-    public static char zoneConfirm = 'z';
 
 
 
@@ -78,14 +70,13 @@ public class Robot extends TimedRobot {
         shooter = new Shooter(drivetrain.model.center);
         intake = new Intake();
         spindexer = new Spindexer();
-        // climber = new Climber();
+        climber = new Climber();
 
         driver = new XboxController(Constants.IO.DRIVER_CONTROLLER);
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
 
         // Critical Function Buttons
         intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.1));
-        //trenchDriveButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.1));
         shooterButton = new Button(() -> operator.getXButton());
 
         // Buttons for Non-Critical Functions
@@ -112,32 +103,7 @@ public class Robot extends TimedRobot {
                                                 new InstantCommand(() -> climber.ExtendClimber(), climber), 
                                                 climber::isClimberExtended));
         
-        //trenchDriveButton // Disabled
-        //        .whileActiveOnce(new AssistedTrenchDrive(drivetrain, () -> driver.getTriggerAxis(Hand.kRight)));
         
-        
-        // Accuracy Challenge Button Definitions
-        // Disabled for Competitions
-        /*greenZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, 'g'),
-                                new InstantCommand(() -> Robot.setZone('g')), 
-                                Robot::isGreenZone));
-
-        yellowZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, 'y'),
-                                new InstantCommand(() -> Robot.setZone('y')), 
-                                Robot::isYellowZone));
-
-        blueZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, 'b'),
-                                new InstantCommand(() -> Robot.setZone('b')), 
-                                Robot::isBlueZone));
-
-        redZone.whenPressed(new ConditionalCommand(
-                                new AccuracyShootCommand(shooter, spindexer, 'r'),
-                                new InstantCommand(() -> Robot.setZone('r')), 
-                                Robot::isRedZone));*/
-
         // Non-Critical Function Button Defintions
         unjamButton.whenPressed(new ConditionalCommand(
                                     new InstantCommand(() -> spindexer.clearedJam()),
@@ -146,28 +112,6 @@ public class Robot extends TimedRobot {
 
         liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
         coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
-
-        // Attach Auto Command files to their allocated memory space
-        // barrel = new BarrelAuto(drivetrain);
-        // slalom = new SlalomAuto(drivetrain);
-        // bounce = new BounceAuto(drivetrain);
-
-        // A_RED = new GalacticSearchARED(drivetrain, intake, spindexer);
-        // A_BLUE = new GalacticSearchABLUE(drivetrain, intake, spindexer);
-        // B_RED = new GalacticSearchBRED(drivetrain, intake, spindexer);
-        // B_BLUE = new GalacticSearchBBLUE(drivetrain, intake, spindexer);
-
-        // Add commands to the autonomous command chooser 
-        // AutoNav Challenge autos
-        /*m_chooser.setDefaultOption("Barrel Course", barrel);
-        m_chooser.addOption("Slalom Course", slalom);
-        m_chooser.addOption("Bounce Course", bounce);*/
-
-        // Galactic Search (Ball Pickup) Autos FOR TESTING ONLY
-        /*m_chooser.addOption("A RED", A_RED);
-        m_chooser.addOption("B RED", B_RED);
-        m_chooser.addOption("A BLUE", A_BLUE);
-        m_chooser.addOption("B BLUE", B_BLUE);*/
 
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
