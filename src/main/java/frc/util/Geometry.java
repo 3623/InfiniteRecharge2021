@@ -54,10 +54,6 @@ public class Geometry {
 		return Math.toDegrees(Math.atan2(reference.x - looker.x, reference.y - looker.y));
 	}
 
-	private static double limitAngleOld(double angle, double maxAngle) {
-		return (((angle + maxAngle) % (2 * maxAngle)) + (2 * maxAngle)) % (2 * maxAngle) - maxAngle;
-	}
-
 	public static double limitAngle(double angle, double min, double max, double revUnit) {
 		angle = angle % revUnit;
 		if (angle < min) angle += revUnit;

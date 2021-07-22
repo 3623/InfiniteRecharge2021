@@ -257,15 +257,20 @@ public class CubicSplineFollower {
      * Contains information to define a point along a desired path
      */
     public static class Waypoint extends Pose {
-        // public final Pose point;
+        /** Double supplier so that it can be used with assisted driving */
         private DoubleSupplier kSpeed;
-        protected Boolean isCritical;
-        protected Boolean shift=false;
+        protected final Boolean isCritical;
+        protected final Boolean shift;
 
-        public Waypoint(double x, double y, double heading, DoubleSupplier speed, Boolean critical) {
+        public Waypoint(double x, double y, double heading, DoubleSupplier speed, Boolean critical, Boolean shift) {
             super(x, y, heading);
             this.kSpeed = speed;
             this.isCritical = critical;
+            this.shift = shift;
+        }
+
+        public Waypoint(double x, double y, double heading, DoubleSupplier speed, Boolean critical) {
+            this(x, y, heading, speed, critical, false);
         }
 
         /**
@@ -282,6 +287,7 @@ public class CubicSplineFollower {
             super(x, y, heading);
             this.kSpeed = () -> speed;
             this.isCritical = critical;
+            this.shift = false;
         }
 
         public Waypoint(double x, double y, double heading, double speed, Boolean critical, Boolean shift) {
