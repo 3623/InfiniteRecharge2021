@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import frc.controls.CubicSplineFollower;
+import frc.controls.CubicSplineFollower.Waypoint;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.util.Tuple;
@@ -252,8 +253,8 @@ public class Drivetrain extends TerribleSubsystem {
 		Tuple output = waypointNav.updatePursuit(model.center);
 		double leftSpeed = output.left;
 		double rightSpeed = output.right;
-		// TODO fix gears
-		setShiftMode(model.getGear());
+		Waypoint cur = waypointNav.getCurrentWaypoint();
+		setShiftMode(cur.shift);
 
 		display("Left Out 1", leftSpeed);
 		display("Right Out 1", rightSpeed);
@@ -265,7 +266,7 @@ public class Drivetrain extends TerribleSubsystem {
 	private double m_quickStopAccumulator;
 
 	public void terribleDrive(double xSpeed, double zRotation, boolean isQuickTurn) {
-		double m_deadband = 0.02;
+		double m_deadband = 0.04;
 		xSpeed = Utils.limit(xSpeed);
 		xSpeed = Utils.applyDeadband(xSpeed, m_deadband);
 

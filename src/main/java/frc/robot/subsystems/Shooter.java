@@ -48,7 +48,7 @@ public class Shooter extends TerribleSubsystem {
     NetworkTableEntry targets = Lime.getEntry("tv"); // Valid Targets (0 or 1)
     private HttpCamera limeCam; // We need this for it to work!
 
-    private boolean manualOverride = false;
+    private boolean visionOverride = false;
 
     private final double LIMELIGHT_ELEVATION_OFFSET = 20.5; // deg
     private final double TARGET_RELATIVE_HEIGHT = 2.0; // meters
@@ -108,7 +108,7 @@ public class Shooter extends TerribleSubsystem {
         readyToFire = false;
         targetAngle = 0.0;
         targetDistance = DEFAULT_SHOOTER_DISTANCE;
-        if (manualOverride) {
+        if (visionOverride) {
             // Use the turret trim (for manual control of aiming)
             targetAngle += turretTrim;
             // Stay in update blind
@@ -157,29 +157,6 @@ public class Shooter extends TerribleSubsystem {
         return targetHoriz + robotPose.heading + turret.getMeasurement();
     }
 
-    // public void accuracyShootZoneSet(char zone){
-    //     this.zone = zone;
-    //     if (zone == 'g') {
-    //         targetSpeed = 8250.0;
-    //         targetHood = 0.0;
-    //     }
-    //     else if (zone == 'y') {
-    //         targetSpeed = 7750.0;
-    //         targetHood = 22.5;
-    //     }
-    //     else if (zone == 'b') {
-    //         targetSpeed = 7500.0;
-    //         targetHood =  25.0;
-    //     }
-    //     else if (zone == 'r') {
-    //         targetSpeed = 7750.0;
-    //         targetHood = 17.5;
-    //     }
-    //     else {
-    //         targetSpeed = 4000;
-    //         targetHood = 0.0;
-    //     }
-    // }
 
     /**
      * Set the turret pid setpoint, adjusted for robot rotation
@@ -246,7 +223,7 @@ public class Shooter extends TerribleSubsystem {
     }
 
     public boolean isReadyToFire() {
-        readyToFire = (controlState == ShooterControlState.VISION_TRACKING || manualOverride);
+        readyToFire = (controlState == ShooterControlState.VISION_TRACKING || visionOverride);
         readyToFire &= Utils.withinThreshold(targetAngle, 0.0, AIM_THRESHOLD);
         readyToFire &= flywheel.isAtSpeed();
         readyToFire &= Robot.spindexer.isReady();
@@ -259,7 +236,7 @@ public class Shooter extends TerribleSubsystem {
     }
 
     public void manualTurret(double angle){
-        if (manualOverride) setAngle(angle);
+        if (visionOverride) setAngle(angle);
     }
 
     public void trimHood(double delta){
@@ -278,6 +255,11 @@ public class Shooter extends TerribleSubsystem {
         rpmTrim += delta;
     }
 
+    public void toggleVisionOverride() {
+        visionOverride = !visionOverride;
+        System.out.println("Manual override: " + visionOverride);
+    }
+
     @Override
     public void periodic() {
         super.periodic();
@@ -285,7 +267,7 @@ public class Shooter extends TerribleSubsystem {
         display("Angle", targetAngle);
         display("Ready to Fire Overall", readyToFire);
         display("At Speed", flywheel.isAtSpeed());
-        display("Manual Override", manualOverride);
+        display("VIsion Override", visionOverride);
         display("State", controlState.toString());
         turret.monitor();
         hood.monitor();

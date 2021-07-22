@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
     private Shooter shooter;
 
     // Declare Pre-Allocated Buttons on Controllers
-    private Button shooterButton; 
+    private Button shooterButton;
     private Button unjamButton;
     private Button intakeButton;
     private Button coolMotorsButton, liftIntakeButton;
@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
         liftIntakeButton = new Button(() -> driver.getBackButton());
         coolMotorsButton = new Button(() -> driver.getStartButton());
         extendRetractClimberButton = new Button(() -> driver.getYButton());
-        
+
         // Set up Port Forwarding so we can access Limelight over USB tether to robot.
         PortForwarder.add(5800, "limelight.local", 5800);
         PortForwarder.add(5801, "limelight.local", 5801);
@@ -94,17 +94,17 @@ public class Robot extends TimedRobot {
         // Set Default Commands
         drivetrain.setDefaultCommand(
                 new DriverControl(drivetrain, () -> driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
-        shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
+        shooter.setDefaultCommand(new InstantCommand(() -> shooter.disable(), shooter));
 
         // Critical Function Button Definitions
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
-        shooterButton.whenPressed(new ShootCommand(shooter, spindexer));
+        shooterButton.whenPressed(new ShootCommand(shooter, spindexer, driver, operator));
         extendRetractClimberButton.whenPressed(new ConditionalCommand(
                                                 new InstantCommand(() -> climber.RetractClimber(), climber),
-                                                new InstantCommand(() -> climber.ExtendClimber(), climber), 
+                                                new InstantCommand(() -> climber.ExtendClimber(), climber),
                                                 climber::isClimberExtended));
-        
-        
+
+
         // Non-Critical Function Button Defintions
         unjamButton.whenPressed(new ConditionalCommand(
                                     new InstantCommand(() -> spindexer.clearedJam()),
@@ -171,6 +171,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+
+            /* ********* Drivetrain ********* */
+
         // If driver is holding the left bumper, shift into high gear. Else, stay in low.
         if (driver.getBumper(Hand.kLeft)) {
             drivetrain.setShiftMode(true);
@@ -181,10 +184,13 @@ public class Robot extends TimedRobot {
             drivetrain.zeroSensors();
         }
 
+            /* ********* Climber ********* */
         if (driver.getAButton() && driver.getBButton()){
             climber.EngagePTO();
         }
         else climber.DisengagePTO();
+
+            /* ********* Shooter ********* */
 
         // Manual Hood Control Logic
         if (operator.getPOV(0) == -1) POVDebounce = false; // If the D-Pad isn't touched, reset.
@@ -198,12 +204,15 @@ public class Robot extends TimedRobot {
         }
 
         // Manual Turret Control
-        // TODO This is probably better once the limiting is set up properly
+        // TODO This is probably better once the limiting is set up properly (check)
         double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
         double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));
         if (mag > 0.8) {
             shooter.manualTurret(angle);
         }
+
+        // Override
+        if (operator.getBackButtonPressed()) shooter.toggleVisionOverride();
     }
 
 

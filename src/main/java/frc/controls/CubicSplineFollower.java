@@ -15,12 +15,13 @@ import frc.util.Geometry;
 import frc.util.Pose;
 import frc.util.Tuple;
 import frc.util.Utils;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Add your docs here.
  */
 public class CubicSplineFollower {
-    private final double WHEEL_BASE;
+    private static final double WHEEL_BASE = DrivetrainModel.WHEEL_BASE;
     private static final double UPDATE_RATE = 200.0;
 
     private LinkedList<Waypoint> waypoints;
@@ -28,30 +29,32 @@ public class CubicSplineFollower {
 
     public Boolean isFinished = false;
 
-    private double kMaxAccel = 0.2; // m/s^2 * 200
-    private final double kNextSpeedFactor = 0.02; // 0.0 - 1.0
-    private final double kTurnMultiplier = 1.0;
-    private final double kMaxAngularDiffFactor = 3.0; // m/s * 2
-    private final double kSlowdownRadius = 1.0; // m
-    private final double kMinApproachSpeedCritical = 0.2; // %
-    private final double kRadiusCritical = 0.1;; // m
-    private final double kScaleRadiusPath = 1; // constant
+    private static final double kMaxAccel = 0.2; // m/s^2 * 200
+    private static final double kNextSpeedFactor = 0.02; // 0.0 - 1.0
+    private static final double kTurnMultiplier = 1.0; // should be close to 1
+    private static final double kMaxAngularDiffFactor = 3.0; // m/s * 2
+    private static final double kSlowdownRadius = 1.0; // m
+    private static final double kMinApproachSpeedCritical = 0.1; // %
+    private static final double kRadiusCritical = 0.1;; // m
+    private static final double kScaleRadiusPath = 1; // constant
     private double kRadiusPath = 0.0; // this updates dynamically
     // deg, keeping this because this dictates when the robot switches
-    private final double kAngularErrorPath = 20.0;
-    private final double kMaxSplineAngle = Math.PI * 0.3;
+    private static final double kAngularErrorPath = 20.0;
+    private static final double kMaxSplineAngle = Math.PI * 0.3;
 
     private DrivetrainModel drivetrainState;
 
-    private double maxSpeed;
-    private double ffSpeed = 0.0;
-    private double maxTurn = 0.0;
+    private double distToWaypoint;
+    private double DT_MAX_SPEED;
+    /** % speed */
+    private double ffSpeed;
+    private boolean onBoard;
 
     private static final Boolean debug = false;
+    protected static final Boolean DEFAULT_GEAR = false;
 
     public CubicSplineFollower(DrivetrainModel drivetrain) {
         drivetrainState = drivetrain;
-        WHEEL_BASE = DrivetrainModel.WHEEL_BASE;
 
         waypoints = new LinkedList<Waypoint>();
     }
@@ -64,30 +67,35 @@ public class CubicSplineFollower {
      * @return a tuple with left and right wheel speeds, n/s
      */
     public Tuple updatePursuit(Pose robotPose) {
+        // Check for finished case
         boolean finished = waypoints.isEmpty() && curWaypoint == null;
         if (finished && !isFinished) System.out.println("Finished Path Following");
         isFinished = finished;
         if (isFinished) return new Tuple(0.0, 0.0);
+
+        // New waypoint
         if (curWaypoint == null) curWaypoint = waypoints.pollFirst();
-        double distanceFromWaypoint = Geometry.distance(robotPose, curWaypoint);
-        if (curWaypoint.getGear() == true) drivetrainState.shiftMode(true);
-        else drivetrainState.shiftMode(false);
-        maxSpeed = drivetrainState.topSpeed;
+        distToWaypoint = Geometry.distance(robotPose, curWaypoint);
+        DT_MAX_SPEED = drivetrainState.topSpeed;
         ffSpeed = curWaypoint.speed();
+
         boolean nextWaypoint = false;
-        if (debug) System.out.println("Seeking: " + curWaypoint.toString());
-        if (curWaypoint.isCritical) { // important to be at exactly
-            if (distanceFromWaypoint < Math.abs(ffSpeed) * kSlowdownRadius) {
-                // speed reduces as distance gets smaller
+        /* important to be at exactly */
+        if (curWaypoint.isCritical) {
+            // speed reduces as distance gets smaller
+            if (distToWaypoint < Math.abs(ffSpeed) * kSlowdownRadius) {
                 if (debug) System.out.println("Slowing down");
-                ffSpeed = Math.copySign(distanceFromWaypoint / kSlowdownRadius, ffSpeed);
-                maxTurn *= (distanceFromWaypoint / kSlowdownRadius); // TODO so too
-                if (Math.abs(ffSpeed) < kMinApproachSpeedCritical) // TODO this might not be necessary
+                ffSpeed = Math.copySign(distToWaypoint / kSlowdownRadius, ffSpeed);
+                // TODO this might not be necessary
+                if (Math.abs(ffSpeed) < kMinApproachSpeedCritical)
                     ffSpeed = Math.copySign(kMinApproachSpeedCritical, ffSpeed);
             }
-            if (distanceFromWaypoint < kRadiusCritical || isFinished) nextWaypoint = true;
-                // at point and heading, we're done
-        } else if (distanceFromWaypoint < kRadiusPath
+            // at point and heading, we're done
+            if (distToWaypoint < kRadiusCritical || isFinished)
+                nextWaypoint = true;
+        }
+        /* Path waypoint, just check radius */
+        else if (distToWaypoint < kRadiusPath
                 && Utils.withinThreshold(robotPose.heading, curWaypoint.heading, kAngularErrorPath))
                 // at non-critical waypoint
                 nextWaypoint = true;
@@ -96,7 +104,9 @@ public class CubicSplineFollower {
             System.out.println("At Waypoint: " + curWaypoint.toString());
             curWaypoint = waypoints.pollFirst();
             return updatePursuit(robotPose);
-        }
+        } else if (debug)
+            System.out.println("Seeking: " + curWaypoint.toString());
+
         // if not in a special case, just run path following
         return pathFollowing(robotPose);
     }
@@ -112,22 +122,22 @@ public class CubicSplineFollower {
      * @return a tuple of left and right output linear speed
      */
     public Tuple pathFollowing(Pose robotPose) {
+        display("ffSpeed", ffSpeed, false);
         Tuple pathCoefficients = getPathGeometry(robotPose, curWaypoint);
         double a = pathCoefficients.left;
         double b = pathCoefficients.right;
-        double nextSpeed = ((maxSpeed * ffSpeed) * kNextSpeedFactor) +
+        // Without next speed factor, when the robot is stopped this would be 0
+        double nextSpeed = ((DT_MAX_SPEED * ffSpeed) * kNextSpeedFactor) +
                             (robotPose.velocity * (1.0-kNextSpeedFactor));
+        // Next position along spline the robot is trying to reach
+        // TODO might want to find a way to more accurately calculate deltaX
         double deltaX = nextSpeed / UPDATE_RATE;
+
+        // Dont calculate speed for the spline in the wrong direction
+        // Just let the robot sit until then
         if (Math.signum(deltaX) != Math.signum(ffSpeed))
             deltaX = 0.0;
-        /*
-         * Average of ffSpeed and actual speed scaled by cosine (to account for how far
-         * off straight the robot has to drive) and cos again (the further off straight
-         * the longer the curve) then divided by update rate (to get deltaX, the
-         * position along the spline the robot will be at for the next update, giving a
-         * feed forward point). If this just used actual speed, a stopped robot would
-         * not look ahead.
-         */
+        display("deltaX Raw", deltaX, false);
 
         if (deltaX != 0.0) {
             double y2 = (a * deltaX * deltaX * deltaX) + (b * deltaX * deltaX);
@@ -135,41 +145,49 @@ public class CubicSplineFollower {
             double ratio = Math.abs(deltaX / hypot);
             deltaX *= ratio;
         }
+        display("deltaX Scaled", deltaX, false);
 
         kRadiusPath = Math.abs(deltaX) * UPDATE_RATE * kScaleRadiusPath;
         double dx2 = (3.0 * a * deltaX * deltaX) + (2.0 * b * deltaX);
-        double relativeFFAngle = Math.atan(dx2);
-        if (debug) System.out.println(relativeFFAngle);
-        double omega = relativeFFAngle * UPDATE_RATE;
+        double relFFAngle = Math.atan(dx2);
+        display("relFFAngle", relFFAngle, true);
+        double omega = relFFAngle * UPDATE_RATE;
+        display("omega", omega, false);
 
         // Convert from derivative to angle
 
-        double desiredSpeed = ffSpeed * maxSpeed;
-        if (debug) System.out.println(robotPose.velocity);
-        if (debug) System.out.println(desiredSpeed + "raw");
+        double desiredSpeed = ffSpeed * DT_MAX_SPEED;
+        display("robot velo", robotPose.velocity, true);
+        display("Raw desiredSpeed", desiredSpeed, true);
+        // Limit output per acceleration
         if (desiredSpeed - robotPose.velocity > kMaxAccel)
             desiredSpeed = robotPose.velocity + kMaxAccel;
         else if (desiredSpeed - robotPose.velocity < -kMaxAccel)
             desiredSpeed = robotPose.velocity - kMaxAccel;
-        if (debug) System.out.println(desiredSpeed + "accel");
+        display("Accel desiredSpeed", desiredSpeed, true);
+
+        double maxTurn = kMaxAngularDiffFactor * Math.abs(desiredSpeed);
+        display("Max turn", maxTurn, false);
+
         double lrSpeedDifference = omega * WHEEL_BASE * kTurnMultiplier;
-        maxTurn = kMaxAngularDiffFactor * Math.abs(ffSpeed);
-        if (true) System.out.println("Max turn: " + maxTurn);
         lrSpeedDifference = Utils.limit(lrSpeedDifference, maxTurn, -maxTurn);
-        if (desiredSpeed + Math.abs(lrSpeedDifference) > maxSpeed)
-            desiredSpeed = maxSpeed - Math.abs(lrSpeedDifference);
-        else if (desiredSpeed - Math.abs(lrSpeedDifference) < -maxSpeed)
-            desiredSpeed = -maxSpeed + Math.abs(lrSpeedDifference);
-        if (debug) System.out.println(desiredSpeed  + "turn");
+        // Limit output to allow turning
+        if (desiredSpeed + Math.abs(lrSpeedDifference) > DT_MAX_SPEED)
+            desiredSpeed = DT_MAX_SPEED - Math.abs(lrSpeedDifference);
+        else if (desiredSpeed - Math.abs(lrSpeedDifference) < -DT_MAX_SPEED)
+            desiredSpeed = -DT_MAX_SPEED + Math.abs(lrSpeedDifference);
+        display("Turn desired speed", desiredSpeed, true);
+
         double leftSpeed = desiredSpeed - (lrSpeedDifference / 2);
         double rightSpeed = desiredSpeed + (lrSpeedDifference / 2);
-        if (debug) System.out.println(desiredSpeed + " " + lrSpeedDifference);
-        if (debug) System.out.println(leftSpeed + " " + rightSpeed);
+        display("lrSpeedDifference", lrSpeedDifference, true);
+        display("leftSpeed", leftSpeed, true);
+        display("rightSpeed", rightSpeed, true);
         return new Tuple(leftSpeed, rightSpeed);
     }
 
     /**
-     * Calculates the relative angles and distances from the current robot position
+     * Calculates the rel angles and distances from the current robot position
      * to the desired goal point.
      *
      * @param startPoint the start position of the robot, if using dynamic path
@@ -178,20 +196,19 @@ public class CubicSplineFollower {
      * @return a tuple of path coefficients a and b respectively for a cubic spline
      */
     private Tuple getPathGeometry(Pose startPoint, Pose goalPoint) {
-        double distanceFromWaypoint = Geometry.distance(startPoint, goalPoint);
         double straightPathAngle = Math.atan2(goalPoint.x - startPoint.x, goalPoint.y - startPoint.y);
-        double relativeAngle = startPoint.r - straightPathAngle;
+        double relAngle = startPoint.r - straightPathAngle;
 
-        double relativeOpposDist = distanceFromWaypoint * Math.sin(relativeAngle);
-        double relativeAdjacDist = distanceFromWaypoint * Math.cos(relativeAngle);
-        double relativeGoalAngle = startPoint.r - goalPoint.r;
-        relativeGoalAngle = Geometry.limitAngleRad(relativeGoalAngle);
-        relativeGoalAngle = Utils.limit(relativeGoalAngle, kMaxSplineAngle, -kMaxSplineAngle);
-        double relativeGoalDeriv = Math.tan(relativeGoalAngle);
+        double relOpposDist = distToWaypoint * Math.sin(relAngle);
+        double relAdjacDist = distToWaypoint * Math.cos(relAngle);
+        double relGoalAngle = startPoint.r - goalPoint.r;
+        relGoalAngle = Geometry.limitAngleRad(relGoalAngle);
+        relGoalAngle = Utils.limit(relGoalAngle, kMaxSplineAngle, -kMaxSplineAngle);
+        double relGoalDeriv = Math.tan(relGoalAngle);
         if (debug) {
-            System.out.println(relativeAdjacDist + " " + relativeOpposDist + " " + relativeGoalDeriv);
+            System.out.println(relAdjacDist + " " + relOpposDist + " " + relGoalDeriv);
         }
-        return generateSpline(relativeAdjacDist, relativeOpposDist, relativeGoalDeriv);
+        return generateSpline(relAdjacDist, relOpposDist, relGoalDeriv);
     }
 
     /**
@@ -213,6 +230,15 @@ public class CubicSplineFollower {
         double a = ((x * dx) - (2 * y)) / (x * x * x);
         double b = ((3 * y) - (dx * x)) / (x * x);
         return new Tuple(a, b);
+    }
+
+    private void display(String name, double value, boolean trace) {
+        if (!trace || debug) {
+            if (onBoard)
+                SmartDashboard.putNumber("Path Following/" + name, value);
+            else
+                System.out.println(name + ": " + value);
+        }
     }
 
     /**
@@ -259,9 +285,23 @@ public class CubicSplineFollower {
     public static class Waypoint extends Pose {
         /** Double supplier so that it can be used with assisted driving */
         private DoubleSupplier kSpeed;
-        protected final Boolean isCritical;
-        protected final Boolean shift;
+        /** true is waypoint should be stopped at, by default false */
+        public final Boolean isCritical;
+        /** true if high gear */
+        public final Boolean shift;
 
+        /**
+         * Constructor for waypoint
+         *
+         * @param x        in meters
+         * @param y        in meters
+         * @param heading  in degrees. Call .r for radians
+         * @param speed    in desired speed on a scale of -1 to 1
+         * @param critical whether or not the waypoint is critical. Will stop at a
+         *                 critical waypoint
+         * @param shift    high gear if true
+         *
+         */
         public Waypoint(double x, double y, double heading, DoubleSupplier speed, Boolean critical, Boolean shift) {
             super(x, y, heading);
             this.kSpeed = speed;
@@ -270,31 +310,15 @@ public class CubicSplineFollower {
         }
 
         public Waypoint(double x, double y, double heading, DoubleSupplier speed, Boolean critical) {
-            this(x, y, heading, speed, critical, false);
-        }
-
-        /**
-         * Constructor for waypoint
-         *
-         * @param x        in meters
-         * @param y        in meters
-         * @param heading  in degrees. Call .r for radians
-         * @param speed    in desired speed on a scale of -1 to 1
-         * @param critical whether or not the waypoint is critical. Will stop at a
-         *                 critical waypoint
-         */
-        public Waypoint(double x, double y, double heading, double speed, Boolean critical) {
-            super(x, y, heading);
-            this.kSpeed = () -> speed;
-            this.isCritical = critical;
-            this.shift = false;
+            this(x, y, heading, speed, critical, DEFAULT_GEAR);
         }
 
         public Waypoint(double x, double y, double heading, double speed, Boolean critical, Boolean shift) {
-            super(x, y, heading);
-            this.kSpeed = () -> speed;
-            this.isCritical = critical;
-            this.shift = shift;
+            this(x, y, heading, () -> speed, critical, shift);
+        }
+
+        public Waypoint(double x, double y, double heading, double speed, Boolean critical) {
+            this(x, y, heading, speed, critical, DEFAULT_GEAR);
         }
 
         /**
@@ -306,9 +330,7 @@ public class CubicSplineFollower {
          * @param speed    in desired speed on a scale of -1 to 1
          * @param critical whether or not the waypoint is critical. Will stop at a
          *                 critical waypoint
-         * @param shift    what gear to shift into for this waypoint
          */
-
         public Waypoint(Pose pose, DoubleSupplier speed, Boolean critical) {
             this(pose.x, pose.y, pose.heading, speed, critical);
         }
@@ -329,9 +351,6 @@ public class CubicSplineFollower {
             this(x, y, heading, speed, false);
         }
 
-        public boolean getGear(){
-            return shift;
-        }
 
         @Override
         public String toString() {
@@ -344,8 +363,5 @@ public class CubicSplineFollower {
     }
 
     public static void main(String[] args) {
-        double relativeGoalAngle = -3.2;
-        System.out.println((relativeGoalAngle + 2.0*Math.PI) % (2.0*Math.PI) - Math.PI);
-
     }
 }
