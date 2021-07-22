@@ -82,11 +82,11 @@ public class Flywheel extends TerribleSubsystem {
 
     @Override
     public void periodic() {
-        display("Velocity", getVelocity());
+        // display("Velocity", getVelocity());
         display("Setpoint Motor RPM", speedSetpoint);
         display("Output", shooterMaster.getAppliedOutput());
         display("Setpoint Output RPM", speedSetpoint*(35.0/18.0));
-        display("Threshold Difference", getMotorVelocity()-speedSetpoint);
+        // display("Threshold Difference", getMotorVelocity()-speedSetpoint);
     }
 
     public void disable() {

@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
         // Set Default Commands
         drivetrain.setDefaultCommand(
                 new DriverControl(drivetrain, () -> driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
-        shooter.setDefaultCommand(new InstantCommand(() -> shooter.disable(), shooter));
+        // shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
 
         // Critical Function Button Definitions
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
@@ -175,10 +175,10 @@ public class Robot extends TimedRobot {
             /* ********* Drivetrain ********* */
 
         // If driver is holding the left bumper, shift into high gear. Else, stay in low.
-        if (driver.getBumper(Hand.kLeft)) {
+        if (driver.getBumperPressed(Hand.kLeft)) 
             drivetrain.setShiftMode(true);
-        }
-        else drivetrain.setShiftMode(false);
+        else if (driver.getBumperReleased(Hand.kLeft))
+            drivetrain.setShiftMode(false);
 
         if (driver.getStickButton(Hand.kLeft) && driver.getStickButton(Hand.kRight)) {
             drivetrain.zeroSensors();

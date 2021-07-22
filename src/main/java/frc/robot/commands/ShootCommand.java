@@ -13,7 +13,7 @@ public class ShootCommand extends SequentialCommandGroup{
 
     public ShootCommand(Shooter shooter, Spindexer spindexer, XboxController... users) {
         addCommands(new Prepare(shooter, spindexer, users),
-                    new WaitCommand(0.5),
+                    new WaitCommand(0.1),
                     newFireCommand(shooter, spindexer, users));
     }
 
@@ -35,6 +35,7 @@ public class ShootCommand extends SequentialCommandGroup{
 
         @Override
         public void initialize() {
+            System.out.println("Preparing");
             super.initialize();
             shooter.prepare();
             spindexer.startReadying();
@@ -79,6 +80,7 @@ public class ShootCommand extends SequentialCommandGroup{
 
         @Override
         public void initialize() {
+            System.out.println("Firing");
             spindexer.startShooting();
             for (XboxController user : users) {
                 user.setRumble(RumbleType.kLeftRumble, 0.5);

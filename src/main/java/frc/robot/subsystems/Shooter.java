@@ -100,7 +100,6 @@ public class Shooter extends TerribleSubsystem {
             case DISABLED:
                 break;
         }
-        if (readyToFire) System.out.println("Ready to fire!");
     }
 
     private void updateBlind() {
@@ -178,7 +177,8 @@ public class Shooter extends TerribleSubsystem {
         // TODO tune this
         double angle = -18.6 + (dist*21.2) - (dist*dist*2.54);
         double rpm = 8.73 - (dist*0.528) + (dist*dist*0.0599);
-        flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
+        // flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
+        flywheel.setSpeed(100.0);
         hood.setSetpoint(angle + hoodTrim);
     }
 
@@ -204,7 +204,7 @@ public class Shooter extends TerribleSubsystem {
         controlState = ShooterControlState.DISABLED;
         setVision(false);
         readyToFire = false;
-        turret.disable();
+        // turret.disable();
         // hood.disable();
         // TODO hood needs to stow (check)
         hood.setSetpoint(0.0);
@@ -265,7 +265,7 @@ public class Shooter extends TerribleSubsystem {
         super.periodic();
         display("Distance", targetDistance);
         display("Angle", targetAngle);
-        display("Ready to Fire Overall", readyToFire);
+        display("Ready to Fire", readyToFire);
         display("At Speed", flywheel.isAtSpeed());
         display("VIsion Override", visionOverride);
         display("State", controlState.toString());
