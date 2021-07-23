@@ -11,26 +11,30 @@ import frc.robot.subsystems.Spindexer;
 // TODO rumble feedback (check)
 public class ShootCommand extends SequentialCommandGroup{
 
-    public ShootCommand(Shooter shooter, Spindexer spindexer, XboxController... users) {
-        addCommands(new Prepare(shooter, spindexer, users),
+    public ShootCommand(Shooter shooter, Spindexer spindexer, BooleanSupplier prepareHold, XboxController... users) {
+        addCommands(new Prepare(shooter, spindexer, prepareHold),
                     new WaitCommand(0.1),
+                    newFireCommand(shooter, spindexer));
                     newFireCommand(shooter, spindexer, users));
     }
 
-    public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer, XboxController... users) {
-        return (new Fire(shooter, spindexer, users)).withTimeout(Spindexer.SHOOT_TIME);
+    public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer) {
+        return (new Fire(shooter, spindexer)).withTimeout(Spindexer.SHOOT_TIME);
     }
 
     public static class Prepare extends CommandBase {
         private Shooter shooter;
         private Spindexer spindexer;
-        private XboxController[] users;
+        private BooleanSupplier prepareHold;
 
-        public Prepare(Shooter shooter, Spindexer spindexer, XboxController... users) {
+        public Prepare(Shooter shooter, Spindexer spindexer, BooleanSupplier prepareHold) {
             this.spindexer = spindexer;
             this.shooter = shooter;
             addRequirements(this.shooter, this.spindexer);
-            this.users = users;
+        }
+
+        public Prepare(Shooter shooter, Spindexer spindexer) {
+            this(shooter, spindexer, () -> false);
         }
 
         @Override
@@ -47,7 +51,7 @@ public class ShootCommand extends SequentialCommandGroup{
 
         @Override
         public boolean isFinished() {
-            return shooter.isReadyToFire();
+            return shooter.isReadyToFire() && (!prepareHold.getAsBoolean());
         }
 
         @Override

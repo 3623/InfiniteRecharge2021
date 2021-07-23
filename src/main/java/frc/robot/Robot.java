@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
 
         // Critical Function Button Definitions
         intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
-        shooterButton.whenPressed(new ShootCommand(shooter, spindexer, driver, operator));
+        shooterButton.whenPressed(new ShootCommand(shooter, spindexer, () -> shooterButton.get(), operator, driver));
         extendRetractClimberButton.whenPressed(new ConditionalCommand(
                                                 new InstantCommand(() -> climber.RetractClimber(), climber),
                                                 new InstantCommand(() -> climber.ExtendClimber(), climber),
@@ -175,7 +175,7 @@ public class Robot extends TimedRobot {
             /* ********* Drivetrain ********* */
 
         // If driver is holding the left bumper, shift into high gear. Else, stay in low.
-        if (driver.getBumperPressed(Hand.kLeft)) 
+        if (driver.getBumperPressed(Hand.kLeft))
             drivetrain.setShiftMode(true);
         else if (driver.getBumperReleased(Hand.kLeft))
             drivetrain.setShiftMode(false);
