@@ -24,7 +24,7 @@ public class Shooter extends TerribleSubsystem {
     private Flywheel flywheel;
 
     /** degrees */
-    private static final double AIM_THRESHOLD = 5.0;
+    private static final double AIM_THRESHOLD = 2.0;
 
     /** meters */
     private static final double DEFAULT_SHOOTER_DISTANCE = 3.0;
@@ -34,6 +34,7 @@ public class Shooter extends TerribleSubsystem {
     private double targetDistance = 0.0;
     /** global reference */
     private double targetAngle = 0.0;
+    private boolean visionTracking, turretAimed, flywheelAtSpeed, spindexerReady, hoodReady;
     private boolean readyToFire = false;
 
     private double hoodTrim = 0.0;
@@ -50,7 +51,7 @@ public class Shooter extends TerribleSubsystem {
 
     private boolean visionOverride = false;
 
-    private final double LIMELIGHT_ELEVATION_OFFSET = 20.5; // deg
+    private final double LIMELIGHT_ELEVATION_OFFSET = 30; // deg
     private final double TARGET_RELATIVE_HEIGHT = 2.0; // meters
     private final double LIMELIGHT_FOV = 54.0;
 
@@ -223,11 +224,14 @@ public class Shooter extends TerribleSubsystem {
     }
 
     public boolean isReadyToFire() {
-        readyToFire = (controlState == ShooterControlState.VISION_TRACKING || visionOverride);
-        readyToFire &= Utils.withinThreshold(targetAngle, 0.0, AIM_THRESHOLD);
-        readyToFire &= flywheel.isAtSpeed();
-        readyToFire &= Robot.spindexer.isReady();
-        readyToFire &= hood.isReady();
+        visionTracking = (controlState == ShooterControlState.VISION_TRACKING || visionOverride);
+        turretAimed = Utils.withinThreshold(targetAngle, 
+                                             turret.getMeasurement() + robotPose.heading, 
+                                             AIM_THRESHOLD);
+        flywheelAtSpeed = flywheel.isAtSpeed();
+        spindexerReady = Robot.spindexer.isReady();
+        hoodReady = hood.isReady();
+        readyToFire = visionTracking && turretAimed && flywheelAtSpeed && spindexerReady && hoodReady;
         return readyToFire;
     }
 
@@ -266,12 +270,17 @@ public class Shooter extends TerribleSubsystem {
         display("Distance", targetDistance);
         display("Angle", targetAngle);
         display("Ready to Fire", readyToFire);
-        display("At Speed", flywheel.isAtSpeed());
+        display("Vision Tracking", visionTracking);
+        display("Spindexer Ready", spindexerReady);
+        display("Hood Ready", hoodReady);
+        display("Turret Aimed", turretAimed);
+        display("Flywheel At Speed", flywheelAtSpeed);
         display("VIsion Override", visionOverride);
         display("State", controlState.toString());
         turret.monitor();
         hood.monitor();
         Robot.spindexer.monitor();
+        isReadyToFire();
     }
 
 }
