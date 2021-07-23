@@ -19,7 +19,7 @@ public class Turret extends PIDSubsystem {
     private Encoder turretEncoder;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double ENCODER_REVS_PER_TURRET_REV = 196.0 / 18.0;
-    private static final double DISTANCE_PER_PULSE = 360.0 / ENCODER_REVS_PER_TURRET_REV / TICKS_PER_ENCODER_REV;
+    private static final double DIST_P_PULSE = 360.0 / ENCODER_REVS_PER_TURRET_REV / TICKS_PER_ENCODER_REV;
 
     private double MAX_GOAL = 60.0;
     private double MIN_GOAL = -140.0;
@@ -36,7 +36,7 @@ public class Turret extends PIDSubsystem {
         turretMotor = new WPI_TalonSRX(Constants.Shooter.SHOOTER_TURRET_MOTOR_SRX);
         turretEncoder = new Encoder(2, 3);
         turretMotor.setNeutralMode(NeutralMode.Brake);
-        turretEncoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+        turretEncoder.setDistancePerPulse(DIST_P_PULSE);
     }
 
     public void monitor() {

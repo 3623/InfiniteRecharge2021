@@ -18,21 +18,25 @@ import frc.util.Utils;
 public class DrivetrainModel {
 
 	private static final double DRIVETRAIN_MASS = 63.5; // kg
-	public double topSpeed;
 	protected static final double MAX_SPEED_LOW = 2.4;
 	protected static final double MAX_SPEED_HIGH = 4.0;
+
 	public static final double WHEEL_BASE = 0.65; // meters
-	private Boolean COAST_MODE = false;
-	public Pose center;
-	private DrivetrainSide left, right;
 	public static final double WHEEL_RADIUS = 0.081; // meters
 	public static final double WHEEL_CIRCUMFERENCE = DrivetrainModel.WHEEL_RADIUS * 2.0 * Math.PI;
+
+	private Boolean COAST_MODE = false;
+
 	private static final double MOTORS_PER_SIDE = 2.0; // Minicim is 0.58
-	private double gearRatio;
 	private static final double BASE_GEAR_RATIO = 10.75 / 1.0; // Reduction
 	private static final double HIGH_GEAR_RATIO_MODIFIER = 2.0;
 	private static final double DRIVETRAIN_FRICTION = 115;
-	private static boolean gear;
+
+	private double topSpeed;
+	private boolean gear;
+	private double gearRatio;
+	private DrivetrainSide left, right;
+	public Pose center;
 
 	public DrivetrainModel() {
 		center = new Pose(0.0, 0.0, 0.0); // Initial robot position
@@ -75,7 +79,7 @@ public class DrivetrainModel {
 		zero();
 	}
 
-	public void setPosition(Pose pose) {
+	public void setPosition(Pose pose) {updateVoltage
 		setPosition(pose.x, pose.y, pose.heading);
 	}
 
@@ -159,6 +163,10 @@ public class DrivetrainModel {
 		// System.out.println("MA: " + movementAngle + ", Rad ICC: " + radius);
 		// System.out.println("Movement X: " + movementX + ", Movement Y: " +
 		// movementY);
+	}
+
+	public double getTopSpeed() {
+		return topSpeed;
 	}
 
 	public boolean getGear(){

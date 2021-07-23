@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -10,16 +12,24 @@ import frc.robot.subsystems.Spindexer;
 
 // TODO rumble feedback (check)
 public class ShootCommand extends SequentialCommandGroup{
+    private static XboxController[] users;
 
     public ShootCommand(Shooter shooter, Spindexer spindexer, BooleanSupplier prepareHold, XboxController... users) {
         addCommands(new Prepare(shooter, spindexer, prepareHold),
                     new WaitCommand(0.1),
                     newFireCommand(shooter, spindexer));
-                    newFireCommand(shooter, spindexer, users));
+        ShootCommand.users = users;
     }
 
     public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer) {
         return (new Fire(shooter, spindexer)).withTimeout(Spindexer.SHOOT_TIME);
+    }
+
+    protected static void setRumble(double value) {
+        for (XboxController user : users) {
+            user.setRumble(RumbleType.kLeftRumble, value);
+            user.setRumble(RumbleType.kRightRumble, value);
+        }
     }
 
     public static class Prepare extends CommandBase {
@@ -43,10 +53,7 @@ public class ShootCommand extends SequentialCommandGroup{
             super.initialize();
             shooter.prepare();
             spindexer.startReadying();
-            for (XboxController user : users) {
-                user.setRumble(RumbleType.kLeftRumble, 0.2);
-                user.setRumble(RumbleType.kRightRumble, 0.2);
-            }
+            setRumble(0.2);
         }
 
         @Override
@@ -63,43 +70,32 @@ public class ShootCommand extends SequentialCommandGroup{
                 shooter.disable();
                 spindexer.stopSpinning();
             }
-            for (XboxController user : users) {
-                user.setRumble(RumbleType.kLeftRumble, 0.0);
-                user.setRumble(RumbleType.kRightRumble, 0.0);
-            }
+            setRumble(0.0);
         }
     }
 
     private static class Fire extends CommandBase {
         private Shooter shooter;
         private Spindexer spindexer;
-        private XboxController[] users;
 
-        private Fire(Shooter shooter, Spindexer spindexer, XboxController... users) {
+        private Fire(Shooter shooter, Spindexer spindexer) {
             this.shooter = shooter;
             this.spindexer = spindexer;
             addRequirements(shooter, spindexer);
-            this.users = users;
         }
 
         @Override
         public void initialize() {
             System.out.println("Firing");
             spindexer.startShooting();
-            for (XboxController user : users) {
-                user.setRumble(RumbleType.kLeftRumble, 0.5);
-                user.setRumble(RumbleType.kRightRumble, 0.5);
-            }
+            setRumble(0.4);
         }
 
         @Override
         public void end(boolean interrupted) {
             spindexer.stopSpinning();
             shooter.disable();
-            for (XboxController user : users) {
-                user.setRumble(RumbleType.kLeftRumble, 0.0);
-                user.setRumble(RumbleType.kRightRumble, 0.0);
-            }
+            setRumble(0.0);
         }
     }
 }

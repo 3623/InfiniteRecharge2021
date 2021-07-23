@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot.subsystems;
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -15,6 +16,7 @@ import frc.util.Utils;
 public class Flywheel extends TerribleSubsystem {
     private static final double SPEED_THRESHOLD = 50.0;
     private CANSparkMax shooterMaster, shooterFollower;
+    private CANEncoder encoder;
     private static final double kP = 1.0/450.0;
     private static final double kI = 0.0;
     private static final double kD = 60.0;
@@ -22,7 +24,7 @@ public class Flywheel extends TerribleSubsystem {
     private static final double kFF = 1.25/5676.0;
     private static final double kMaxOutput = 1.0;
     private static final double kMinOutput = 0.0;
-    // private static final double maxRPM = 5700;
+    private static final double GEAR_RATIO = 18.0 / 35.0;
 
     private double speedSetpoint = 0.0;
 
@@ -49,6 +51,8 @@ public class Flywheel extends TerribleSubsystem {
         shooterMaster.getPIDController().setOutputRange(kMinOutput, kMaxOutput);
         shooterMaster.burnFlash(); // Save in case of brownout!
         shooterFollower.burnFlash();
+
+        encoder = shooterMaster.getEncoder();
     }
 
     /**
@@ -56,37 +60,24 @@ public class Flywheel extends TerribleSubsystem {
      * @param RPM target rpm of flywheel
      */
     public void setSpeed(double RPM) {
-        speedSetpoint = RPM * (18.0/35.0);
+        speedSetpoint = RPM * GEAR_RATIO;
         shooterMaster.getPIDController().setReference(speedSetpoint, ControlType.kVelocity);
     }
 
     Boolean isAtSpeed() {
-        return Utils.withinThreshold(getMotorVelocity(), speedSetpoint, SPEED_THRESHOLD);
-    }
-
-    public boolean getRunning() {
-        if (speedSetpoint > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return Utils.withinThreshold(getVelocity(), speedSetpoint, SPEED_THRESHOLD);
     }
 
     public double getVelocity() {
-        return getMotorVelocity() * 35.0/18.0;
-    }
-
-    public double getMotorVelocity(){
-        return shooterMaster.getEncoder().getVelocity();
+        return encoder.getVelocity() / GEAR_RATIO;
     }
 
     @Override
     public void periodic() {
-        // display("Velocity", getVelocity());
+        display("Velocity", getVelocity());
         display("Setpoint Motor RPM", speedSetpoint);
         display("Output", shooterMaster.getAppliedOutput());
-        display("Setpoint Output RPM", speedSetpoint*(35.0/18.0));
-        // display("Threshold Difference", getMotorVelocity()-speedSetpoint);
+        display("Setpoint Output RPM", speedSetpoint / GEAR_RATIO);
     }
 
     public void disable() {

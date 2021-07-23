@@ -17,7 +17,7 @@ public class Feeder extends SubsystemBase {
 
     private WPI_TalonSRX feederSRX;
     private boolean running = false;
-    private final int TOTAL_REDUCTION = 14;
+    private static final int TOTAL_REDUCTION = 14;
 
     public Feeder() {
         feederSRX = new WPI_TalonSRX(Constants.Shooter.FEEDER_MOTOR_SRX);

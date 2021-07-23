@@ -15,8 +15,8 @@ import frc.robot.Constants;
 // TODO make this velocity closed loop
 public class Climber extends SubsystemBase {
 
-    Solenoid engagePTO;
-    Solenoid extend;
+    private Solenoid engagePTO;
+    private Solenoid extend;
 
     public Climber() {
         engagePTO = new Solenoid(Constants.Climber.ENGAGE_PTO);
@@ -24,7 +24,8 @@ public class Climber extends SubsystemBase {
     }
 
     private boolean checkGameTime(){
-        if (DriverStation.getInstance().getMatchTime()<40 && DriverStation.getInstance().isOperatorControlEnabled()) return true;
+        if (DriverStation.getInstance().getMatchTime() < 40
+            && DriverStation.getInstance().isOperatorControlEnabled()) return true;
         else if (!DriverStation.getInstance().isFMSAttached()) return true;
         else return false;
     }

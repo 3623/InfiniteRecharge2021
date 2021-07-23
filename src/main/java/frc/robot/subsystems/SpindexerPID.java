@@ -24,7 +24,7 @@ public class SpindexerPID extends PIDSubsystem {
     private boolean readying = false;
     private Encoder encoder;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
-    private static final double DISTANCE_PER_PULSE = 1.0 / TICKS_PER_ENCODER_REV // Converts to Output Revolution Count
+    private static final double DIST_P_PULSE = 1.0 / TICKS_PER_ENCODER_REV // Converts to Output Revolution Count
                                                         * (1.0 / (400/24)) // Converts to Whole Spindexer Revolution Count
                                                         / 5; // Converts to Spindexer Sections
 
@@ -43,7 +43,7 @@ public class SpindexerPID extends PIDSubsystem {
         encoder = new Encoder(0, 1);
         motor.setNeutralMode(NeutralMode.Brake);
         motor.setInverted(true);
-        encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+        encoder.setDistancePerPulse(DIST_P_PULSE);
     }
 
     public void monitor() {

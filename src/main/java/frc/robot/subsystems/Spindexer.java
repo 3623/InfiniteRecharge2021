@@ -18,16 +18,17 @@ import frc.robot.Constants;
 * An example subsystem. You can replace me with your own Subsystem.
 */
 public class Spindexer extends TerribleSubsystem {
+
     public static final double SHOOT_TIME = 3.5;
     public static final double INDEX_TIME = 5.0;
     private static final double READY_SPEED = 0.2;
     private static final double INDEX_SPEED = 0.3;
     private static final double SHOOT_SPEED = 0.45;
-    private WPI_VictorSPX spindexerSPX;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
-    private static final double DISTANCE_PER_PULSE = 1.0 / TICKS_PER_ENCODER_REV // Converts to Output Revolution Count
+    private static final double DIST_P_PULSE = 1.0 / TICKS_PER_ENCODER_REV // Converts to Output Revolution Count
                                                         * (1.0 / (400/24)) // Converts to Whole Spindexer Revolution Count
                                                         * 5; // Converts to Spindexer Sections
+    private WPI_VictorSPX spindexerSPX;
 
     private enum MODE{
         STOPPED,
@@ -55,7 +56,7 @@ public class Spindexer extends TerribleSubsystem {
         spindexerSPX = new WPI_VictorSPX(Constants.Shooter.SPINDEXER_MOTOR_SPX);
         spindexerSPX.setInverted(true);
         spinCoder = new Encoder(0, 1);
-        spinCoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+        spinCoder.setDistancePerPulse(DIST_P_PULSE);
     }
 
     public double getPosition(){
