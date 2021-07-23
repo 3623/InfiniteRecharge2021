@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -116,6 +117,7 @@ public class Robot extends TimedRobot {
 
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
+        LiveWindow.disableAllTelemetry();
     }
 
 
