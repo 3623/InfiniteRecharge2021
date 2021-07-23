@@ -16,17 +16,15 @@ public class Hood extends TerribleSubsystem {
     private PWM motor;
     private Encoder encode;
 
-    private double minToMove = 0.05;
+    private static final double MIN_TO_MOVE = 0.09;
 
     private static final double TICKS_P_ENC_REV = 2048.0;
-    private static final double DIST_P_PULSE = 1.0/(((345.0 / 36.0)*TICKS_P_ENC_REV) / 360.0);
-    //1.0 / TICKS_P_ENC_REV * 36.0 / 40.5 * 45.0;
+    private static final double DIST_P_PULSE = 360.0 * (36.0 /345.0) / TICKS_P_ENC_REV;
 
-    // TODO these values are gonna change?? (see Vince)
     private static final double MAX_GOAL = 30.0;
     private static final double MIN_GOAL = 0.0;
     private static final double RANGE = MAX_GOAL - MIN_GOAL;
-    private static final double kP = 0.5;
+    private static final double kP = 0.8;
 
     private double setpoint = 0.0;
 
@@ -46,7 +44,7 @@ public class Hood extends TerribleSubsystem {
     }
 
     public boolean isReady(){
-        if (!Utils.withinThreshold(getMeasurement(), setpoint, 0.2)) return true;
+        if (!Utils.withinThreshold(getMeasurement(), setpoint, 0.4)) return true;
         else return false;
     }
 
@@ -56,16 +54,15 @@ public class Hood extends TerribleSubsystem {
 
     private double calculateOutput(){
         double output = 0.0;
-        if (!Utils.withinThreshold(getMeasurement(), setpoint, 0.2)){
+        if (!Utils.withinThreshold(getMeasurement(), setpoint, 0.4)){
             output = (this.setpoint - this.getMeasurement()) / RANGE * kP;
-            if (Math.abs(output) < minToMove)
-                output = Math.copySign(minToMove, output);
+            if (Math.abs(output) < MIN_TO_MOVE)
+                output = Math.copySign(MIN_TO_MOVE, output);
         }
         return output;
     }
 
     public void monitor(){
-        display("Real Angle", getMeasurement()+45);
         display("Raw Angle", getMeasurement());
         display("Current Setpoint", setpoint);
         display("Current Error", setpoint-getMeasurement());

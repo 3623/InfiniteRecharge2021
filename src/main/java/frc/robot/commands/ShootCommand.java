@@ -54,7 +54,7 @@ public class ShootCommand extends SequentialCommandGroup{
             super.initialize();
             shooter.prepare();
             spindexer.startReadying();
-            setRumble(0.2);
+            setRumble(0.1);
         }
 
         @Override

@@ -25,9 +25,7 @@ public class Spindexer extends TerribleSubsystem {
     private static final double INDEX_SPEED = 0.3;
     private static final double SHOOT_SPEED = 0.45;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
-    private static final double DIST_P_PULSE = 1.0 / TICKS_PER_ENCODER_REV // Converts to Output Revolution Count
-                                                        * (1.0 / (400/24)) // Converts to Whole Spindexer Revolution Count
-                                                        * 5; // Converts to Spindexer Sections
+    private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
     private WPI_VictorSPX spindexerSPX;
 
     private enum MODE{
@@ -71,9 +69,8 @@ public class Spindexer extends TerribleSubsystem {
 
     public boolean isReady(){
         boolean readyState = false;
-        int wholeDistance = (int)spinCoder.getDistance();
-        double tenthDistance = spinCoder.getDistance()-wholeDistance;
-        if (tenthDistance < 0.1 || tenthDistance > 0.9) readyState = true;
+        double moddedDelta = spinCoder.getDistance() % 1.0;
+        if (moddedDelta < 0.1 || moddedDelta > 0.9) readyState = true;
         return readyState;
     }
 

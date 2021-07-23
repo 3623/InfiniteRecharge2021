@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import frc.robot.Constants;
 import frc.util.Geometry;
+import frc.util.Utils;
 
 
 // This is pretty good right now
@@ -25,7 +26,7 @@ public class Turret extends PIDSubsystem {
     private double MIN_GOAL = -140.0;
 
     private static final double kP = 13.0 / 180.0;
-    private static final double kI = kP * 0.0001;
+    private static final double kI = kP * 0.001;
     private static final double kD = kP * 0.005;
     private static final double DEADBAND = 0.25;
 
@@ -52,6 +53,7 @@ public class Turret extends PIDSubsystem {
 
     @Override
     protected void useOutput(double output, double setpoint) {
+        output = Utils.limit(output, 0.7, -0.7);
         turretMotor.set(ControlMode.PercentOutput, -output);
     }
 
