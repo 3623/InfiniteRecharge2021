@@ -41,6 +41,7 @@ public class ShootCommand extends SequentialCommandGroup{
             this.spindexer = spindexer;
             this.shooter = shooter;
             addRequirements(this.shooter, this.spindexer);
+            this.prepareHold = prepareHold;
         }
 
         public Prepare(Shooter shooter, Spindexer spindexer) {
