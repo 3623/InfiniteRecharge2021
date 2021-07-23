@@ -206,7 +206,7 @@ public class Drivetrain extends TerribleSubsystem {
 			ErrorCode errors = talon.getFaults(faults);
 			error = errors.value != 0;
 			error &= Utils.withinThreshold(talonSpeedToLinearSpeed(talon.getSelectedSensorVelocity()),
-					model.topSpeed * speed, model.topSpeed * speed * 0.05);
+					model.getTopSpeed() * speed, model.getTopSpeed() * speed * 0.05);
 		} catch (InterruptedException e) {
 			error = true;
 		}
