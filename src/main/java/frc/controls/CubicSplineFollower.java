@@ -76,7 +76,7 @@ public class CubicSplineFollower {
         // New waypoint
         if (curWaypoint == null) curWaypoint = waypoints.pollFirst();
         distToWaypoint = Geometry.distance(robotPose, curWaypoint);
-        DT_MAX_SPEED = drivetrainState.topSpeed;
+        DT_MAX_SPEED = drivetrainState.getTopSpeed();
         ffSpeed = curWaypoint.speed();
 
         boolean nextWaypoint = false;

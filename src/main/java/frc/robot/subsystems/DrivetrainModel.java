@@ -79,7 +79,7 @@ public class DrivetrainModel {
 		zero();
 	}
 
-	public void setPosition(Pose pose) {updateVoltage
+	public void setPosition(Pose pose) {
 		setPosition(pose.x, pose.y, pose.heading);
 	}
 
