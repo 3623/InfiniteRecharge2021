@@ -216,7 +216,7 @@ public class Shooter extends TerribleSubsystem {
     // TODO is this needed?
     public void enable() {
         turret.enable();
-        //hood.enable();
+        hood.enable();
     }
 
     private void fire() {
@@ -225,8 +225,8 @@ public class Shooter extends TerribleSubsystem {
 
     public boolean isReadyToFire() {
         visionTracking = (controlState == ShooterControlState.VISION_TRACKING || visionOverride);
-        turretAimed = Utils.withinThreshold(targetAngle, 
-                                             turret.getMeasurement() + robotPose.heading, 
+        turretAimed = Utils.withinThreshold(targetAngle,
+                                             turret.getMeasurement() + robotPose.heading,
                                              AIM_THRESHOLD);
         flywheelAtSpeed = flywheel.isAtSpeed();
         spindexerReady = Robot.spindexer.isReady();
