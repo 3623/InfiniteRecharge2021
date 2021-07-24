@@ -357,11 +357,11 @@ public class Drivetrain extends TerribleSubsystem {
 			controlState = DriveControlState.OPEN_LOOP;
 		}
 		if (Robot.climber.isPTOEngaged()){
-			left *= 0.1;
-			right *= 0.1;
+			left *= 0.3;
+			right *= 0.3;
 		}
-		leftMaster.set(ControlMode.PercentOutput, left/2);
-		leftFollower.set(ControlMode.PercentOutput, left/2);
+		leftMaster.set(ControlMode.PercentOutput, left);
+		leftFollower.set(ControlMode.PercentOutput, left);
 		rightMaster.set(ControlMode.PercentOutput, right);
 		rightFollower.set(ControlMode.PercentOutput, right);
 	}

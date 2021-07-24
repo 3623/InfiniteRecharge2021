@@ -89,6 +89,7 @@ public class ShootCommand extends SequentialCommandGroup{
         public void initialize() {
             System.out.println("Firing");
             spindexer.startShooting();
+            shooter.fire();
             setRumble(0.4);
         }
 

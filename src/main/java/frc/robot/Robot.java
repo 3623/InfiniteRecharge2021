@@ -207,8 +207,8 @@ public class Robot extends TimedRobot {
 
         // Manual Turret Control
         // TODO This is probably better once the limiting is set up properly (check)
-        double angle = Math.toDegrees(Math.atan2(operator.getRawAxis(0), -operator.getRawAxis(1)));
-        double mag = Geometry.distance(0, operator.getRawAxis(1), 0, operator.getRawAxis(0));
+        double angle = Math.toDegrees(Math.atan2(operator.getX(Hand.kLeft), -operator.getY(Hand.kLeft)));
+        double mag = Geometry.distance(0, operator.getY(Hand.kLeft), 0, operator.getX(Hand.kLeft));
         if (mag > 0.8) {
             shooter.manualTurret(angle);
         }

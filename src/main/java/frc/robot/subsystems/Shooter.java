@@ -51,9 +51,9 @@ public class Shooter extends TerribleSubsystem {
 
     private boolean visionOverride = false;
 
-    private final double LIMELIGHT_ELEVATION_OFFSET = 30; // deg
-    private final double TARGET_RELATIVE_HEIGHT = 2.0; // meters
-    private final double LIMELIGHT_FOV = 54.0;
+    private static final double LIMELIGHT_ELEVATION_OFFSET = 30; // deg
+    private static final double TARGET_RELATIVE_HEIGHT = 1.7; // meters
+    private static final double LIMELIGHT_FOV = 54.0;
 
 	private enum ShooterControlState {
         /** look forward for target or manual control */
@@ -87,7 +87,6 @@ public class Shooter extends TerribleSubsystem {
         controlState = ShooterControlState.BLIND_AIM;
         setVision(true);
         enable();
-        this.fire();
     }
 
     protected void update() {
@@ -113,8 +112,8 @@ public class Shooter extends TerribleSubsystem {
             targetAngle += turretTrim;
             // Stay in update blind
         } else if (Utils.withinThreshold(turret.getMeasurement() + robotPose.heading,
-                                  targetAngle,
-                                  LIMELIGHT_FOV*0.7)
+                                         targetAngle,
+                                         LIMELIGHT_FOV*0.7)
             && targets.getDouble(0.0) == 1) {
                 System.out.println("Found vision target, switching to vision tracking");
                 controlState = ShooterControlState.VISION_TRACKING;
@@ -144,7 +143,7 @@ public class Shooter extends TerribleSubsystem {
      */
     private double visionEstimateDistance(double targetY) {
         double realElevation = targetY + LIMELIGHT_ELEVATION_OFFSET;
-        return TARGET_RELATIVE_HEIGHT / Math.sin(Math.toRadians(realElevation));
+        return TARGET_RELATIVE_HEIGHT / Math.tan(Math.toRadians(realElevation));
     }
 
 
@@ -165,7 +164,6 @@ public class Shooter extends TerribleSubsystem {
      * @param angle - in global reference
      */
     private void setAngle(double angle) {
-        // TODO this is limited in Turret (check?)
         turret.setSetpoint(angle - robotPose.heading);
     }
 
@@ -178,8 +176,7 @@ public class Shooter extends TerribleSubsystem {
         // TODO tune this
         double angle = -18.6 + (dist*21.2) - (dist*dist*2.54);
         double rpm = 8.73 - (dist*0.528) + (dist*dist*0.0599);
-        // flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
-        flywheel.setSpeed(100.0);
+        flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
         hood.setSetpoint(angle + hoodTrim);
     }
 
@@ -219,7 +216,7 @@ public class Shooter extends TerribleSubsystem {
         hood.enable();
     }
 
-    private void fire() {
+    public void fire() {
         feeder.run(1.0);
     }
 

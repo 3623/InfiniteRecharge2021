@@ -60,8 +60,8 @@ public class Flywheel extends TerribleSubsystem {
      * @param RPM target rpm of flywheel
      */
     public void setSpeed(double RPM) {
-        speedSetpoint = RPM * GEAR_RATIO;
-        shooterMaster.getPIDController().setReference(speedSetpoint, ControlType.kVelocity);
+        speedSetpoint = RPM;
+        shooterMaster.getPIDController().setReference(speedSetpoint * GEAR_RATIO, ControlType.kVelocity);
     }
 
     Boolean isAtSpeed() {
@@ -75,9 +75,8 @@ public class Flywheel extends TerribleSubsystem {
     @Override
     public void periodic() {
         display("Velocity", getVelocity());
-        display("Setpoint Motor RPM", speedSetpoint);
+        display("Setpoint", speedSetpoint);
         display("Output", shooterMaster.getAppliedOutput());
-        display("Setpoint Output RPM", speedSetpoint / GEAR_RATIO);
     }
 
     public void disable() {
