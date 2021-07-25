@@ -176,8 +176,10 @@ public class Shooter extends TerribleSubsystem {
         // TODO tune this
         double angle = -18.6 + (dist*21.2) - (dist*dist*2.54);
         double rpm = 8.73 - (dist*0.528) + (dist*dist*0.0599);
-        flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
-        hood.setSetpoint(angle + hoodTrim);
+        // flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
+        flywheel.setSpeed(8000.0);
+        // hood.setSetpoint(angle + hoodTrim);
+        hood.setSetpoint(22.0);
     }
 
     /**

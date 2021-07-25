@@ -19,11 +19,11 @@ import frc.robot.Constants;
 */
 public class Spindexer extends TerribleSubsystem {
 
-    public static final double SHOOT_TIME = 3.5;
+    public static final double SHOOT_TIME = 3.0;
     public static final double INDEX_TIME = 5.0;
     private static final double READY_SPEED = 0.2;
     private static final double INDEX_SPEED = 0.3;
-    private static final double SHOOT_SPEED = 0.45;
+    private static final double SHOOT_SPEED = 0.5;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
     private WPI_VictorSPX spindexerSPX;
