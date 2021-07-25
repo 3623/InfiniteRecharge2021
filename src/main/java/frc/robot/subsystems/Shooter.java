@@ -202,15 +202,11 @@ public class Shooter extends TerribleSubsystem {
         controlState = ShooterControlState.DISABLED;
         setVision(false);
         readyToFire = false;
-        // turret.disable();
-        // hood.disable();
-        // TODO hood needs to stow (check)
         hood.setSetpoint(0.0);
         flywheel.disable();
         feeder.stop();
     }
 
-    // TODO is this needed?
     public void enable() {
         turret.enable();
         hood.enable();

@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import frc.util.Utils;
 
-// TODO make PID
 public class Hood extends PIDSubsystem {
 
     private PWM servo;

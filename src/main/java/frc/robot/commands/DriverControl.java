@@ -35,7 +35,6 @@ public class DriverControl extends CommandBase {
         double joystickY = m_forward.getAsDouble();
         double joystickR = m_rotation.getAsDouble();
 
-        // TODO non linear scaling?? (check)
         joystickY = joystickY * Math.abs(joystickY);
         joystickR = joystickR * Math.abs(joystickR);
 
