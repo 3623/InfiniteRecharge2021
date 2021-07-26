@@ -166,7 +166,7 @@ public class Spindexer extends TerribleSubsystem {
 
     public void periodic(){
         setOutput();
-        jamTracker = spinCoder.getDistance() - jamTracker;
+        jamTracker = Math.abs(spinCoder.getDistance() - jamTracker);
         if ((spinMode != MODE.STOPPED && spinMode != MODE.JAM_CLEAR) && jamTracker < 0.01){
             startJamClear();
         }
