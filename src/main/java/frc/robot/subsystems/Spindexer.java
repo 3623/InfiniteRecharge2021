@@ -26,6 +26,7 @@ public class Spindexer extends TerribleSubsystem {
     private static final double SHOOT_SPEED = 0.5;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
+    private double jamTracker = 0;
     private WPI_VictorSPX spindexerSPX;
 
     private enum MODE{
@@ -165,5 +166,9 @@ public class Spindexer extends TerribleSubsystem {
 
     public void periodic(){
         setOutput();
+        jamTracker = jamTracker - spinCoder.getDistance();
+        if (spinMode != MODE.STOPPED && jamTracker < 0.01){
+            startJamClear();
+        }
     }
 }
