@@ -24,10 +24,10 @@ public class Hood extends PIDSubsystem {
     private static final double TICKS_P_ENC_REV = 2048.0;
     private static final double DIST_P_PULSE = 360.0 * (36.0 /345.0) / TICKS_P_ENC_REV;
 
-    private static final double MAX_GOAL = 27.0;
+    private static final double MAX_GOAL = 30.0;
     private static final double MIN_GOAL = 0.0;
     private static final double RANGE = MAX_GOAL - MIN_GOAL;
-    private static final double kP = 1.3 / RANGE;
+    private static final double kP = 7.0 / RANGE;
     private static final double kI = 0.0 / RANGE;
     private static final double kD = 0.0 / RANGE;
     private static final double DEADBAND = 0.25;
@@ -76,7 +76,7 @@ public class Hood extends PIDSubsystem {
     @Override
     protected void useOutput(double output, double setpoint) {
         display("Output", output);
-        servo.setSpeed(output*0.0);
+        servo.setSpeed(output);
     }
 
     @Override

@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.LinkedList;
+
 import edu.wpi.cscore.HttpCamera;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -31,6 +33,9 @@ public class Shooter extends TerribleSubsystem {
 
     private Pose robotPose;
 
+    private int numSamples = 200;
+    private LinkedList<Double> distSamples;
+    private double movingSum = 0.0;
     private double targetDistance = 0.0;
     /** global reference */
     private double targetAngle = 0.0;
@@ -76,6 +81,8 @@ public class Shooter extends TerribleSubsystem {
                                    "http://limelight.local:5800/stream.mjpg");
         this.updateThreadStart();
         disable();
+        distSamples = new LinkedList<>();
+        for (int i = 0; i < numSamples; i++) distSamples.add(0.0);
     }
 
     /**
@@ -113,7 +120,7 @@ public class Shooter extends TerribleSubsystem {
             // Stay in update blind
         } else if (Utils.withinThreshold(turret.getMeasurement() + robotPose.heading,
                                          targetAngle,
-                                         LIMELIGHT_FOV*0.7)
+                                         LIMELIGHT_FOV*0.5)
             && targets.getDouble(0.0) == 1) {
                 System.out.println("Found vision target, switching to vision tracking");
                 controlState = ShooterControlState.VISION_TRACKING;
@@ -127,7 +134,11 @@ public class Shooter extends TerribleSubsystem {
         // We should never be in manual override and here at the same time!
         double targetX = this.targetX.getDouble(0.0);
         targetAngle = limeToGlobalAngle(targetX);
-        targetDistance = visionEstimateDistance(targetY.getDouble(0.0));
+        double dist = visionEstimateDistance(targetY.getDouble(0.0));
+        movingSum += dist;
+        distSamples.add(dist);
+        movingSum -= distSamples.remove();
+        targetDistance = movingSum / numSamples;
 
         setAngle(targetAngle);
         setDistance(targetDistance);
@@ -174,12 +185,11 @@ public class Shooter extends TerribleSubsystem {
     public void setDistance(double dist) {
         dist = Utils.limit(dist, 7, 0);
         // TODO tune this
-        double angle = -18.6 + (dist*21.2) - (dist*dist*2.54);
+        double angle = -21.6 + (dist*21.2) - (dist*dist*2.54);
         double rpm = 8.73 - (dist*0.528) + (dist*dist*0.0599);
-        // flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
-        flywheel.setSpeed(8000.0);
-        // hood.setSetpoint(angle + hoodTrim);
-        hood.setSetpoint(22.0);
+        flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
+        hood.setSetpoint(angle + hoodTrim);
+        // hood.setSetpoint(22.0 + hoodTrim);
     }
 
     /**

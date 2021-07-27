@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
         shooterButton = new Button(() -> operator.getXButton());
 
         // Buttons for Non-Critical Functions
-        unjamButton = new Button(() -> operator.getStartButton());
+        unjamButton = new Button(() -> operator.getBButton());
         liftIntakeButton = new Button(() -> driver.getBackButton());
         coolMotorsButton = new Button(() -> driver.getStartButton());
         extendRetractClimberButton = new Button(() -> driver.getYButton());
@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
 
         // Set Default Commands
         drivetrain.setDefaultCommand(
-                new DriverControl(drivetrain, () -> driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
+                new DriverControl(drivetrain, () -> -driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
         // shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
 
         // Critical Function Button Definitions

@@ -21,9 +21,9 @@ public class Spindexer extends TerribleSubsystem {
 
     public static final double SHOOT_TIME = 3.0;
     public static final double INDEX_TIME = 5.0;
-    private static final double READY_SPEED = 0.2;
+    private static final double READY_SPEED = 0.3;
     private static final double INDEX_SPEED = 0.3;
-    private static final double SHOOT_SPEED = 0.5;
+    private static final double SHOOT_SPEED = 0.4;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
     private double jamTracker = 0;
@@ -144,7 +144,7 @@ public class Spindexer extends TerribleSubsystem {
     }
 
     private void setSpinning(double speed) {
-        spindexerSPX.set(ControlMode.PercentOutput, speed);
+        spindexerSPX.set(ControlMode.PercentOutput, -speed);
     }
 
     public void stopSpinning(){
@@ -166,9 +166,5 @@ public class Spindexer extends TerribleSubsystem {
 
     public void periodic(){
         setOutput();
-        jamTracker = Math.abs(spinCoder.getDistance() - jamTracker);
-        if ((spinMode != MODE.STOPPED && spinMode != MODE.JAM_CLEAR) && jamTracker < 0.01){
-            startJamClear();
-        }
     }
 }
