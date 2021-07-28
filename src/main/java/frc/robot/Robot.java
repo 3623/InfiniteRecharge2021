@@ -2,9 +2,16 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.Map;
+
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,6 +44,8 @@ public class Robot extends TimedRobot {
     public static Spindexer spindexer;
     private Shooter shooter;
 
+    public AnalogInput MainPressure;
+
     // Declare Pre-Allocated Buttons on Controllers
     private Button shooterButton;
     private Button unjamButton;
@@ -54,6 +63,7 @@ public class Robot extends TimedRobot {
         Declare NetworkTableEntry variables
         (to change the values assosciated with Widgets)
     */
+    
 
     /*
         Robot Constructor. Use this function to initialize subsystems,
@@ -68,6 +78,8 @@ public class Robot extends TimedRobot {
         intake = new Intake();
         spindexer = new Spindexer();
         climber = new Climber();
+
+        MainPressure = new AnalogInput(0);
 
         driver = new XboxController(Constants.IO.DRIVER_CONTROLLER);
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
@@ -128,7 +140,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        // mainPressure.setDouble(250 * (transducer.getVoltage() / 5) - 25);
+        SmartDashboard.putNumber("Main Pressure", 250 * (MainPressure.getVoltage() / 5) - 25);
     }
 
 
@@ -137,6 +149,7 @@ public class Robot extends TimedRobot {
         drivetrain.disable();
         shooter.disable();
         spindexer.stopSpinning();
+        if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Pre-Match");
     }
 
 
@@ -150,8 +163,6 @@ public class Robot extends TimedRobot {
         drivetrain.zeroSensors();
         // shooter.zeroSensors();
 
-        // m_autonomousCommand = new OurTrench(drivetrain, intake, shooter, spindexer);
-
         // ** Pull the autonomous command choice from the Sendable Chooser **
         m_autonomousCommand = m_chooser.getSelected();
 
@@ -159,6 +170,8 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+
+        if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Autonomous");
     }
 
 
@@ -174,6 +187,7 @@ public class Robot extends TimedRobot {
         drivetrain.setShiftMode(false);
         shooter.enable();
         spindexer.setStandby();
+        if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Teleop");
     }
 
 
