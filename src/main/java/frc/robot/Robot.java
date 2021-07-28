@@ -14,9 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
 import frc.modeling.FieldPositions;
-import frc.robot.commands.DriverControl;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.ShootCommand;
+import frc.robot.commands.*;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -48,8 +46,6 @@ public class Robot extends TimedRobot {
 
     // Declare some multi-use variables for Robot.java functions
     private boolean POVDebounce = false;
-
-
 
     // Activate Autonomous Chooser
     SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -110,6 +106,18 @@ public class Robot extends TimedRobot {
 
         liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
         coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
+
+        // Declare Autonomous Command Options
+        final Command m_SimpleShootAuto = new SimpleShoot(drivetrain, intake, shooter, spindexer);
+        final Command m_ThierTrenchAuto = new TheirTrench(drivetrain, intake, shooter, spindexer);
+        final Command m_BlockTrenchAuto = new BlockTrench(drivetrain, intake, shooter, spindexer);
+        final Command m_OurTrenchAuto = new OurTrench(drivetrain, intake, shooter, spindexer);
+
+        // Add the Autonomous Commands to the Chooser
+        m_chooser.setDefaultOption("Simple Shoot Auto", m_SimpleShootAuto);
+        m_chooser.addOption("Steal Their Trench Auto", m_ThierTrenchAuto);
+        m_chooser.addOption("Block Trench Auto", m_BlockTrenchAuto);
+        m_chooser.addOption("Use Our Trench Auto", m_OurTrenchAuto);
 
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
