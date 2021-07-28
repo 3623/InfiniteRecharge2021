@@ -27,7 +27,7 @@ public class IntakeCommand extends CommandBase{
         intake.setIntaking(false);
         CommandScheduler.getInstance().
             schedule(new StartEndCommand(() -> spindexer.startIndex(),
-                                            () -> spindexer.startReadying(),
+                                            () -> spindexer.setStandby(),
                                             spindexer).withTimeout(Spindexer.INDEX_TIME));
     }
 }

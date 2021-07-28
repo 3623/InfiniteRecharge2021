@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
 import frc.modeling.FieldPositions;
@@ -107,10 +106,7 @@ public class Robot extends TimedRobot {
 
 
         // Non-Critical Function Button Defintions
-        unjamButton.whenPressed(new ConditionalCommand(
-                                    new InstantCommand(() -> spindexer.clearedJam()),
-                                    new InstantCommand(() -> spindexer.startJamClear()),
-                                    spindexer::clearingJam));
+        unjamButton.whenPressed(new InstantCommand(() -> spindexer.toggleJamClear()));
 
         liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
         coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
@@ -132,6 +128,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         drivetrain.disable();
         shooter.disable();
+        spindexer.stopSpinning();
     }
 
 
@@ -168,6 +165,7 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
         drivetrain.setShiftMode(false);
         shooter.enable();
+        spindexer.setStandby();
     }
 
 

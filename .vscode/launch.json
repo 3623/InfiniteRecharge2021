@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch Animation",
+      "request": "launch",
+      "mainClass": "frc.modeling.Animation",
+      "projectName": "InfiniteRecharge2021"
+    },
+    {
+      "type": "java",
       "name": "Launch Geometry",
       "request": "launch",
       "mainClass": "frc.util.Geometry",

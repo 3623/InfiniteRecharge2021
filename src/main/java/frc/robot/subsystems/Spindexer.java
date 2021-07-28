@@ -24,6 +24,7 @@ public class Spindexer extends TerribleSubsystem {
     private static final double READY_SPEED = 0.3;
     private static final double INDEX_SPEED = 0.3;
     private static final double SHOOT_SPEED = 0.4;
+    private static final double STANDBY_SPEED = 0.8;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
     private double jamTracker = 0;
@@ -32,6 +33,7 @@ public class Spindexer extends TerribleSubsystem {
     private enum MODE{
         STOPPED,
         INDEX,
+        STANDBY,
         JAM_CLEAR,
         READYING,
         SHOOTING,
@@ -41,8 +43,6 @@ public class Spindexer extends TerribleSubsystem {
     private MODE spinMode = MODE.STOPPED;
     private MODE lastMode = MODE.STOPPED;
 
-    //private DigitalInput spindexerInPosition; //, ballSensor2, ballSensor3, ballSensor4,
-    // ballSensor5;
     private Encoder spinCoder;
 
     private double jamPosition = 0.0;
@@ -58,19 +58,15 @@ public class Spindexer extends TerribleSubsystem {
         spinCoder.setDistancePerPulse(DIST_P_PULSE);
     }
 
-    public double getPosition(){
+    private double getPosition(){
         return spinCoder.getDistance();
-    }
-
-    public boolean clearingJam(){
-        if (spinMode == MODE.JAM_CLEAR) return true;
-        else return false;
     }
 
 
     public boolean isReady(){
         boolean readyState = false;
         double moddedDelta = spinCoder.getDistance() % 1.0;
+        // TODO might have to tune this
         if (moddedDelta < 0.1 || moddedDelta > 0.9) readyState = true;
         return readyState;
     }
@@ -84,11 +80,15 @@ public class Spindexer extends TerribleSubsystem {
                 setSpinning(INDEX_SPEED);
                 break;
             case READYING:
-                if (!isReady()) setSpinning(READY_SPEED);
-                else {
-                    spinMode = MODE.STOPPED;
-                    setSpinning(0.0);
-                }
+                setSpinning(READY_SPEED);
+                // if (!isReady()) setSpinning(READY_SPEED);
+                // else {
+                //     spinMode = MODE.STOPPED;
+                //     setSpinning(0.0);
+                // }
+                break;
+            case STANDBY:
+                setSpinning(STANDBY_SPEED);
                 break;
             case JAM_CLEAR:
                 clearJam();
@@ -106,7 +106,8 @@ public class Spindexer extends TerribleSubsystem {
     }
 
     public void startIndex(){
-        spinMode = MODE.INDEX;
+        if (spinMode == MODE.STANDBY || spinMode == MODE.STOPPED)
+            spinMode = MODE.INDEX;
     }
 
     public void startReadying(){
@@ -117,10 +118,14 @@ public class Spindexer extends TerribleSubsystem {
         spinMode = MODE.SHOOTING;
     }
 
-    public void startJamClear(){
-        lastMode = spinMode;
-        spinMode = MODE.JAM_CLEAR;
-        jamPosition = getPosition();
+    public void toggleJamClear(){
+        if (spinMode == MODE.JAM_CLEAR)
+            spinMode = lastMode;
+        else {
+            lastMode = spinMode;
+            spinMode = MODE.JAM_CLEAR;
+            jamPosition = getPosition();
+        }
     }
 
     public void startMoveOne(){
@@ -128,8 +133,8 @@ public class Spindexer extends TerribleSubsystem {
         moveOneTracker = getPosition();
     }
 
-    public void clearedJam(){
-        spinMode = lastMode;
+    public void setStandby() {
+        spinMode = MODE.STANDBY;
     }
 
     private void clearJam(){

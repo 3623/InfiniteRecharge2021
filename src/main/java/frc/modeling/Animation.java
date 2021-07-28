@@ -37,7 +37,7 @@ public class Animation extends JPanel implements Runnable {
 
 	private Thread sim; // animation thread
 
-	private static final String FIELD_FILE = "sim/2020-field.png";
+	private static final String FIELD_FILE = "sim/codebase/2020-field.png";
 	private static final double FIELD_REAL_WIDTH = 8.23;
 	// private static final double FIELD_REAL_HEIGHT = 13.0;
 	private int fieldImageWidth, fieldImageHeight; // image dim of viewing area in pixels
@@ -65,7 +65,7 @@ public class Animation extends JPanel implements Runnable {
 
 	public Animation() throws IOException {
 		field = ImageIO.read(new File(FIELD_FILE));
-		robot = ImageIO.read(new File("sim/robot-blue2.png"));
+		robot = ImageIO.read(new File("sim/codebase/robot-blue2.png"));
 
 		// Set the width and heigth and size
 		fieldImageWidth = field.getWidth(this);
@@ -88,8 +88,8 @@ public class Animation extends JPanel implements Runnable {
 	}
 
 	private void setWaypoints() {
-		model.setPosition(FieldPositions.RIGHT.START);
-		for (Waypoint waypoint : FieldPositions.RIGHT.WAYPOINTS) nav.addWaypoint(waypoint);
+		model.setPosition(FieldPositions.BLOCK.START);
+		for (Waypoint waypoint : FieldPositions.BLOCK.WAYPOINTS) nav.addWaypoint(waypoint);
 	}
 
 
