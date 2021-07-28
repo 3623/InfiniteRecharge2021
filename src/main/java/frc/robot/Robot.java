@@ -186,7 +186,7 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
         drivetrain.setShiftMode(false);
         shooter.enable();
-        spindexer.setStandby();
+        // spindexer.setStandby();
         if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Teleop");
     }
 
