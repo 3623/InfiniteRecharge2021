@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
         Declare NetworkTableEntry variables
         (to change the values assosciated with Widgets)
     */
-    
+
 
     /*
         Robot Constructor. Use this function to initialize subsystems,
@@ -85,12 +85,12 @@ public class Robot extends TimedRobot {
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
 
         // Critical Function Buttons
-        intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.1));
+        intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.2));
         shooterButton = new Button(() -> operator.getXButton());
 
         // Buttons for Non-Critical Functions
         unjamButton = new Button(() -> operator.getBButton());
-        liftIntakeButton = new Button(() -> driver.getBackButton());
+        liftIntakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.5));
         coolMotorsButton = new Button(() -> driver.getStartButton());
         extendRetractClimberButton = new Button(() -> driver.getYButton());
 
@@ -114,7 +114,8 @@ public class Robot extends TimedRobot {
 
 
         // Non-Critical Function Button Defintions
-        unjamButton.whenPressed(new InstantCommand(() -> spindexer.toggleJamClear()));
+        unjamButton.whenPressed(new InstantCommand(() -> spindexer.toggleJamClear(), spindexer)
+                                                    .withInterrupt(() -> unjamButton.get()));
 
         liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
         coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
