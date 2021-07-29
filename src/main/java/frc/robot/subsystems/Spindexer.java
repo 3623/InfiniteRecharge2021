@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
@@ -21,10 +22,10 @@ public class Spindexer extends TerribleSubsystem {
 
     public static final double SHOOT_TIME = 3.0;
     public static final double INDEX_TIME = 5.0;
-    private static final double READY_SPEED = 0.3;
+    private static final double READY_SPEED = 0.6;
     private static final double INDEX_SPEED = 0.3;
-    private static final double SHOOT_SPEED = 0.4;
-    private static final double STANDBY_SPEED = 0.4;
+    private static final double SHOOT_SPEED = 0.5;
+    private static final double STANDBY_SPEED = 0.7;
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
     private double jamTracker = 0;
@@ -64,10 +65,10 @@ public class Spindexer extends TerribleSubsystem {
 
 
     public boolean isReady(){
-        boolean readyState = false;
         double moddedDelta = spinCoder.getDistance() % 1.0;
         // TODO might have to tune this
-        if (moddedDelta < 0.1 || moddedDelta > 0.9) readyState = true;
+        boolean readyState = moddedDelta < 0.1 || moddedDelta > 0.9;
+        readyState &= spinMode == MODE.READYING;
         return readyState;
     }
 
@@ -77,7 +78,7 @@ public class Spindexer extends TerribleSubsystem {
                 setSpinning(0.0);
                 break;
             case INDEX:
-                setSpinning(INDEX_SPEED);
+                spinBackAndForth(INDEX_SPEED, INDEX_SPEED+0.2);
                 break;
             case READYING:
                 setSpinning(READY_SPEED);
@@ -88,10 +89,10 @@ public class Spindexer extends TerribleSubsystem {
                 // }
                 break;
             case STANDBY:
-                setSpinning(STANDBY_SPEED);
+                spinBackAndForth(INDEX_SPEED, INDEX_SPEED+0.2);
                 break;
             case JAM_CLEAR:
-                clearJam();
+                spinBackAndForth(0.1, 0.8);
                 break;
             case SHOOTING:
                 setSpinning(SHOOT_SPEED);
@@ -108,6 +109,10 @@ public class Spindexer extends TerribleSubsystem {
     public void startIndex(){
         if (spinMode == MODE.STANDBY || spinMode == MODE.STOPPED)
             spinMode = MODE.INDEX;
+    }
+
+    public void setStandby() {
+        spinMode = MODE.STANDBY;
     }
 
     public void startReadying(){
@@ -128,36 +133,16 @@ public class Spindexer extends TerribleSubsystem {
         }
     }
 
-    public void startMoveOne(){
-        spinMode = MODE.MOVE_ONE;
-        moveOneTracker = getPosition();
-    }
-
-    public void setStandby() {
-        spinMode = MODE.STANDBY;
-    }
-
-    private void clearJam(){
-        double output = 0.35;
-        boolean currentFlip = jamFlipper;
-        if (Math.abs(getPosition()-jamPosition) > 0.25 && flipDebounceCounter == 0) jamFlipper = jamFlipper^true;
-        if (flipDebounceCounter > 0) flipDebounceCounter += 1;
-        if (flipDebounceCounter > 25) flipDebounceCounter = 0;
-        if (jamFlipper != currentFlip) flipDebounceCounter = 1;
-        if (jamFlipper) output *= -1;
-        setSpinning(output);
-    }
-
     private void setSpinning(double speed) {
         spindexerSPX.set(ControlMode.PercentOutput, -speed);
     }
 
-    public void stopSpinning(){
-        spinMode = MODE.STOPPED;
+    private void spinBackAndForth(double bias, double amplitude) {
+        setSpinning(Math.sin(Timer.getFPGATimestamp()*3.0) * amplitude + bias);
     }
 
-    public boolean isStopped() {
-        return spinMode == MODE.STOPPED;
+    public void stopSpinning(){
+        spinMode = MODE.STOPPED;
     }
 
     public void monitor(){
@@ -167,7 +152,6 @@ public class Spindexer extends TerribleSubsystem {
         display("Output", spindexerSPX.getMotorOutputPercent());
         display("Int Cast", (int)getPosition());
     }
-
 
     public void periodic(){
         setOutput();

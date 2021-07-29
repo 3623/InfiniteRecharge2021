@@ -186,7 +186,9 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) m_autonomousCommand.cancel();
         drivetrain.setShiftMode(false);
         shooter.enable();
-        // spindexer.setStandby();
+        intake.setIntaking(true); // Hopefully this will deploy intake but not run rollers
+        intake.setIntaking(false);
+        spindexer.setStandby();
         if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Teleop");
     }
 
