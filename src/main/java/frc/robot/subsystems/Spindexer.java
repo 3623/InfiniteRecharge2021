@@ -13,7 +13,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
+import frc.util.Utils;
+import frc.util.Utils.MovingAverage;
 
 /**
 * An example subsystem. You can replace me with your own Subsystem.
@@ -53,10 +57,9 @@ public class Spindexer extends TerribleSubsystem {
 
     private Encoder spinCoder;
 
-    private double jamPosition = 0.0;
-    private double moveOneTracker = 0.0;
-    private boolean jamFlipper = false;
-    private int flipDebounceCounter = 0;
+    private MovingAverage jamCounter;
+    private static final double MIN_UNJAMMED_SPEED = 1.0;
+    private static final double AVG_JAM_THRESHOLD = 0.5;
 
     public Spindexer() {
         setName("Spindexer");
@@ -64,10 +67,27 @@ public class Spindexer extends TerribleSubsystem {
         spindexerSPX.setInverted(true);
         spinCoder = new Encoder(0, 1);
         spinCoder.setDistancePerPulse(DIST_P_PULSE);
+        jamCounter = new MovingAverage(100);
     }
 
     private double getPosition(){
         return spinCoder.getDistance();
+    }
+
+    private boolean isJammed() {
+        double speed = spinCoder.getRate();
+        boolean jammed = Utils.outsideDeadband(speed, 0.0, MIN_UNJAMMED_SPEED);
+        return jammed && spinMode != MODE.STOPPED;
+    }
+
+    private void jamChecker() {
+        double avg;
+        if (isJammed()) avg = jamCounter.update(1.0);
+        else avg = jamCounter.update(0.0);
+
+        if (avg > AVG_JAM_THRESHOLD && spinMode != MODE.JAM_CLEAR)
+            CommandScheduler.getInstance().schedule(new InstantCommand(() -> this.toggleJamClear(), this)
+                    .withTimeout(2.0));
     }
 
 
@@ -100,7 +120,7 @@ public class Spindexer extends TerribleSubsystem {
                 setSpinning(SHOOT_SPEED);
                 break;
         }
-        }
+        if (spinMode != MODE.STOPPED) jamChecker();
     }
 
     public void startIndex(){
