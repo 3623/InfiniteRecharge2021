@@ -72,6 +72,10 @@ public class Flywheel extends TerribleSubsystem {
         return encoder.getVelocity() / GEAR_RATIO;
     }
 
+    public double getError() {
+        return speedSetpoint - getVelocity();
+    }
+
     @Override
     public void periodic() {
         display("Velocity", getVelocity());

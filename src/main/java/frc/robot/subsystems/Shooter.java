@@ -59,6 +59,8 @@ public class Shooter extends TerribleSubsystem {
     private static final double TARGET_RELATIVE_HEIGHT = 1.7; // meters
     private static final double LIMELIGHT_FOV = 54.0;
 
+    private static final double HOOD_RPM_COMP_FACTOR = 1.0;
+
 	private enum ShooterControlState {
         /** look forward for target or manual control */
         BLIND_AIM,
@@ -183,6 +185,11 @@ public class Shooter extends TerribleSubsystem {
         double rpm = 8.73 - (dist*0.528) + (dist*dist*0.0599);
         flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
         hood.setSetpoint(angle + hoodTrim);
+
+        // TODO EXPERIMENTAL
+        rpm = 8200.0;
+        flywheel.setSpeed(rpm);
+        angle -= flywheel.getError() / 1000.0 * HOOD_RPM_COMP_FACTOR;
         // hood.setSetpoint(22.0 + hoodTrim);
     }
 
