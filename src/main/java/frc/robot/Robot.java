@@ -2,14 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import java.util.Map;
-
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -18,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpiutil.net.PortForwarder;
 import frc.modeling.FieldPositions;
@@ -47,11 +43,15 @@ public class Robot extends TimedRobot {
     public AnalogInput MainPressure;
 
     // Declare Pre-Allocated Buttons on Controllers
+    private Button shiftButton;
     private Button shooterButton;
+    private Button visionOverrideButton;
     private Button unjamButton;
-    private Button intakeButton;
-    private Button coolMotorsButton, liftIntakeButton;
-    private Button extendRetractClimberButton;
+    private Button intakeButton, liftIntakeButton;
+    private Button climberButton;
+    private Button ptoButton;
+    private Button coolMotorsButton;
+    private Button drivetrainZeroButton;
 
     // Declare some multi-use variables for Robot.java functions
     private boolean POVDebounce = false;
@@ -72,7 +72,7 @@ public class Robot extends TimedRobot {
     */
     @Override
     public void robotInit() {
-        // Declare Subsystems
+        /* Initialize Subsystems */
         drivetrain = new Drivetrain();
         spindexer = new Spindexer();
         shooter = new Shooter(drivetrain.model.center, spindexer);
@@ -85,56 +85,73 @@ public class Robot extends TimedRobot {
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
 
         // Critical Function Buttons
+        shiftButton = new Button(() -> driver.getBumper(Hand.kLeft));
+
         intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.2));
+        liftIntakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.5));
+
         shooterButton = new Button(() -> operator.getXButton());
+        visionOverrideButton = new Button(() -> operator.getBackButton());
+
+        unjamButton = new Button(() -> operator.getBButton());
+
+        climberButton = new Button(() -> driver.getYButton());
+        ptoButton = new Button(() -> (driver.getAButton() && driver.getBButton()));
 
         // Buttons for Non-Critical Functions
-        unjamButton = new Button(() -> operator.getBButton());
-        liftIntakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.5));
         coolMotorsButton = new Button(() -> driver.getStartButton());
-        extendRetractClimberButton = new Button(() -> driver.getYButton());
+        drivetrainZeroButton = new Button(() -> driver.getBackButton());
+
+        /* Default Commands */
+        drivetrain.setDefaultCommand(
+                new DriverControl(drivetrain, () -> -driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
+        shiftButton.whileActiveOnce(new StartEndCommand(() -> drivetrain.setShiftMode(true),
+                                                        () -> drivetrain.setShiftMode(false)));
+
+        /* Button Definitions */
+        intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
+        liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
+
+        shooterButton.whenPressed(new ShootCommand(shooter, spindexer, () -> shooterButton.get(), operator, driver));
+
+        visionOverrideButton.whenPressed(new InstantCommand(() -> shooter.toggleVisionOverride()));
+
+        climberButton.whenPressed(new ConditionalCommand(
+                                                new InstantCommand(() -> climber.RetractClimber(), climber),
+                                                new InstantCommand(() -> climber.ExtendClimber(), climber),
+                                                climber::isClimberExtended));
+        ptoButton.whileActiveOnce(new StartEndCommand(() -> climber.EngagePTO(),
+                                                      () -> climber.DisengagePTO()));
+
+        unjamButton.whileActiveOnce(new StartEndCommand(() -> spindexer.toggleJamClear(),
+                                                        () -> spindexer.toggleJamClear(),
+                                                        spindexer));
+
+        coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.toggleCoolFalcons()));
+
+        drivetrainZeroButton.whenPressed(new InstantCommand(() -> drivetrain.zeroSensors()));
+
+        /* Declare Autonomous Command Options */
+        final Command m_SimpleShootAuto = new SimpleShoot(drivetrain, intake, shooter, spindexer);
+        final Command m_ThierTrenchAuto = new TheirTrench(drivetrain, intake, shooter, spindexer);
+        final Command m_BlockTrenchAuto = new BlockTrench(drivetrain, intake, shooter, spindexer);
+        final Command m_OurTrenchAuto = new OurTrench(drivetrain, intake, shooter, spindexer);
+        // Add the Autonomous Commands to the Chooser
+        m_chooser.setDefaultOption("Simple Shoot Auto", m_SimpleShootAuto);
+        m_chooser.addOption("Steal Their Trench Auto", m_ThierTrenchAuto);
+        m_chooser.addOption("Block Trench Auto", m_BlockTrenchAuto);
+        m_chooser.addOption("Use Our Trench Auto", m_OurTrenchAuto);
+        // Put the chooser on the dashboard
+        SmartDashboard.putData(m_chooser);
+
+        // DO NOT DELETE! Without this loops run for too long
+        LiveWindow.disableAllTelemetry();
 
         // Set up Port Forwarding so we can access Limelight over USB tether to robot.
         PortForwarder.add(5800, "limelight.local", 5800);
         PortForwarder.add(5801, "limelight.local", 5801);
         PortForwarder.add(5805, "limelight.local", 5805);
 
-        // Set Default Commands
-        drivetrain.setDefaultCommand(
-                new DriverControl(drivetrain, () -> -driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
-        // shooter.setDefaultCommand(new RunCommand(() -> shooter.disable(), shooter));
-
-        // Critical Function Button Definitions
-        intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
-        shooterButton.whenPressed(new ShootCommand(shooter, spindexer, () -> shooterButton.get(), operator, driver));
-        extendRetractClimberButton.whenPressed(new ConditionalCommand(
-                                                new InstantCommand(() -> climber.RetractClimber(), climber),
-                                                new InstantCommand(() -> climber.ExtendClimber(), climber),
-                                                climber::isClimberExtended));
-
-
-        // Non-Critical Function Button Defintions
-        unjamButton.whenPressed(new InstantCommand(() -> spindexer.toggleJamClear(), spindexer)
-                                                    .withInterrupt(() -> unjamButton.get()));
-
-        liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
-        coolMotorsButton.whenPressed(new InstantCommand(() -> drivetrain.coolFalcons()));
-
-        // Declare Autonomous Command Options
-        final Command m_SimpleShootAuto = new SimpleShoot(drivetrain, intake, shooter, spindexer);
-        final Command m_ThierTrenchAuto = new TheirTrench(drivetrain, intake, shooter, spindexer);
-        final Command m_BlockTrenchAuto = new BlockTrench(drivetrain, intake, shooter, spindexer);
-        final Command m_OurTrenchAuto = new OurTrench(drivetrain, intake, shooter, spindexer);
-
-        // Add the Autonomous Commands to the Chooser
-        m_chooser.setDefaultOption("Simple Shoot Auto", m_SimpleShootAuto);
-        m_chooser.addOption("Steal Their Trench Auto", m_ThierTrenchAuto);
-        m_chooser.addOption("Block Trench Auto", m_BlockTrenchAuto);
-        m_chooser.addOption("Use Our Trench Auto", m_OurTrenchAuto);
-
-        // Put the chooser on the dashboard
-        SmartDashboard.putData(m_chooser);
-        LiveWindow.disableAllTelemetry();
     }
 
 
@@ -197,26 +214,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-            /* ********* Drivetrain ********* */
-
-        // If driver is holding the left bumper, shift into high gear. Else, stay in low.
-        if (driver.getBumperPressed(Hand.kLeft))
-            drivetrain.setShiftMode(true);
-        else if (driver.getBumperReleased(Hand.kLeft))
-            drivetrain.setShiftMode(false);
-
-        if (driver.getStickButton(Hand.kLeft) && driver.getStickButton(Hand.kRight)) {
-            drivetrain.zeroSensors();
-        }
-
-            /* ********* Climber ********* */
-        if (driver.getAButton() && driver.getBButton()){
-            climber.EngagePTO();
-        }
-        else climber.DisengagePTO();
-
-            /* ********* Shooter ********* */
-
         // Manual Hood Control Logic
         if (operator.getPOV(0) == -1) POVDebounce = false; // If the D-Pad isn't touched, reset.
         else if (POVDebounce == false){ // If the D-Pad is engaged and it wasn't engaged last cycle...
@@ -234,9 +231,6 @@ public class Robot extends TimedRobot {
         if (mag > 0.8) {
             shooter.manualTurret(angle);
         }
-
-        // Override
-        if (operator.getBackButtonPressed()) shooter.toggleVisionOverride();
     }
 
 
