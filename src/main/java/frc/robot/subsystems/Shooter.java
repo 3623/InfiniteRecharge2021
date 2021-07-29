@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Robot;
 import frc.util.Pose;
 import frc.util.Utils;
+import frc.util.Utils.MovingAverage;
 
 public class Shooter extends TerribleSubsystem {
     protected final int UPDATE_RATE = 200;
@@ -33,9 +34,7 @@ public class Shooter extends TerribleSubsystem {
 
     private Pose robotPose;
 
-    private int numSamples = 200;
-    private LinkedList<Double> distSamples;
-    private double movingSum = 0.0;
+    private MovingAverage smoothedDist;
     private double targetDistance = 0.0;
     /** global reference */
     private double targetAngle = 0.0;
@@ -81,8 +80,7 @@ public class Shooter extends TerribleSubsystem {
                                    "http://limelight.local:5800/stream.mjpg");
         this.updateThreadStart();
         disable();
-        distSamples = new LinkedList<>();
-        for (int i = 0; i < numSamples; i++) distSamples.add(0.0);
+        smoothedDist = new MovingAverage(200);
     }
 
     /**
@@ -134,11 +132,7 @@ public class Shooter extends TerribleSubsystem {
         // We should never be in manual override and here at the same time!
         double targetX = this.targetX.getDouble(0.0);
         targetAngle = limeToGlobalAngle(targetX);
-        double dist = visionEstimateDistance(targetY.getDouble(0.0));
-        movingSum += dist;
-        distSamples.add(dist);
-        movingSum -= distSamples.remove();
-        targetDistance = movingSum / numSamples;
+        targetDistance = smoothedDist.update(visionEstimateDistance(targetY.getDouble(0.0)));
 
         setAngle(targetAngle);
         setDistance(targetDistance);

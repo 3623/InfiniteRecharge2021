@@ -1,5 +1,7 @@
 package frc.util;
 
+import java.util.LinkedList;
+
 public class Utils {
 
 	public static Boolean withinThreshold(double value, double goal, double epsilon) {
@@ -34,5 +36,25 @@ public class Utils {
 
 	public static void main(String[] args) {
 		System.out.println();
+	}
+
+	public static class MovingAverage {
+
+
+ 		private int numSamples;
+		private LinkedList<Double> samples;
+		private double sum = 0.0;
+
+		public MovingAverage(int numSamples) {
+			this.numSamples = numSamples;
+			samples = new LinkedList<>();
+			for (int i = 0; i < numSamples; i++) samples.add(0.0);
+		}
+
+		public double update(double newSample) {
+			sum += newSample;
+			sum -= samples.removeFirst();
+			return sum / numSamples;
+		}
 	}
 }
