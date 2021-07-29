@@ -77,6 +77,7 @@ public class Spindexer extends TerribleSubsystem {
     }
 
     private boolean isJammed() {
+        // TODO current using Talon?
         double speed = spinCoder.getRate();
         boolean jammed = Utils.outsideDeadband(speed, 0.0, MIN_UNJAMMED_SPEED);
         return jammed && spinMode != MODE.STOPPED;
@@ -152,6 +153,7 @@ public class Spindexer extends TerribleSubsystem {
     }
 
     private void setSpinning(double speed) {
+        // TODO we could smooth this out?
         spindexerSPX.set(ControlMode.PercentOutput, -speed);
     }
 
