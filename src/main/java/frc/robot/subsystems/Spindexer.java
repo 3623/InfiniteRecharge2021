@@ -68,6 +68,8 @@ public class Spindexer extends TerribleSubsystem {
         spinCoder = new Encoder(0, 1);
         spinCoder.setDistancePerPulse(DIST_P_PULSE);
         jamCounter = new MovingAverage(100);
+        stopSpinning();
+        updateThreadStart();
     }
 
     private double getPosition(){
@@ -162,14 +164,17 @@ public class Spindexer extends TerribleSubsystem {
     }
 
     public void monitor(){
-        SmartDashboard.putString("Spindexer/Spindexer Mode", spinMode.toString());
+        display("Mode", spinMode.toString());
         display("Position", getPosition());
-        display("Slot", Math.round((getPosition() % 5)+1));
-        display("Output", spindexerSPX.getMotorOutputPercent());
-        display("Int Cast", (int)getPosition());
+        display("Speed", spinCoder.getRate());
+    }
+
+    @Override
+    protected void update() {
+        setOutput();
     }
 
     public void periodic(){
-        setOutput();
+        monitor();
     }
 }

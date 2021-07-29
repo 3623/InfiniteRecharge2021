@@ -74,9 +74,9 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         // Declare Subsystems
         drivetrain = new Drivetrain();
-        shooter = new Shooter(drivetrain.model.center);
-        intake = new Intake();
         spindexer = new Spindexer();
+        shooter = new Shooter(drivetrain.model.center, spindexer);
+        intake = new Intake();
         climber = new Climber();
 
         MainPressure = new AnalogInput(0);

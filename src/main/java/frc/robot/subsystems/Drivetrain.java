@@ -101,7 +101,7 @@ public class Drivetrain extends TerribleSubsystem {
 
 		navx = new AHRS(SPI.Port.kMXP);
 
-		this.updateThreadStart();
+		updateThreadStart();
 
 		setShiftMode(false);
 		disable();

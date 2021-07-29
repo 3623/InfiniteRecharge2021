@@ -13,7 +13,6 @@ import edu.wpi.cscore.HttpCamera;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.Robot;
 import frc.util.Pose;
 import frc.util.Utils;
 import frc.util.Utils.MovingAverage;
@@ -25,6 +24,7 @@ public class Shooter extends TerribleSubsystem {
     private Feeder feeder;
     private Hood hood;
     private Flywheel flywheel;
+    private Spindexer spindexer;
 
     /** degrees */
     private static final double AIM_THRESHOLD = 2.0;
@@ -49,7 +49,6 @@ public class Shooter extends TerribleSubsystem {
     NetworkTable Lime = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry targetX = Lime.getEntry("tx"); // Horizontal Offset From Crosshair to Target (-27 to 27 degrees)
     NetworkTableEntry targetY = Lime.getEntry("ty"); // Vertical Offset From Crosshair to Target (-20.5 to 20.5 degrees)
-    NetworkTableEntry ta = Lime.getEntry("ta"); // Target Area (0% of Image to 100% of Image)
     NetworkTableEntry targets = Lime.getEntry("tv"); // Valid Targets (0 or 1)
     private HttpCamera limeCam; // We need this for it to work!
 
@@ -71,7 +70,7 @@ public class Shooter extends TerribleSubsystem {
     }
     private ShooterControlState controlState = ShooterControlState.DISABLED;
 
-    public Shooter(Pose odometryModel) {
+    public Shooter(Pose odometryModel, Spindexer spindexer) {
         setName("Shooter");
         robotPose = odometryModel;
         turret = new Turret();
@@ -80,6 +79,7 @@ public class Shooter extends TerribleSubsystem {
         flywheel = new Flywheel();
         limeCam = new HttpCamera("limelight",
                                    "http://limelight.local:5800/stream.mjpg");
+        this.spindexer = spindexer;
         this.updateThreadStart();
         disable();
         smoothedDist = new MovingAverage(200);
@@ -235,7 +235,7 @@ public class Shooter extends TerribleSubsystem {
                                              turret.getMeasurement() + robotPose.heading,
                                              AIM_THRESHOLD);
         flywheelAtSpeed = flywheel.isAtSpeed();
-        spindexerReady = Robot.spindexer.isReady();
+        spindexerReady = spindexer.isReady();
         hoodReady = hood.isReady();
         readyToFire = visionTracking && turretAimed && flywheelAtSpeed && spindexerReady && hoodReady;
         return readyToFire;
@@ -285,7 +285,6 @@ public class Shooter extends TerribleSubsystem {
         display("State", controlState.toString());
         turret.monitor();
         hood.monitor();
-        Robot.spindexer.monitor();
         isReadyToFire();
     }
 
