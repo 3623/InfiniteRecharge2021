@@ -281,7 +281,7 @@ public class Shooter extends TerribleSubsystem {
         display("Hood Ready", hoodReady);
         display("Turret Aimed", turretAimed);
         display("Flywheel At Speed", flywheelAtSpeed);
-        display("VIsion Override", visionOverride);
+        display("Vision Override", visionOverride);
         display("State", controlState.toString());
         turret.monitor();
         hood.monitor();
