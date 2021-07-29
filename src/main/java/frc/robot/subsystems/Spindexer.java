@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.Constants;
 import frc.util.Utils;
 import frc.util.Utils.MovingAverage;
@@ -89,8 +89,10 @@ public class Spindexer extends TerribleSubsystem {
         else avg = jamCounter.update(0.0);
 
         if (avg > AVG_JAM_THRESHOLD && spinMode != MODE.JAM_CLEAR)
-            CommandScheduler.getInstance().schedule(new InstantCommand(() -> this.toggleJamClear(), this)
-                    .withTimeout(2.0));
+            CommandScheduler.getInstance().schedule(new StartEndCommand(() -> toggleJamClear(),
+                                                                        () -> toggleJamClear(),
+                                                                        this)
+                                                                    .withTimeout(2.0));
     }
 
 
