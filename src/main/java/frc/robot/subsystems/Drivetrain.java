@@ -87,61 +87,13 @@ public class Drivetrain extends TerribleSubsystem {
 		rightFollower = new WPI_TalonFX(Constants.Drivetrain.RIGHT_MOTOR_FOLLOWER);
 		leftMaster = new WPI_TalonFX(Constants.Drivetrain.LEFT_MOTOR_MASTER);
 		leftFollower = new WPI_TalonFX(Constants.Drivetrain.LEFT_MOTOR_FOLLOWER);
-		rightMaster.configFactoryDefault(CONFIG_TIMEOUT);
-		rightFollower.configFactoryDefault(CONFIG_TIMEOUT);
-		leftMaster.configFactoryDefault(CONFIG_TIMEOUT);
-		leftFollower.configFactoryDefault(CONFIG_TIMEOUT);
-		// rightFollower.follow(rightMaster);
-		// leftFollower.follow(leftMaster);
-		rightMaster.setInverted(true);
-		leftMaster.setInverted(false);
-		rightFollower.setInverted(true/*InvertType.FollowMaster*/);
-		leftFollower.setInverted(false/*InvertType.FollowMaster*/);
-		setBrakeMode(false);
 
 		canifierLeft = new CANifier(2);
 		canifierRight = new CANifier(1);
-		rightMaster.configRemoteFeedbackFilter(canifierRight.getDeviceID(),
-											   RemoteSensorSource.CANifier_Quadrature, 0);
-		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, PID_ID, 10);
-		rightMaster.setSensorPhase(true);
-		leftMaster.configRemoteFeedbackFilter(canifierLeft.getDeviceID(),
-											   RemoteSensorSource.CANifier_Quadrature, 0);
-		leftMaster.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, PID_ID, 10);
-		leftMaster.setSensorPhase(true);
 
-		leftMaster.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
-		leftMaster.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
-		leftMaster.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
-		leftMaster.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
-		rightMaster.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
-		rightMaster.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
-		rightMaster.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
-		rightMaster.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
-		leftMaster.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
-		leftMaster.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
-		leftMaster.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
-		leftMaster.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
-		rightMaster.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
-		rightMaster.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
-		rightMaster.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
-		rightMaster.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
+		configureDevices();
+		setBrakeMode(false);
+
 		model = new DrivetrainModel();
 		model.setPosition(0.0, 0.0, 0.0);
 
@@ -151,7 +103,7 @@ public class Drivetrain extends TerribleSubsystem {
 
 		this.updateThreadStart();
 
-		setShiftMode(true);
+		setShiftMode(false);
 		disable();
 	}
 
@@ -402,6 +354,59 @@ public class Drivetrain extends TerribleSubsystem {
 
 	public boolean isCoolingMotors(){
 		return motorCooler.get();
+	}
+
+	private void configureDevices() {
+		rightMaster.configFactoryDefault(CONFIG_TIMEOUT);
+		rightFollower.configFactoryDefault(CONFIG_TIMEOUT);
+		leftMaster.configFactoryDefault(CONFIG_TIMEOUT);
+		leftFollower.configFactoryDefault(CONFIG_TIMEOUT);
+		// rightFollower.follow(rightMaster);
+		// leftFollower.follow(leftMaster);
+		rightMaster.setInverted(true);
+		leftMaster.setInverted(false);
+		rightFollower.setInverted(true/* InvertType.FollowMaster */);
+		leftFollower.setInverted(false/* InvertType.FollowMaster */);
+
+		rightMaster.configRemoteFeedbackFilter(canifierRight.getDeviceID(), RemoteSensorSource.CANifier_Quadrature, 0);
+		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, PID_ID, 10);
+		rightMaster.setSensorPhase(true);
+		leftMaster.configRemoteFeedbackFilter(canifierLeft.getDeviceID(), RemoteSensorSource.CANifier_Quadrature, 0);
+		leftMaster.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, PID_ID, 10);
+		leftMaster.setSensorPhase(true);
+
+		leftMaster.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
+		leftMaster.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
+		leftMaster.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
+		leftMaster.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
+		rightMaster.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
+		rightMaster.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
+		rightMaster.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
+		rightMaster.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
+		leftMaster.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
+		leftMaster.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
+		leftMaster.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
+		leftMaster.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
+		rightMaster.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
+		rightMaster.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
+		rightMaster.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
+		rightMaster.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
+		rightFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
+		leftFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
+		leftFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
+		rightFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
 	}
 
 	public static void main(String[] args) throws IOException {
