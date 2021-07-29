@@ -6,7 +6,6 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Spindexer;
-import frc.modeling.FieldPositions.RIGHT;
 
 public class SimpleShoot extends SequentialCommandGroup{
 

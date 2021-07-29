@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
 
-// TODO rumble feedback (check)
 public class ShootCommand extends SequentialCommandGroup{
     private static XboxController[] users;
 

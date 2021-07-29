@@ -7,8 +7,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.LinkedList;
-
 import edu.wpi.cscore.HttpCamera;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;

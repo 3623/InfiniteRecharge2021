@@ -348,7 +348,7 @@ public class Drivetrain extends TerribleSubsystem {
 		display("Right Output", rightMaster.getStatorCurrent());
 	}
 
-	public void coolFalcons(){
+	public void toggleCoolFalcons(){
 		motorCooler.set(!motorCooler.get());
 	}
 
