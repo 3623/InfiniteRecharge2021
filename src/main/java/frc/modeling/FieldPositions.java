@@ -39,10 +39,10 @@ public class FieldPositions {
 	public static class BLOCK implements PATH_SET {
 		public static final Pose START = new Pose(3.4, -3.5, 0.0);
 		public static final Waypoint[] WAYPOINTS = {new Waypoint(3.4, -10.5, 0.0, -1.0, true),
-													new Waypoint(2.9, -5.0, 10.0, 1.0, true),
-													new Waypoint(3.3, -8.2, -55.0, -1.0, true),
-													new Waypoint(1.2, -5.9, -15.0, 1.0, true),
-													new Waypoint(1.2, -5.9, -30.0, -1.0, true)};
+													new Waypoint(3.4, -8.5, 5.0, 1.0, false),
+													new Waypoint(2.9, -5.0, 30.0, 1.0, true),
+													new Waypoint(0.0, -6.7, 70.0, -1.0, true),
+													new Waypoint(2.9, -5.3, 70.0, 1.0, true)};
 	}
 
 	public static class STEAL implements PATH_SET {

@@ -12,13 +12,12 @@ public class BlockTrench extends SequentialCommandGroup{
     public BlockTrench(Drivetrain drive, Intake intake, Shooter shooter, Spindexer spindexer) {
         super(new DrivePath(drive, false, BLOCK.START, BLOCK.WAYPOINTS[0])
                     .deadlineWith(new IntakeCommand(intake, spindexer)),
-              new DrivePath(drive, BLOCK.WAYPOINTS[1])
+              new DrivePath(drive, BLOCK.WAYPOINTS[1], BLOCK.WAYPOINTS[2])
                     .alongWith(new ShootCommand.Prepare(shooter, spindexer)),
               ShootCommand.newFireCommand(shooter, spindexer),
-              new DrivePath(drive, BLOCK.WAYPOINTS[2], BLOCK.WAYPOINTS[3])
+              new DrivePath(drive, BLOCK.WAYPOINTS[3])
                     .deadlineWith(new IntakeCommand(intake, spindexer)),
               new DrivePath(drive, BLOCK.WAYPOINTS[4])
-                    .deadlineWith(new IntakeCommand(intake, spindexer))
                     .alongWith(new ShootCommand.Prepare(shooter, spindexer)),
               ShootCommand.newFireCommand(shooter, spindexer));
     }

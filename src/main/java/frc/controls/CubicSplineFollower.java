@@ -36,7 +36,7 @@ public class CubicSplineFollower {
     private static final double kSlowdownRadius = 1.0; // m
     private static final double kMinApproachSpeedCritical = 0.1; // %
     private static final double kRadiusCritical = 0.1;; // m
-    private static final double kScaleRadiusPath = 1; // constant
+    private static final double kScaleRadiusPath = 0.2; // constant
     private double kRadiusPath = 0.0; // this updates dynamically
     // deg, keeping this because this dictates when the robot switches
     private static final double kAngularErrorPath = 20.0;
@@ -148,6 +148,7 @@ public class CubicSplineFollower {
         display("deltaX Scaled", deltaX, true);
 
         kRadiusPath = Math.abs(deltaX) * UPDATE_RATE * kScaleRadiusPath;
+        display("radius", kRadiusPath, true);
         double dx2 = (3.0 * a * deltaX * deltaX) + (2.0 * b * deltaX);
         double relFFAngle = Math.atan(dx2);
         display("relFFAngle", relFFAngle, true);
