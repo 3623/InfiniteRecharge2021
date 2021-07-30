@@ -122,7 +122,7 @@ public class CubicSplineFollower {
      * @return a tuple of left and right output linear speed
      */
     public Tuple pathFollowing(Pose robotPose) {
-        display("ffSpeed", ffSpeed, false);
+        display("ffSpeed", ffSpeed, true);
         Tuple pathCoefficients = getPathGeometry(robotPose, curWaypoint);
         double a = pathCoefficients.left;
         double b = pathCoefficients.right;
@@ -137,7 +137,7 @@ public class CubicSplineFollower {
         // Just let the robot sit until then
         if (Math.signum(deltaX) != Math.signum(ffSpeed))
             deltaX = 0.0;
-        display("deltaX Raw", deltaX, false);
+        display("deltaX Raw", deltaX, true);
 
         if (deltaX != 0.0) {
             double y2 = (a * deltaX * deltaX * deltaX) + (b * deltaX * deltaX);
@@ -145,14 +145,14 @@ public class CubicSplineFollower {
             double ratio = Math.abs(deltaX / hypot);
             deltaX *= ratio;
         }
-        display("deltaX Scaled", deltaX, false);
+        display("deltaX Scaled", deltaX, true);
 
         kRadiusPath = Math.abs(deltaX) * UPDATE_RATE * kScaleRadiusPath;
         double dx2 = (3.0 * a * deltaX * deltaX) + (2.0 * b * deltaX);
         double relFFAngle = Math.atan(dx2);
         display("relFFAngle", relFFAngle, true);
         double omega = relFFAngle * UPDATE_RATE;
-        display("omega", omega, false);
+        display("omega", omega, true);
 
         // Convert from derivative to angle
 
@@ -167,7 +167,7 @@ public class CubicSplineFollower {
         display("Accel desiredSpeed", desiredSpeed, true);
 
         double maxTurn = kMaxAngularDiffFactor * Math.abs(desiredSpeed);
-        display("Max turn", maxTurn, false);
+        display("Max turn", maxTurn, true);
 
         double lrSpeedDifference = omega * WHEEL_BASE * kTurnMultiplier;
         lrSpeedDifference = Utils.limit(lrSpeedDifference, maxTurn, -maxTurn);

@@ -179,6 +179,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         drivetrain.zeroSensors();
+        drivetrain.setShiftMode(false);
         // shooter.zeroSensors();
 
         // ** Pull the autonomous command choice from the Sendable Chooser **
@@ -218,10 +219,10 @@ public class Robot extends TimedRobot {
         if (operator.getPOV(0) == -1) POVDebounce = false; // If the D-Pad isn't touched, reset.
         else if (POVDebounce == false){ // If the D-Pad is engaged and it wasn't engaged last cycle...
             POVDebounce = true; // set the flag to prevent multi-press.
-            if (operator.getPOV(0) == 0) shooter.trimHood(5.0); // If Up...+5 degrees
-            else if (operator.getPOV(0) == 90) shooter.trimHood(2.5); // if Right, +2.5 Degrees
-            else if (operator.getPOV(0) == 180) shooter.trimHood(-5.0); // if Down, -5 Degrees
-            else if (operator.getPOV(0) == 270) shooter.trimHood(-2.5); // if Left, -2.5 Degrees
+            if (operator.getPOV(0) == 0) shooter.trimHood(1.0); // If Up...+5 degrees
+            else if (operator.getPOV(0) == 90) shooter.trimHood(0.5); // if Right, +2.5 Degrees
+            else if (operator.getPOV(0) == 180) shooter.trimHood(-1.0); // if Down, -5 Degrees
+            else if (operator.getPOV(0) == 270) shooter.trimHood(-0.5); // if Left, -2.5 Degrees
             else POVDebounce = false; // If we're hitting a combo of D-Pad buttons, reset.
         }
 
@@ -245,5 +246,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testPeriodic() {
+        drivetrain.periodic();
+        drivetrain.setSpeed(1.0, 1.0);
     }
 }

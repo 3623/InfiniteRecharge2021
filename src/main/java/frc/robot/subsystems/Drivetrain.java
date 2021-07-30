@@ -57,13 +57,13 @@ public class Drivetrain extends TerribleSubsystem {
 	private static final int CONFIG_TIMEOUT = 30;
 
 	// TODO CHECK, should be (1023 * duty-cycle /  sensor-velocity-sensor-units-per-100ms).
-	private static final double kFF_LOW = 1023.0 / linearSpeedToTalonSpeed(DrivetrainModel.MAX_SPEED_LOW);
-	private static final double kP_LOW = 0.2;
-	private static final double kD_LOW = 0.0;
+	private static final double kFF_LOW = 1.1 * 1023.0 / linearSpeedToTalonSpeed(DrivetrainModel.MAX_SPEED_LOW);
+	private static final double kP_LOW = 1.0;
+	private static final double kD_LOW = 2.0;
 	private static final double kI_LOW = 0.0;
 	private static final double kFF_HIGH = 1023.0 / linearSpeedToTalonSpeed(DrivetrainModel.MAX_SPEED_HIGH);
-	private static final double kP_HIGH = 0.01;
-	private static final double kD_HIGH = 0.0;
+	private static final double kP_HIGH = 0.5;
+	private static final double kD_HIGH = 0.5;
 	private static final double kI_HIGH = 0.0;
 
 	private double time;
@@ -206,10 +206,11 @@ public class Drivetrain extends TerribleSubsystem {
 		double leftSpeed = output.left;
 		double rightSpeed = output.right;
 		Waypoint cur = waypointNav.getCurrentWaypoint();
-		setShiftMode(cur.shift);
+		if (cur != null)
+			setShiftMode(cur.shift);
 
-		display("Left Out 1", leftSpeed);
-		display("Right Out 1", rightSpeed);
+		display("Left Out Waypoint", leftSpeed);
+		display("Right Out Waypoint", rightSpeed);
 		setSpeed(leftSpeed, rightSpeed);
 	}
 
@@ -280,13 +281,13 @@ public class Drivetrain extends TerribleSubsystem {
 		setOpenLoop(leftOutput, rightOutput);
 	}
 
-	private void setSpeed(double left, double right) {
+	public void setSpeed(double left, double right) {
 		double leftTalonSpeed = linearSpeedToTalonSpeed(left);
 		double rightTalonSpeed = linearSpeedToTalonSpeed(right);
 		leftMaster.set(ControlMode.Velocity, leftTalonSpeed);
-		leftFollower.set(ControlMode.Velocity, leftTalonSpeed);
+		// leftFollower.set(ControlMode.Velocity, leftTalonSpeed);
 		rightMaster.set(ControlMode.Velocity, rightTalonSpeed);
-		rightFollower.set(ControlMode.Velocity, rightTalonSpeed);
+		// rightFollower.set(ControlMode.Velocity, rightTalonSpeed);
 	}
 
 	private static double linearSpeedToTalonSpeed(double linearSpeed) {
@@ -313,9 +314,9 @@ public class Drivetrain extends TerribleSubsystem {
 			right *= 0.3;
 		}
 		leftMaster.set(ControlMode.PercentOutput, left);
-		leftFollower.set(ControlMode.PercentOutput, left);
+		// leftFollower.set(ControlMode.PercentOutput, left);
 		rightMaster.set(ControlMode.PercentOutput, right);
-		rightFollower.set(ControlMode.PercentOutput, right);
+		// rightFollower.set(ControlMode.PercentOutput, right);
 	}
 
 	/**
@@ -330,6 +331,7 @@ public class Drivetrain extends TerribleSubsystem {
 			pidSlot = PID_SLOT_HIGH;
 			curLim = HIGH_GEAR_CURRENT_LIM;
 		}
+		rightMaster.selectProfileSlot(pidSlot, PID_ID);
 		leftMaster.selectProfileSlot(pidSlot, PID_ID); // TODO Check if this works (give a pid config 0?)
 		leftMaster.configStatorCurrentLimit(curLim, CONFIG_TIMEOUT);
 		rightMaster.configStatorCurrentLimit(curLim, CONFIG_TIMEOUT);
@@ -338,14 +340,14 @@ public class Drivetrain extends TerribleSubsystem {
 	@Override
 	public void periodic() {
 		super.periodic();
-		display("Left Encoder", talonSpeedToLinearSpeed(leftMaster.getSelectedSensorVelocity()));
-		display("Rights Encoder", talonSpeedToLinearSpeed(rightMaster.getSelectedSensorVelocity()));
+		display("Left Speed", talonSpeedToLinearSpeed(leftMaster.getSelectedSensorVelocity()));
+		display("Rights Speed", talonSpeedToLinearSpeed(rightMaster.getSelectedSensorVelocity()));
 		display("Model X", model.center.x);
 		display("Model Y", model.center.y);
 		display("Heading", model.center.heading);
 		display("Radians", model.center.r);
-		display("Left Output", leftMaster.getStatorCurrent());
-		display("Right Output", rightMaster.getStatorCurrent());
+		display("Left Current", leftMaster.getStatorCurrent());
+		display("Right Current", rightMaster.getStatorCurrent());
 	}
 
 	public void toggleCoolFalcons(){
@@ -361,12 +363,14 @@ public class Drivetrain extends TerribleSubsystem {
 		rightFollower.configFactoryDefault(CONFIG_TIMEOUT);
 		leftMaster.configFactoryDefault(CONFIG_TIMEOUT);
 		leftFollower.configFactoryDefault(CONFIG_TIMEOUT);
-		// rightFollower.follow(rightMaster);
-		// leftFollower.follow(leftMaster);
+
+		rightFollower.follow(rightMaster);
+		leftFollower.follow(leftMaster);
+
 		rightMaster.setInverted(true);
 		leftMaster.setInverted(false);
-		rightFollower.setInverted(true/* InvertType.FollowMaster */);
-		leftFollower.setInverted(false/* InvertType.FollowMaster */);
+		rightFollower.setInverted(InvertType.FollowMaster);
+		leftFollower.setInverted(InvertType.FollowMaster);
 
 		rightMaster.configRemoteFeedbackFilter(canifierRight.getDeviceID(), RemoteSensorSource.CANifier_Quadrature, 0);
 		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor0, PID_ID, 10);
@@ -391,22 +395,6 @@ public class Drivetrain extends TerribleSubsystem {
 		rightMaster.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
 		rightMaster.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
 		rightMaster.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kF(PID_SLOT_LOW, kFF_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kP(PID_SLOT_LOW, kP_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kD(PID_SLOT_LOW, kD_LOW, CONFIG_TIMEOUT);
-		rightFollower.config_kI(PID_SLOT_LOW, kI_LOW, CONFIG_TIMEOUT);
-		leftFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
-		leftFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kF(PID_SLOT_HIGH, kFF_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kP(PID_SLOT_HIGH, kP_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kD(PID_SLOT_HIGH, kD_HIGH, CONFIG_TIMEOUT);
-		rightFollower.config_kI(PID_SLOT_HIGH, kI_HIGH, CONFIG_TIMEOUT);
 	}
 
 	public static void main(String[] args) throws IOException {
