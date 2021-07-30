@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
         // Critical Function Buttons
         shiftButton = new Button(() -> driver.getBumper(Hand.kRight));
 
-        intakeButton = new Button(() -> (operator.getAButton() || driver.getTriggerAxis(Hand.kLeft) > 0.2));
+        intakeButton = new Button(() -> (operator.getAButton() || driver.getTriggerAxis(Hand.kRight) > 0.2));
         liftIntakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.5));
 
         shooterButton = new Button(() -> operator.getXButton());
@@ -246,7 +246,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testPeriodic() {
-        drivetrain.periodic();
-        drivetrain.setSpeed(1.0, 1.0);
+        // drivetrain.periodic();
+        // drivetrain.setSpeed(1.0, 1.0);
     }
 }
