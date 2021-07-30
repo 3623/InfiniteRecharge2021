@@ -85,10 +85,10 @@ public class Robot extends TimedRobot {
         operator = new XboxController(Constants.IO.OPERATOR_CONTROLLER);
 
         // Critical Function Buttons
-        shiftButton = new Button(() -> driver.getBumper(Hand.kLeft));
+        shiftButton = new Button(() -> driver.getBumper(Hand.kRight));
 
-        intakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.2));
-        liftIntakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kRight) > 0.5));
+        intakeButton = new Button(() -> (operator.getAButton() || driver.getTriggerAxis(Hand.kLeft) > 0.2));
+        liftIntakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.5));
 
         shooterButton = new Button(() -> operator.getXButton());
         visionOverrideButton = new Button(() -> operator.getBackButton());

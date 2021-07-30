@@ -66,9 +66,9 @@ public class Utils {
 		public double update(double newSample) {
 			sum += newSample;
 			samples.add(newSample);
-			numSamples++;
-			if (numSamples > sampleLimit)
+			if (numSamples == sampleLimit)
 				sum -= samples.remove();
+			else numSamples++;
 			return sum / numSamples;
 		}
 	}
