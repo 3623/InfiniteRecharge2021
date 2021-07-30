@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -14,7 +14,7 @@ import frc.robot.Constants;
 // TODO Update system to be a drop in replacement for Spindexer to run on PID
 
 public class SpindexerPID extends PIDSubsystem {
-    WPI_VictorSPX motor;
+    WPI_TalonSRX motor;
     public static final double SHOOT_TIME = 1.5;
     public static final double INDEX_TIME = 5.0;
     private static final double INDEX_SPEED = 0.4;
@@ -39,7 +39,7 @@ public class SpindexerPID extends PIDSubsystem {
         super(new PIDController(kP, kI, kD));
         getController().setTolerance(DEADBAND);
 
-        motor = new WPI_VictorSPX(Constants.Shooter.SPINDEXER_MOTOR_SPX);
+        motor = new WPI_TalonSRX(Constants.Shooter.SPINDEXER_MOTOR_SRX);
         encoder = new Encoder(0, 1);
         motor.setNeutralMode(NeutralMode.Brake);
         motor.setInverted(true);

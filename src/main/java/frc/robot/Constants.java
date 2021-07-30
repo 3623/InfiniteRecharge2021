@@ -43,8 +43,8 @@ public final class Constants {
         public static final int LIMEIGHT_LED_BLINK = 2;
         public static final int LIMELIGHT_LED_FORCE_ON = 3;
 
-        public static final int FEEDER_MOTOR_SRX = 7;
-        public static final int SPINDEXER_MOTOR_SPX = 2;
+        public static final int FEEDER_MOTOR_SPX = 2;
+        public static final int SPINDEXER_MOTOR_SRX = 7;
     }
 
     public static final class Intake {

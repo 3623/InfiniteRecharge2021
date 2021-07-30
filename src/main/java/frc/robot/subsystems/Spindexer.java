@@ -8,7 +8,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
@@ -25,23 +25,23 @@ import frc.util.Utils.MovingAverage;
 public class Spindexer extends TerribleSubsystem {
 
     public static final double SHOOT_TIME = 3.0;
-    public static final double INDEX_TIME = 5.0;
+    public static final double INDEX_TIME = 7.0;
 
     private static final double READY_SPEED = 0.6;
     private static final double SHOOT_SPEED = 0.5;
 
-    private static final double INDEX_BIAS = 0.3;
+    private static final double INDEX_BIAS = 0.1;
     private static final double INDEX_AMP = 0.4;
-    private static final double INDEX_PER = 1.5;
+    private static final double INDEX_PER = 1.0;
 
     private static final double STANDBY_BIAS = 0.3;
     private static final double STANDBY_AMP = 0.5;
-    private static final double STANDBY_PER = 1.7;
+    private static final double STANDBY_PER = 6.28 / 3.0;
 
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
 
-    private WPI_VictorSPX spindexerSPX;
+    private WPI_TalonSRX spindexerSRX;
 
     private enum MODE{
         STOPPED,
@@ -63,13 +63,13 @@ public class Spindexer extends TerribleSubsystem {
 
     public Spindexer() {
         setName("Spindexer");
-        spindexerSPX = new WPI_VictorSPX(Constants.Shooter.SPINDEXER_MOTOR_SPX);
-        spindexerSPX.setInverted(true);
+        spindexerSRX = new WPI_TalonSRX(Constants.Shooter.SPINDEXER_MOTOR_SRX);
+        spindexerSRX.setInverted(true);
         spinCoder = new Encoder(0, 1);
         spinCoder.setDistancePerPulse(DIST_P_PULSE);
         jamCounter = new MovingAverage(100);
         stopSpinning();
-        updateThreadStart();
+        // updateThreadStart();
     }
 
     private double getPosition(){
@@ -79,7 +79,7 @@ public class Spindexer extends TerribleSubsystem {
     private boolean isJammed() {
         // TODO current using Talon?
         double speed = spinCoder.getRate();
-        boolean jammed = Utils.outsideDeadband(speed, 0.0, MIN_UNJAMMED_SPEED);
+        boolean jammed = Utils.withinThreshold(speed, 0.0, MIN_UNJAMMED_SPEED);
         return jammed && spinMode != MODE.STOPPED;
     }
 
@@ -87,12 +87,14 @@ public class Spindexer extends TerribleSubsystem {
         double avg;
         if (isJammed()) avg = jamCounter.update(1.0);
         else avg = jamCounter.update(0.0);
-
+        boolean jamClear = avg > AVG_JAM_THRESHOLD;
+        display("auto jam clear", jamClear);
         if (avg > AVG_JAM_THRESHOLD && spinMode != MODE.JAM_CLEAR)
             CommandScheduler.getInstance().schedule(new StartEndCommand(() -> toggleJamClear(),
                                                                         () -> toggleJamClear(),
                                                                         this)
                                                                     .withTimeout(2.0));
+        display("jam avg", avg);
     }
 
 
@@ -119,7 +121,7 @@ public class Spindexer extends TerribleSubsystem {
                 spinBackAndForth(STANDBY_BIAS, STANDBY_AMP, STANDBY_PER);
                 break;
             case JAM_CLEAR:
-                spinBackAndForth(0.1, 0.8, 1.5);
+                spinBackAndForth(-0.1, 0.8, 6.28 / 3.0);
                 break;
             case SHOOTING:
                 setSpinning(SHOOT_SPEED);
@@ -156,7 +158,7 @@ public class Spindexer extends TerribleSubsystem {
 
     private void setSpinning(double speed) {
         // TODO we could smooth this out?
-        spindexerSPX.set(ControlMode.PercentOutput, -speed);
+        spindexerSRX.set(ControlMode.PercentOutput, -speed);
     }
 
     private void spinBackAndForth(double bias, double amplitude, double period) {
@@ -173,12 +175,13 @@ public class Spindexer extends TerribleSubsystem {
         display("Speed", spinCoder.getRate());
     }
 
-    @Override
-    protected void update() {
-        setOutput();
-    }
+    // @Override
+    // protected void update() {
+    //     setOutput();
+    // }
 
     public void periodic(){
+        setOutput();
         monitor();
     }
 }

@@ -53,7 +53,8 @@ public class Utils {
 
 		public double update(double newSample) {
 			sum += newSample;
-			sum -= samples.removeFirst();
+			samples.add(newSample);
+			sum -= samples.remove();
 			return sum / numSamples;
 		}
 	}

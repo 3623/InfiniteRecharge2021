@@ -27,7 +27,7 @@ public class Hood extends PIDSubsystem {
     private static final double MAX_GOAL = 30.0;
     private static final double MIN_GOAL = 0.0;
     private static final double RANGE = MAX_GOAL - MIN_GOAL;
-    private static final double kP = 7.0 / RANGE;
+    private static final double kP = 10.0 / RANGE;
     private static final double kI = 0.0 / RANGE;
     private static final double kD = 0.0 / RANGE;
     private static final double DEADBAND = 0.25;

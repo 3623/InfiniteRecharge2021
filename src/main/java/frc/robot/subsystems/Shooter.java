@@ -80,7 +80,7 @@ public class Shooter extends TerribleSubsystem {
         this.spindexer = spindexer;
         this.updateThreadStart();
         disable();
-        smoothedDist = new MovingAverage(200);
+        smoothedDist = new MovingAverage(250);
     }
 
     /**
@@ -179,15 +179,15 @@ public class Shooter extends TerribleSubsystem {
     public void setDistance(double dist) {
         dist = Utils.limit(dist, 7, 0);
         // TODO tune this
-        double angle = -21.6 + (dist*21.2) - (dist*dist*2.54);
+        double angle = -20.6 + (dist*21.2) - (dist*dist*2.54);
         double rpm = 8.73 - (dist*0.528) + (dist*dist*0.0599);
         flywheel.setSpeed((rpm + rpmTrim) * 1000.0);
         hood.setSetpoint(angle + hoodTrim);
 
         // TODO EXPERIMENTAL
-        rpm = 8200.0;
-        flywheel.setSpeed(rpm);
-        angle -= flywheel.getError() / 1000.0 * HOOD_RPM_COMP_FACTOR;
+        rpm = 7800.0;
+        // flywheel.setSpeed(rpm);
+        // angle -= flywheel.getError() / 1000.0 * HOOD_RPM_COMP_FACTOR;
         // hood.setSetpoint(22.0 + hoodTrim);
     }
 

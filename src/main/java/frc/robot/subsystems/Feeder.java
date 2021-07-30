@@ -8,28 +8,28 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Feeder extends SubsystemBase {
 
-    private WPI_TalonSRX feederSRX;
+    private WPI_VictorSPX feederSPX;
     private boolean running = false;
     private static final int TOTAL_REDUCTION = 14;
 
     public Feeder() {
-        feederSRX = new WPI_TalonSRX(Constants.Shooter.FEEDER_MOTOR_SRX);
+        feederSPX = new WPI_VictorSPX(Constants.Shooter.FEEDER_MOTOR_SPX);
     }
 
     public void run(double feederSpeed) {
-        feederSRX.set(ControlMode.PercentOutput, feederSpeed);
+        feederSPX.set(ControlMode.PercentOutput, feederSpeed);
         running = true;
     }
 
     public void stop() {
-        feederSRX.set(ControlMode.PercentOutput, 0.0);
+        feederSPX.set(ControlMode.PercentOutput, 0.0);
         running = false;
     }
 
@@ -38,7 +38,7 @@ public class Feeder extends SubsystemBase {
     }
 
     public double getTheoreticalSpeed(){
-        return feederSRX.get()*21020/TOTAL_REDUCTION;
+        return feederSPX.get()*21020/TOTAL_REDUCTION;
     }
 
 }
