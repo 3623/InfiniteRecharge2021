@@ -25,9 +25,6 @@ public class IntakeCommand extends CommandBase{
     @Override
     public void end(boolean interrupted) {
         intake.setIntaking(false);
-        CommandScheduler.getInstance().
-            schedule(new StartEndCommand(() -> spindexer.startIndex(),
-                                            () -> spindexer.setStandby(),
-                                            spindexer).withTimeout(Spindexer.INDEX_TIME));
+        spindexer.setStandby();
     }
 }

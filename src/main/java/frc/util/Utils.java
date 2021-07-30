@@ -41,20 +41,34 @@ public class Utils {
 	public static class MovingAverage {
 
 
- 		private int numSamples;
+		private int numSamples = 0;
+		private final int sampleLimit;
 		private LinkedList<Double> samples;
 		private double sum = 0.0;
 
-		public MovingAverage(int numSamples) {
-			this.numSamples = numSamples;
+		public MovingAverage(int sampleLimit, boolean initZeroes) {
+			this.sampleLimit = sampleLimit;
 			samples = new LinkedList<>();
+			if (initZeroes) fillWithZeros();
+		}
+
+		public void fillWithZeros() {
+			reset();
 			for (int i = 0; i < numSamples; i++) samples.add(0.0);
+		}
+
+		public void reset() {
+			sum = 0.0;
+			numSamples = 0;
+			samples.clear();
 		}
 
 		public double update(double newSample) {
 			sum += newSample;
 			samples.add(newSample);
-			sum -= samples.remove();
+			numSamples++;
+			if (numSamples > sampleLimit)
+				sum -= samples.remove();
 			return sum / numSamples;
 		}
 	}

@@ -34,9 +34,21 @@ public class Spindexer extends TerribleSubsystem {
     private static final double INDEX_AMP = 0.4;
     private static final double INDEX_PER = 1.0;
 
-    private static final double STANDBY_BIAS = 0.3;
-    private static final double STANDBY_AMP = 0.5;
-    private static final double STANDBY_PER = 6.28 / 3.0;
+    private static final double STANDBY_BIAS = INDEX_BIAS;
+    private static final double STANDBY_AMP = INDEX_AMP;
+    private static final double STANDBY_PER = 0.8;
+
+    private static final double READY_BIAS = INDEX_BIAS;
+    private static final double READY_AMP = INDEX_AMP;
+    private static final double READY_PER = INDEX_PER;
+
+    private static final double SHOOT_BIAS = 0.35;
+    private static final double SHOOT_AMP = 0.4;
+    private static final double SHOOT_PER = 0.35;
+
+    private static final double UNJAM_BIAS = -0.2;
+    private static final double UNJAM_AMP = 0.6;
+    private static final double UNJAM_PER = 1.0;
 
     private static final double TICKS_PER_ENCODER_REV = 2048.0;
     private static final double DIST_P_PULSE = (24.0 / 400.0) / TICKS_PER_ENCODER_REV * 5.0; // Converts to Spindexer Sections
@@ -67,7 +79,7 @@ public class Spindexer extends TerribleSubsystem {
         spindexerSRX.setInverted(true);
         spinCoder = new Encoder(0, 1);
         spinCoder.setDistancePerPulse(DIST_P_PULSE);
-        jamCounter = new MovingAverage(100);
+        jamCounter = new MovingAverage(100, true);
         stopSpinning();
         // updateThreadStart();
     }
@@ -115,16 +127,19 @@ public class Spindexer extends TerribleSubsystem {
                 spinBackAndForth(INDEX_BIAS, INDEX_AMP, INDEX_PER);
                 break;
             case READYING:
-                setSpinning(READY_SPEED);
+                spinBackAndForth(READY_BIAS, READY_AMP, READY_PER);
+                // setSpinning(READY_SPEED);
                 break;
             case STANDBY:
                 spinBackAndForth(STANDBY_BIAS, STANDBY_AMP, STANDBY_PER);
+                // spinBackAndForth(STANDBY_BIAS, STANDBY_AMP, STANDBY_PER);
                 break;
             case JAM_CLEAR:
-                spinBackAndForth(-0.1, 0.8, 6.28 / 3.0);
+                spinBackAndForth(UNJAM_BIAS, UNJAM_AMP, UNJAM_PER);
                 break;
             case SHOOTING:
-                setSpinning(SHOOT_SPEED);
+                spinBackAndForth(SHOOT_BIAS, SHOOT_AMP, SHOOT_PER);
+                // setSpinning(SHOOT_SPEED);
                 break;
         }
         if (spinMode != MODE.STOPPED) jamChecker();
@@ -174,11 +189,6 @@ public class Spindexer extends TerribleSubsystem {
         display("Position", getPosition());
         display("Speed", spinCoder.getRate());
     }
-
-    // @Override
-    // protected void update() {
-    //     setOutput();
-    // }
 
     public void periodic(){
         setOutput();

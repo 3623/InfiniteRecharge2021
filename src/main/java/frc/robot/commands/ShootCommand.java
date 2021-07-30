@@ -17,7 +17,7 @@ public class ShootCommand extends SequentialCommandGroup{
         addCommands(new Prepare(shooter, spindexer, prepareHold),
                     new WaitCommand(0.1),
                     newFireCommand(shooter, spindexer));
-        ShootCommand.users = users;
+        this.users = users;
     }
 
     public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer) {
@@ -53,7 +53,7 @@ public class ShootCommand extends SequentialCommandGroup{
             super.initialize();
             shooter.prepare();
             spindexer.startReadying();
-            setRumble(0.1);
+            setRumble(0.2);
         }
 
         @Override
@@ -89,7 +89,7 @@ public class ShootCommand extends SequentialCommandGroup{
             System.out.println("Firing");
             spindexer.startShooting();
             shooter.fire();
-            setRumble(0.4);
+            setRumble(0.8);
         }
 
         @Override

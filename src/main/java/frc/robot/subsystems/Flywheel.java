@@ -17,11 +17,11 @@ public class Flywheel extends TerribleSubsystem {
     private static final double SPEED_THRESHOLD = 50.0;
     private CANSparkMax shooterMaster, shooterFollower;
     private CANEncoder encoder;
-    private static final double kP = 2.3 / 1000.0;
+    private static final double kP = 1.0 / 1000.0;
     private static final double kI = 0.0;
-    private static final double kD = 0.1 / 1000.0;
+    private static final double kD = 0.12 / 1000.0;
     private static final double kIz = 0.0;
-    private static final double kFF = 1.08/5676.0;
+    private static final double kFF = 1.1 / 5676.0;
     private static final double kMaxOutput = 1.0;
     private static final double kMinOutput = 0.0;
     private static final double GEAR_RATIO = 18.0 / 35.0;

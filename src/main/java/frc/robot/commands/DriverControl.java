@@ -35,14 +35,11 @@ public class DriverControl extends CommandBase {
         double joystickY = m_forward.getAsDouble();
         double joystickR = m_rotation.getAsDouble();
 
-        joystickY = joystickY * Math.abs(joystickY);
-        joystickR = joystickR * Math.abs(joystickR);
-
         Boolean quickTurn;
         if (Math.abs(joystickY) < 0.4) quickTurn = true;
         else quickTurn = false;
         if (quickTurn) {
-            Drive.terribleDrive(joystickY * 0.5, joystickR, quickTurn);
+            Drive.terribleDrive(joystickY * 0.5, joystickR * 0.7, quickTurn);
         } else {
             Drive.terribleDrive(joystickY * Math.abs(joystickY), joystickR * 0.5, quickTurn);
         }
