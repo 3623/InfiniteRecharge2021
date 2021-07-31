@@ -68,13 +68,13 @@ public class CubicSplineFollower {
      */
     public Tuple updatePursuit(Pose robotPose) {
         // Check for finished case
+        if (curWaypoint == null) curWaypoint = waypoints.pollFirst();
         boolean finished = waypoints.isEmpty() && curWaypoint == null;
         if (finished && !isFinished) System.out.println("Finished Path Following");
         isFinished = finished;
         if (isFinished) return new Tuple(0.0, 0.0);
 
         // New waypoint
-        if (curWaypoint == null) curWaypoint = waypoints.pollFirst();
         distToWaypoint = Geometry.distance(robotPose, curWaypoint);
         DT_MAX_SPEED = drivetrainState.getTopSpeed();
         ffSpeed = curWaypoint.speed();

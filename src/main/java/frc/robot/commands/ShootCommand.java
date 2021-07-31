@@ -11,20 +11,18 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Spindexer;
 
 public class ShootCommand extends SequentialCommandGroup{
-    private static XboxController[] users;
 
     public ShootCommand(Shooter shooter, Spindexer spindexer, BooleanSupplier prepareHold, XboxController... users) {
-        addCommands(new Prepare(shooter, spindexer, prepareHold),
+        addCommands(new Prepare(shooter, spindexer, prepareHold, users),
                     new WaitCommand(0.1),
-                    newFireCommand(shooter, spindexer));
-        this.users = users;
+                    newFireCommand(shooter, spindexer, users));
     }
 
-    public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer) {
-        return (new Fire(shooter, spindexer)).withTimeout(Spindexer.SHOOT_TIME);
+    public static CommandBase newFireCommand(Shooter shooter, Spindexer spindexer, XboxController... users) {
+        return (new Fire(shooter, spindexer, users)).withTimeout(Spindexer.SHOOT_TIME);
     }
 
-    protected static void setRumble(double value) {
+    protected static void setRumble(double value, XboxController[] users) {
         for (XboxController user : users) {
             user.setRumble(RumbleType.kLeftRumble, value);
             user.setRumble(RumbleType.kRightRumble, value);
@@ -35,12 +33,14 @@ public class ShootCommand extends SequentialCommandGroup{
         private Shooter shooter;
         private Spindexer spindexer;
         private BooleanSupplier prepareHold;
+        private XboxController[] users;
 
-        public Prepare(Shooter shooter, Spindexer spindexer, BooleanSupplier prepareHold) {
+        public Prepare(Shooter shooter, Spindexer spindexer, BooleanSupplier prepareHold, XboxController... users) {
             this.spindexer = spindexer;
             this.shooter = shooter;
             addRequirements(this.shooter, this.spindexer);
             this.prepareHold = prepareHold;
+            this.users = users;
         }
 
         public Prepare(Shooter shooter, Spindexer spindexer) {
@@ -53,7 +53,7 @@ public class ShootCommand extends SequentialCommandGroup{
             super.initialize();
             shooter.prepare();
             spindexer.startReadying();
-            setRumble(0.2);
+            setRumble(0.2, users);
         }
 
         @Override
@@ -70,18 +70,20 @@ public class ShootCommand extends SequentialCommandGroup{
                 shooter.disable();
                 spindexer.stopSpinning();
             }
-            setRumble(0.0);
+            setRumble(0.0, users);
         }
     }
 
     private static class Fire extends CommandBase {
         private Shooter shooter;
         private Spindexer spindexer;
+        private XboxController[] users;
 
-        private Fire(Shooter shooter, Spindexer spindexer) {
+        private Fire(Shooter shooter, Spindexer spindexer, XboxController... users) {
             this.shooter = shooter;
             this.spindexer = spindexer;
             addRequirements(shooter, spindexer);
+            this.users = users;
         }
 
         @Override
@@ -89,14 +91,14 @@ public class ShootCommand extends SequentialCommandGroup{
             System.out.println("Firing");
             spindexer.startShooting();
             shooter.fire();
-            setRumble(0.8);
+            setRumble(0.8, users);
         }
 
         @Override
         public void end(boolean interrupted) {
             spindexer.stopSpinning();
             shooter.disable();
-            setRumble(0.0);
+            setRumble(0.0, users);
         }
     }
 }

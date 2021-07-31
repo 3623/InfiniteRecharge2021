@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
     private Button shiftButton;
     private Button shooterButton;
     private Button visionOverrideButton;
+    private Button fireOverrideButton;
     private Button unjamButton;
     private Button intakeButton, liftIntakeButton;
     private Button climberButton;
@@ -92,6 +93,7 @@ public class Robot extends TimedRobot {
 
         shooterButton = new Button(() -> operator.getXButton());
         visionOverrideButton = new Button(() -> operator.getBackButton());
+        fireOverrideButton = new Button(() -> (operator.getTriggerAxis(Hand.kRight) > 0.5));
 
         unjamButton = new Button(() -> operator.getBButton());
 
@@ -109,12 +111,14 @@ public class Robot extends TimedRobot {
                                                         () -> drivetrain.setShiftMode(false)));
 
         /* Button Definitions */
-        intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
+        intakeButton.whileActiveOnce(new IntakeCommand(intake, spindexer));
         liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
 
         shooterButton.whenPressed(new ShootCommand(shooter, spindexer, () -> shooterButton.get(), operator, driver));
 
         visionOverrideButton.whenPressed(new InstantCommand(() -> shooter.toggleVisionOverride()));
+        fireOverrideButton.whileActiveOnce(new StartEndCommand(() -> shooter.setFireOverride(true),
+                                                               () -> shooter.setFireOverride(false)));
 
         climberButton.whenPressed(new ConditionalCommand(
                                                 new InstantCommand(() -> climber.RetractClimber(), climber),

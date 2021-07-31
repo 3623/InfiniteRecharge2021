@@ -13,9 +13,9 @@ public class FieldPositions {
 	public static class LEFT implements PATH_SET{
 		public static final Pose START = new Pose(-3.3, -3.5, 0.0);
 		public static final Waypoint[] WAYPOINTS = {new Waypoint(-3.3, -5.8, 0.0, -0.8, true),
-													new Waypoint(0.5, -3.0, 50.0, 0.8, true),
-													new Waypoint(-0.2, -5.5, -25.0, -0.8, true),
-													new Waypoint(1.0, -3.0, 0.0, 0.8, true)};
+													new Waypoint(1.0, -3.0, 62.0, 0.8, true),
+													new Waypoint(0.1, -6.7, -5.0, -0.8, true),
+													new Waypoint(1.0, -3.0, 15.0, 0.8, true)};
 	}
 
 	public static class MIDDLE implements PATH_SET{
