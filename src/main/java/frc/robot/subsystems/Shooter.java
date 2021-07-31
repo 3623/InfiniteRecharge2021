@@ -40,10 +40,7 @@ public class Shooter extends TerribleSubsystem {
     private boolean readyToFire = false;
 
     private double hoodTrim = 0.0;
-    private double turretTrim = 0.0;
-    /** kRPMS */
-    private double rpmTrim = 0.0;
-
+    
     NetworkTable Lime = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry targetX = Lime.getEntry("tx"); // Horizontal Offset From Crosshair to Target (-27 to 27 degrees)
     NetworkTableEntry targetY = Lime.getEntry("ty"); // Vertical Offset From Crosshair to Target (-20.5 to 20.5 degrees)
@@ -51,6 +48,7 @@ public class Shooter extends TerribleSubsystem {
     private HttpCamera limeCam; // We need this for it to work!
 
     private boolean visionOverride = false;
+    private boolean fireOverride = false;
 
     private static final double LIMELIGHT_ELEVATION_OFFSET = 30; // deg
     private static final double TARGET_RELATIVE_HEIGHT = 1.7; // meters
@@ -113,11 +111,7 @@ public class Shooter extends TerribleSubsystem {
         readyToFire = false;
         targetAngle = 0.0;
         targetDistance = DEFAULT_SHOOTER_DISTANCE;
-        if (visionOverride) {
-            // Use the turret trim (for manual control of aiming)
-            targetAngle += turretTrim;
-            // Stay in update blind
-        } else if (Utils.withinThreshold(turret.getMeasurement() + robotPose.heading,
+        if (Utils.withinThreshold(turret.getMeasurement() + robotPose.heading,
                                          targetAngle,
                                          LIMELIGHT_FOV*0.5)
             && targets.getDouble(0.0) == 1) {
@@ -233,7 +227,7 @@ public class Shooter extends TerribleSubsystem {
         spindexerReady = spindexer.isReady();
         hoodReady = hood.isReady();
         readyToFire = visionTracking && turretAimed && flywheelAtSpeed && spindexerReady && hoodReady;
-        return readyToFire;
+        return readyToFire || fireOverride;
     }
 
     public void zeroSensors() {
@@ -241,28 +235,23 @@ public class Shooter extends TerribleSubsystem {
     }
 
     public void manualTurret(double angle){
-        if (visionOverride) setAngle(angle);
+        if (visionOverride) {
+            setAngle(angle);
+            targetAngle = angle;
+        }
     }
 
     public void trimHood(double delta){
         hoodTrim += delta;
     }
 
-    public void trimTurret(double delta) {
-        turretTrim += delta;
-    }
-
-    /**
-     *
-     * @param delta - how much to change the RPM, in kRPMS
-     */
-    public void trimRPM(double delta) {
-        rpmTrim += delta;
-    }
-
     public void toggleVisionOverride() {
         visionOverride = !visionOverride;
         System.out.println("Manual override: " + visionOverride);
+    }
+
+    public void setFireOverride(boolean fireOverride) {
+        this.fireOverride = fireOverride;
     }
 
     @Override
@@ -277,6 +266,7 @@ public class Shooter extends TerribleSubsystem {
         display("Turret Aimed", turretAimed);
         display("Flywheel At Speed", flywheelAtSpeed);
         display("Vision Override", visionOverride);
+        display("Fire Override", fireOverride);
         display("State", controlState.toString());
         turret.monitor();
         hood.monitor();

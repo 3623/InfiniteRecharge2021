@@ -309,10 +309,7 @@ public class Drivetrain extends TerribleSubsystem {
 			System.out.println("Switching to open loop control, time: " + time);
 			controlState = DriveControlState.OPEN_LOOP;
 		}
-		if (Robot.climber.isPTOEngaged()){
-			left *= 0.5;
-			right *= 0.5;
-		}
+
 		leftMaster.set(ControlMode.PercentOutput, left);
 		// leftFollower.set(ControlMode.PercentOutput, left);
 		rightMaster.set(ControlMode.PercentOutput, right);

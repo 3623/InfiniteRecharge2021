@@ -54,7 +54,8 @@ public class Utils {
 
 		public void fillWithZeros() {
 			reset();
-			for (int i = 0; i < numSamples; i++) samples.add(0.0);
+			for (int i = 0; i < sampleLimit; i++) samples.add(0.0);
+			numSamples = sampleLimit;
 		}
 
 		public void reset() {

@@ -13,7 +13,8 @@ public class OurTrench extends SequentialCommandGroup{
         super(new DrivePath(drive, false, RIGHT.START, RIGHT.WAYPOINTS[0])
                     .deadlineWith(new IntakeCommand(intake, spindexer)),
               new DrivePath(drive, RIGHT.WAYPOINTS[1])
-                    .alongWith(new ShootCommand.Prepare(shooter, spindexer)),
+                  .deadlineWith(new IntakeCommand(intake, spindexer)),
+              new ShootCommand.Prepare(shooter, spindexer),
               ShootCommand.newFireCommand(shooter, spindexer),
               new DrivePath(drive, RIGHT.WAYPOINTS[2], RIGHT.WAYPOINTS[3])
                     .deadlineWith(new IntakeCommand(intake, spindexer)),

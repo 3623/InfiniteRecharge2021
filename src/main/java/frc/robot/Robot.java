@@ -30,15 +30,15 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     // Declare Controllers for Robot
-    private XboxController driver;
-    private XboxController operator;
+    public static XboxController driver;
+    public static XboxController operator;
 
     // Declare Subsystems
     public static Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
     public static Spindexer spindexer;
-    private Shooter shooter;
+    public static Shooter shooter;
 
     public AnalogInput MainPressure;
 
@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
     private Button shiftButton;
     private Button shooterButton;
     private Button visionOverrideButton;
+    private Button fireOverrideButton;
     private Button unjamButton;
     private Button intakeButton, liftIntakeButton;
     private Button climberButton;
@@ -92,6 +93,7 @@ public class Robot extends TimedRobot {
 
         shooterButton = new Button(() -> operator.getXButton());
         visionOverrideButton = new Button(() -> operator.getBackButton());
+        fireOverrideButton = new Button(() -> (operator.getTriggerAxis(Hand.kRight) > 0.5));
 
         unjamButton = new Button(() -> operator.getBButton());
 
@@ -104,17 +106,19 @@ public class Robot extends TimedRobot {
 
         /* Default Commands */
         drivetrain.setDefaultCommand(
-                new DriverControl(drivetrain, () -> -driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
+                new DriverControl(drivetrain, climber, () -> -driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
         shiftButton.whileActiveOnce(new StartEndCommand(() -> drivetrain.setShiftMode(true),
                                                         () -> drivetrain.setShiftMode(false)));
 
         /* Button Definitions */
-        intakeButton.whenPressed(new IntakeCommand(intake, spindexer).withInterrupt(() -> !intakeButton.get()));
+        intakeButton.whileActiveOnce(new IntakeCommand(intake, spindexer));
         liftIntakeButton.whenPressed(new InstantCommand(() -> intake.foldIntake()));
 
         shooterButton.whenPressed(new ShootCommand(shooter, spindexer, () -> shooterButton.get(), operator, driver));
 
         visionOverrideButton.whenPressed(new InstantCommand(() -> shooter.toggleVisionOverride()));
+        fireOverrideButton.whileActiveOnce(new StartEndCommand(() -> shooter.setFireOverride(true),
+                                                               () -> shooter.setFireOverride(false)));
 
         climberButton.whenPressed(new ConditionalCommand(
                                                 new InstantCommand(() -> climber.RetractClimber(), climber),
@@ -189,7 +193,7 @@ public class Robot extends TimedRobot {
 
         // schedule the autonomous command selected
         if (m_autonomousCommand != null) {
-            m_autonomousCommand.schedule();
+            m_autonomousCommand.schedule(false);
         }
 
         if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Autonomous");
