@@ -30,15 +30,15 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     // Declare Controllers for Robot
-    private XboxController driver;
-    private XboxController operator;
+    public static XboxController driver;
+    public static XboxController operator;
 
     // Declare Subsystems
     public static Climber climber;
     private Drivetrain drivetrain;
     private Intake intake;
     public static Spindexer spindexer;
-    private Shooter shooter;
+    public static Shooter shooter;
 
     public AnalogInput MainPressure;
 
@@ -106,7 +106,7 @@ public class Robot extends TimedRobot {
 
         /* Default Commands */
         drivetrain.setDefaultCommand(
-                new DriverControl(drivetrain, () -> -driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
+                new DriverControl(drivetrain, climber, () -> -driver.getY(Hand.kLeft), () -> driver.getX(Hand.kRight)));
         shiftButton.whileActiveOnce(new StartEndCommand(() -> drivetrain.setShiftMode(true),
                                                         () -> drivetrain.setShiftMode(false)));
 
@@ -191,7 +191,7 @@ public class Robot extends TimedRobot {
 
         // schedule the autonomous command selected
         if (m_autonomousCommand != null) {
-            m_autonomousCommand.schedule();
+            m_autonomousCommand.schedule(false);
         }
 
         if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Autonomous");

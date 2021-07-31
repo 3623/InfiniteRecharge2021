@@ -10,15 +10,18 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 
 public class DriverControl extends CommandBase {
     private final Drivetrain Drive;
+    private final Climber climber;
     private final DoubleSupplier m_forward;
     private final DoubleSupplier m_rotation;
 
-    public DriverControl(Drivetrain DT, DoubleSupplier forward, DoubleSupplier rotation) {
+    public DriverControl(Drivetrain DT, Climber climber, DoubleSupplier forward, DoubleSupplier rotation) {
         Drive = DT;
+        this.climber = climber;
         m_forward = forward;
         m_rotation = rotation;
         addRequirements(Drive);
@@ -36,7 +39,12 @@ public class DriverControl extends CommandBase {
         double joystickR = m_rotation.getAsDouble();
 
         Boolean quickTurn;
-        if (Math.abs(joystickY) < 0.4) quickTurn = true;
+        if (climber.isPTOEngaged() || climber.isClimberExtended()){
+			joystickY *= 0.5;
+            joystickR *= 0.5;
+            quickTurn = false;
+		} 
+        else if (Math.abs(joystickY) < 0.4) quickTurn = true;
         else quickTurn = false;
         if (quickTurn) {
             Drive.terribleDrive(joystickY * 0.5, joystickR * 0.7, quickTurn);
