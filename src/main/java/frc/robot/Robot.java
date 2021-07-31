@@ -136,11 +136,13 @@ public class Robot extends TimedRobot {
         final Command m_ThierTrenchAuto = new TheirTrench(drivetrain, intake, shooter, spindexer);
         final Command m_BlockTrenchAuto = new BlockTrench(drivetrain, intake, shooter, spindexer);
         final Command m_OurTrenchAuto = new OurTrench(drivetrain, intake, shooter, spindexer);
+        final Command m_MiddleAuto = new Middle(drivetrain, intake, shooter, spindexer);
         // Add the Autonomous Commands to the Chooser
-        m_chooser.setDefaultOption("Simple Shoot Auto", m_SimpleShootAuto);
-        m_chooser.addOption("Steal Their Trench Auto", m_ThierTrenchAuto);
-        m_chooser.addOption("Block Trench Auto", m_BlockTrenchAuto);
-        m_chooser.addOption("Use Our Trench Auto", m_OurTrenchAuto);
+        m_chooser.setDefaultOption("Simple Shoot", m_SimpleShootAuto);
+        m_chooser.addOption("Their Trench", m_ThierTrenchAuto);
+        m_chooser.addOption("Block Trench", m_BlockTrenchAuto);
+        m_chooser.addOption("Normal Our Trench", m_OurTrenchAuto);
+        m_chooser.addOption("Middle", m_MiddleAuto);
         // Put the chooser on the dashboard
         SmartDashboard.putData(m_chooser);
 
