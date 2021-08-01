@@ -48,7 +48,7 @@ public class Drivetrain extends TerribleSubsystem {
 	private StatorCurrentLimitConfiguration HIGH_GEAR_CURRENT_LIM = new StatorCurrentLimitConfiguration(
 																			true, 50.0, 50.0, 0.001);
 	private StatorCurrentLimitConfiguration LOW_GEAR_CURRENT_LIM = new StatorCurrentLimitConfiguration(
-																			true, 35.0, 35.0, 0.001);
+																			true, 45.0, 45.0, 0.001);
 
 	private static final int PID_ID = 0; // Primary closed loop
 	private static final int PID_SLOT_LOW = 0;

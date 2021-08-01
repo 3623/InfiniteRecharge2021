@@ -20,7 +20,7 @@ public class FieldPositions {
 
 	public static class MIDDLE implements PATH_SET{
 		public static final Pose START = new Pose(0.5, -3.5, 0.0);
-		public static final Waypoint[] WAYPOINTS = {new Waypoint(0.2, -6.7, -15.0, -0.8, true),
+		public static final Waypoint[] WAYPOINTS = {new Waypoint(0.2, -6.7, -20.0, -0.8, true),
 													new Waypoint(1.0, -3.0, 20.0, 0.8, true),
 													new Waypoint(-0.4, -9.3, -10.0, -0.8, true)};
 	}

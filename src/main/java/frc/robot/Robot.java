@@ -89,7 +89,7 @@ public class Robot extends TimedRobot {
         intakeButton = new Button(() -> (operator.getAButton() || driver.getTriggerAxis(Hand.kRight) > 0.2));
         liftIntakeButton = new Button(() -> (driver.getTriggerAxis(Hand.kLeft) > 0.5));
 
-        shooterButton = new Button(() -> operator.getXButton());
+        shooterButton = new Button(() -> (operator.getXButton() || driver.getXButton()));
         visionOverrideButton = new Button(() -> operator.getBackButton());
         fireOverrideButton = new Button(() -> (operator.getTriggerAxis(Hand.kRight) > 0.5));
 

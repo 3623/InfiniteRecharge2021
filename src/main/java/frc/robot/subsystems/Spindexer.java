@@ -39,11 +39,11 @@ public class Spindexer extends TerribleSubsystem {
     private static final double STANDBY_AMP = INDEX_AMP;
     private static final double STANDBY_PER = 0.8;
 
-    private static final double READY_BIAS = INDEX_BIAS;
-    private static final double READY_AMP = INDEX_AMP;
-    private static final double READY_PER = INDEX_PER;
+    private static final double READY_BIAS = 0.1;
+    private static final double READY_AMP = 0.5;
+    private static final double READY_PER = 0.8;
 
-    private static final double SHOOT_BIAS = 0.2;
+    private static final double SHOOT_BIAS = 0.3;
     private static final double SHOOT_AMP = 0.4;
     private static final double SHOOT_PER = 0.4;
 

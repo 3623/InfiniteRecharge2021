@@ -39,12 +39,8 @@ public class DriverControl extends CommandBase {
         double joystickR = m_rotation.getAsDouble();
 
         Boolean quickTurn;
-        if (climber.isPTOEngaged() || climber.isClimberExtended()){
-			joystickY *= 0.5;
-            joystickR *= 0.5;
-            quickTurn = false;
-		} 
-        else if (Math.abs(joystickY) < 0.4) quickTurn = true;
+      
+        if (Math.abs(joystickY) < 0.4) quickTurn = true;
         else quickTurn = false;
         if (quickTurn) {
             Drive.terribleDrive(joystickY * 0.5, joystickR * 0.7, quickTurn);
