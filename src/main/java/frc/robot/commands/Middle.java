@@ -10,10 +10,12 @@ import frc.robot.subsystems.Spindexer;
 public class Middle extends SequentialCommandGroup {
 
     public Middle(Drivetrain drive, Intake intake, Shooter shooter, Spindexer spindexer) {
-        super(new ShootCommand(shooter, spindexer, () -> false),
-              new DrivePath(drive, false, MIDDLE.START, MIDDLE.WAYPOINTS[0])
+        super(new DrivePath(drive, false, MIDDLE.START, MIDDLE.WAYPOINTS[0])
                     .deadlineWith(new IntakeCommand(intake, spindexer)),
               new DrivePath(drive, MIDDLE.WAYPOINTS[1])
+                    .deadlineWith(new IntakeCommand(intake, spindexer)),
+              new ShootCommand(shooter, spindexer, () -> false),
+              new DrivePath(drive, MIDDLE.WAYPOINTS[2])
                     .deadlineWith(new IntakeCommand(intake, spindexer)),
               new ShootCommand(shooter, spindexer, () -> false));
     }

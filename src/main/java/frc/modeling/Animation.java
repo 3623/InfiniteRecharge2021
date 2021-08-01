@@ -88,8 +88,8 @@ public class Animation extends JPanel implements Runnable {
 	}
 
 	private void setWaypoints() {
-		model.setPosition(FieldPositions.BLOCK.START);
-		for (Waypoint waypoint : FieldPositions.BLOCK.WAYPOINTS) nav.addWaypoint(waypoint);
+		model.setPosition(FieldPositions.MIDDLE.START);
+		for (Waypoint waypoint : FieldPositions.MIDDLE.WAYPOINTS) nav.addWaypoint(waypoint);
 	}
 
 
