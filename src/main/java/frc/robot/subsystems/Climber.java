@@ -30,7 +30,7 @@ public class Climber extends SubsystemBase {
     }
 
     public void EngagePTO(){
-        engagePTO.set(true);
+        if (checkGameTime()) engagePTO.set(true);
     }
 
     public void DisengagePTO(){
@@ -38,7 +38,7 @@ public class Climber extends SubsystemBase {
     }
 
     public void ExtendClimber(){
-        extend.set(true);
+        if (checkGameTime()) extend.set(true);
     }
 
     public void RetractClimber(){

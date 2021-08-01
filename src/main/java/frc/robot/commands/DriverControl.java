@@ -40,6 +40,15 @@ public class DriverControl extends CommandBase {
 
         Boolean quickTurn;
       
+        if (climber.isClimberExtended()) {
+            joystickY *= 0.5;
+            joystickR *= 0.5;
+            quickTurn = true;
+        } else if (climber.isPTOEngaged()) {
+            joystickY *= 0.8;
+            joystickR *= 0.8;
+            quickTurn = false;
+        }
         if (Math.abs(joystickY) < 0.4) quickTurn = true;
         else quickTurn = false;
         if (quickTurn) {
