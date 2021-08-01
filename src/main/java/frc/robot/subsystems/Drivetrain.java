@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.controls.CubicSplineFollower;
 import frc.controls.CubicSplineFollower.Waypoint;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.util.Tuple;
 import frc.util.Utils;
 
@@ -56,7 +55,6 @@ public class Drivetrain extends TerribleSubsystem {
 	private static final int PID_SLOT_HIGH = 1;
 	private static final int CONFIG_TIMEOUT = 30;
 
-	// TODO CHECK, should be (1023 * duty-cycle /  sensor-velocity-sensor-units-per-100ms).
 	private static final double kFF_LOW = 1.1 * 1023.0 / linearSpeedToTalonSpeed(DrivetrainModel.MAX_SPEED_LOW);
 	private static final double kP_LOW = 1.0;
 	private static final double kD_LOW = 2.0;
@@ -329,7 +327,7 @@ public class Drivetrain extends TerribleSubsystem {
 			curLim = HIGH_GEAR_CURRENT_LIM;
 		}
 		rightMaster.selectProfileSlot(pidSlot, PID_ID);
-		leftMaster.selectProfileSlot(pidSlot, PID_ID); // TODO Check if this works (give a pid config 0?)
+		leftMaster.selectProfileSlot(pidSlot, PID_ID); 
 		leftMaster.configStatorCurrentLimit(curLim, CONFIG_TIMEOUT);
 		rightMaster.configStatorCurrentLimit(curLim, CONFIG_TIMEOUT);
 	}

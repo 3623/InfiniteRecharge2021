@@ -2,11 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -173,7 +171,6 @@ public class Robot extends TimedRobot {
         drivetrain.disable();
         shooter.disable();
         spindexer.stopSpinning();
-        if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Pre-Match");
     }
 
 
@@ -196,7 +193,6 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.schedule(false);
         }
 
-        if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Autonomous");
     }
 
 
@@ -214,7 +210,6 @@ public class Robot extends TimedRobot {
         intake.setIntaking(true); // Hopefully this will deploy intake but not run rollers
         intake.setIntaking(false);
         spindexer.setStandby();
-        if (DriverStation.getInstance().isFMSAttached()) Shuffleboard.selectTab("Teleop");
     }
 
 

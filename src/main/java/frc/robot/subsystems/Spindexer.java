@@ -12,7 +12,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -30,7 +29,6 @@ public class Spindexer extends TerribleSubsystem {
     public static final double SHOOT_TIME = 3.0;
     public static final double INDEX_TIME = 7.0;
 
-    private static final double READY_SPEED = 0.6;
     private static final double SHOOT_SPEED = 0.5;
 
     private static final double INDEX_BIAS = 0.1;
